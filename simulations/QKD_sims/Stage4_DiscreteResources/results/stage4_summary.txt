@@ -1,0 +1,30 @@
+============================================================
+ SNetS-QKD - Stage 4: discrete QKD resource planning
+============================================================
+Parameter file: simulations\QKD_sims\Stage4_DiscreteResources\qkd_resource_planning.properties
+Route: 40.000 km | QTND: 25.000 km | wavelength: 1550.000 nm
+Key size: 256 bits
+
+Generated segmentation:
+  Segment 1: 0.000 -> 25.000 km | length 25.000 km | SKR 93.939373375269 Mbit/s
+  Segment 2: 25.000 -> 40.000 km | length 15.000 km | SKR 143.240240412335 Mbit/s
+Trusted nodes: 1
+Bottleneck single-QCh SKR: 93.939373375269 Mbit/s
+
+Key-demand and discrete-resource plans:
+  tau = 64 us -> demand = 4.000000 Mbit/s | segments = 2 | QCh instances = 2 | Q-TRx pairs = 2 | feasible = true
+  tau = 128 us -> demand = 2.000000 Mbit/s | segments = 2 | QCh instances = 2 | Q-TRx pairs = 2 | feasible = true
+  tau = 256 us -> demand = 1.000000 Mbit/s | segments = 2 | QCh instances = 2 | Q-TRx pairs = 2 | feasible = true
+
+Discrete accounting rule:
+  Q-TRx pairs = sum of active QChs over all QKD segments
+  required QChs in segment = ceil(key demand / segment SKR)
+  NOTE: this is intentionally different from the continuous
+        equivalent Q-TRx metric used only in Stage 3.
+------------------------------------------------------------
+STATUS              : OK
+Message             : Key demands, QTND segmentation and discrete Q-TRx accounting verified.
+
+Generated files:
+  simulations\QKD_sims\Stage4_DiscreteResources\results\qkd_discrete_plans.csv
+  simulations\QKD_sims\Stage4_DiscreteResources\results\qkd_discrete_segments.csv

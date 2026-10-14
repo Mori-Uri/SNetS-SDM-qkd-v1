@@ -1,0 +1,6 @@
+FROM eclipse-temurin:8-jre
+
+WORKDIR /workspace
+COPY . /workspace
+
+ENTRYPOINT ["java", "-jar", "simulations/SNetS-SDM-SBRC26.jar"]

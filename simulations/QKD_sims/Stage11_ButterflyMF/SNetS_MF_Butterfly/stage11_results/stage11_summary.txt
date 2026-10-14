@@ -1,0 +1,53 @@
+============================================================
+ SNetS-QKD - Stage 11: Butterfly MF topology reconstruction
+============================================================
+Simulation folder: simulations\QKD_sims\Stage11_ButterflyMF\SNetS_MF_Butterfly
+Traffic requests: 1727
+Offered classical load: 612000.000000 Gbit/s
+Offered SKR load: 4028.000000 Mbit/s
+Groomed SNetS demands: 864 (capacity 800.000 Gbit/s)
+Classical routing/spectrum: SNetS integrated K-shortest-path + first-fit, k=4
+Classical spectrum: 160 x 75 GHz CCh/PICh channels = 12 THz extended C+L
+Quantum spectrum: 960 x 12.5 GHz QCh candidates on a distinct MF fiber
+Modulation/reach table: native SNetS distance-adaptive table (not disclosed by the paper)
+Quantum scenario: Multi-Fiber, 1550 nm priority, independent QKD fiber, quantized TDM QCh sharing
+
+QTND sweep:
+   5 km -> Q-TRx  348 | normalized 100.0000% | reference  384 | abs.err  36.0 | classical blocked 0/1727
+  10 km -> Q-TRx  197 | normalized  56.6092% | reference  246 | abs.err  49.0 | classical blocked 0/1727
+  15 km -> Q-TRx  167 | normalized  47.9885% | reference  185 | abs.err  18.0 | classical blocked 0/1727
+  20 km -> Q-TRx  150 | normalized  43.1034% | reference  168 | abs.err  18.0 | classical blocked 0/1727
+  25 km -> Q-TRx  147 | normalized  42.2414% | reference  160 | abs.err  13.0 | classical blocked 0/1727
+  30 km -> Q-TRx  138 | normalized  39.6552% | reference  162 | abs.err  24.0 | classical blocked 0/1727
+  35 km -> Q-TRx  149 | normalized  42.8161% | reference  162 | abs.err  13.0 | classical blocked 0/1727
+  40 km -> Q-TRx  154 | normalized  44.2529% | reference  168 | abs.err  14.0 | classical blocked 0/1727
+  45 km -> Q-TRx  166 | normalized  47.7011% | reference  176 | abs.err  10.0 | classical blocked 0/1727
+  50 km -> Q-TRx  176 | normalized  50.5747% | reference  221 | abs.err  45.0 | classical blocked 0/1727
+
+Comparison with digitized Fig. 7(b), MF:
+  MAE  = 24.000000 Q-TRx
+  RMSE = 27.531800 Q-TRx
+  SNetS minimum = QTND 30 km | 138 Q-TRx
+  Digitized reference minimum = QTND 25 km | 160 Q-TRx
+
+Verification checks:
+  Frozen trace contains 1727 requests               : true
+  Offered classical load reproduces 612.000 Tbit/s : true
+  Offered SKR load reproduces 4.028 Gbit/s       : true
+  All 10 QTND points were produced by SNetS         : true
+  Minimum remains within 5.0 km of paper optimum : true
+  MAE stays within reconstruction tolerance         : true
+  Classical blocking remains <= 1.000%              : true (observed 0.000%)
+
+NOTE: Fig. 7 is a reconstruction, not a bit-identical validation.
+The paper discloses 160 classical C+L channels and 960 MF QChs in Fig. 2,
+but does not disclose its traffic seed, k, grooming container size,
+complete modulation/reach table, or the exact TDM time-slot granularity.
+This stage freezes those reconstruction assumptions so the SNetS result is
+repeatable and directly comparable with the digitized MF curve.
+
+STATUS: OK
+Message: Butterfly Multi-Fiber QTND x Q-TRx curve produced inside SNetS.
+Generated files:
+  simulations\QKD_sims\Stage11_ButterflyMF\SNetS_MF_Butterfly\stage11_results\butterfly_mf_qtrx_sweep.csv
+  simulations\QKD_sims\Stage11_ButterflyMF\SNetS_MF_Butterfly\stage11_results\stage11_summary.txt

@@ -1,0 +1,33 @@
+VALIDACAO DA ENTREGA PARTES 18-20
+================================
+
+1. Compilacao
+- 279 arquivos Java compilados com -source 1.8 -target 1.8 contra o JAR classico.
+- simulationControl.Main foi preservado do JAR classico.
+
+2. Isolamento dos algoritmos
+- csbasdm -> GPRMCSA classico -> CSBASDM/ABNE original.
+- qabne -> QKDAlgorithmFactory -> QABNE.
+- GPRMCSA nao reconhece qabne.
+- QKDAlgorithmFactory nao cria alias para csbasdm.
+
+3. Verificacao do artigo-base
+- 3 topologias x 10 replicacoes x 10 QTNDs = 300 observacoes.
+- 300/300 observacoes de Q-TRx iguais a reconstrucao Python verificada.
+- diferenca absoluta maxima = 0.
+- otimos da curva media: Small Core 25 km; Butterfly 30 km; Metro 25 km.
+- SKR(1550 nm, 25 km) = 93.93937337526884 Mbit/s.
+- maximo da grade SKR/Q-TRx em 1550 nm e QTND 25 km.
+
+4. Smoke test do simulador
+- NSFNet_C1_Classical7: valid=true; progress=100%; Finish!
+- NSFNet_C2_QKD_NoXT: valid=true; progress=100%; Finish!
+- NSFNet_C3_QKD_XT: valid=true; progress=100%; Finish!
+- Copias temporarias: requests=10, loadPoints=1, replications=1, threads=1; QKD=20% em C2/C3 apenas para exercitar o fluxo.
+- Os cenarios entregues NAO foram reduzidos.
+
+5. Parte 20 - ferramentas experimentais
+- prepare_qtnd_sweep.py executado com sucesso.
+- gerados 20 cenarios temporarios: C2/C3 x QTND 5..50 km.
+- todos os cenarios gerados usaram qabne e os valores corretos de QTND.
+- arquivos temporarios do teste foram removidos da entrega; o usuario pode regenera-los com o script.

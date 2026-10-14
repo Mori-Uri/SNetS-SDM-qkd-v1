@@ -1,0 +1,194 @@
+Validacao do addon QKD - Partes 1 a 23 - 2026-10-12 22:16
+JAR: simulations/SNetS-SDM-QKD.jar
+
+===== QKDAbneCompatibilityVerification =====
+[OK] classical selector csbasdm -> gprmcsa.coreSpectrumAssignment.CSBASDM
+[OK] QKD addon selector qabne -> qkd.algorithms.coreSpectrumAssignment.QABNE
+[OK] factories are namespace-isolated: legacy does not know qabne and QKD addon does not alias csbasdm
+[OK] original CSBASDM/ABNE source is not modified by the QKD addon
+QKD Part 18 addon/ABNE isolation verification: ALL CHECKS PASSED
+
+===== QKDArticleBaseReferenceVerification =====
+[OK] 300/300 topology/replication/QTND observations match the verified Python reconstruction exactly
+[OK] maximum absolute Q-TRx difference = 0
+[OK] mean-curve QTND optima: Small Core=25 km, Butterfly=30 km, Metro=25 km
+[INFO] classical route recomputation is diagnostic only; fixed routed traces are used because the article does not fully specify routing tie-breaking/calibration details
+       diagnostic path mismatches reported by Java recomputation are not used in the QKD/Q-TRx equivalence test
+QKD Part 19 article-base reference verification: ALL CHECKS PASSED
+
+===== QKDCoreReservationVerification =====
+[OK] network.qkd.quantumCoreId=6 propagated to runtime Core 6
+[OK] physical cores=7, classical cores=6, QKD-reserved cores=1
+[OK] classical free-spectrum discovery cannot use Core 6
+[OK] direct classical allocation on Core 6 is rejected
+[OK] dedicated QKD API can allocate/release Core 6
+[OK] qkd.enabled=false preserves the original 7-core classical behavior
+QKD Part 4 verification: ALL CHECKS PASSED
+
+===== QKDCrosstalkPowerVerification =====
+[OK] SNetS spectral-overlap / ISO definition
+[OK] live SNetS Link/Core/Circuit traversal: 2 adjacent cores, 3 classical circuits examined, 2 overlapping interferers
+[OK] absolute inter-core XT power = 1.0000000000000002E-13 W
+     contribution[0] = QKDCrosstalkContribution{circuitId=0, core=1, spectrum=[10,19], overlapSlots=10, interfererSlots=10, ISO=1.0, PnW=0.001, hPerM=1.0E-15, linkKm=50.0, contributionW=5.000000000000001E-14}
+     contribution[1] = QKDCrosstalkContribution{circuitId=1, core=2, spectrum=[15,24], overlapSlots=5, interfererSlots=10, ISO=0.5, PnW=0.002, hPerM=1.0E-15, linkKm=50.0, contributionW=5.000000000000001E-14}
+[OK] SNetS PXT -> detector noise -> BB84 chain: pXT=2.3408368058950386E-5, QBER=0.015158485793074801, SKR=93.54339669078391 Mbit/s
+QKD Part 2 verification: ALL CHECKS PASSED
+
+===== QKDCrosstalkReceiverVerification =====
+[OK] physicalLayer.qkdReceiver is explicit and parsable: Tg=100 ps, eta_f=1.0, mode=receiver_referenced
+[OK] PXT=0 -> pXT=0 -> pb=pdark -> reference BB84 SKR is unchanged
+[OK] numerical receiver chain: PXT=1.0E-13 W -> NbarXT=2.34086420390736E-5 -> pXT=2.340836805895038E-5 -> pb=2.34183678248667E-5
+[OK] pb uses exact independent-event combination, not only pdark+pXT
+[OK] receiver sensitivities are monotonic: PXT up -> pXT up; Tg/eta_f down -> pXT down
+[OK] distributed sensitivity reference for 25 km / 0.18 dB/km: Leff=15.566721380762186 km, factor=0.6226688552304874, PXT_Rx=1.5566721380762185E-14 W (vs 2.5E-14 W with T=1)
+[OK] receiver transfer modes are explicit; unknown modes are rejected
+QKD Part 11.5 receiver-model verification: ALL CHECKS PASSED
+
+===== QKDDiscreteCapacityAndTdmVerification =====
+[OK] discrete QCh #1 activated; activeQCh=1, QTRxPairs=2
+[OK] second request shares QCh through key-rate/TDM capacity; no new slot/Q-TRx
+[OK] large demand activates multiple discrete QChs; activeQCh=2, QTRxPairs=4
+[OK] idle QChs are deactivated and spectrum/Q-TRx are released
+QKD Parts 12/13 verification: ALL CHECKS PASSED
+
+===== QKDDynamicLifecycleVerification =====
+[OK] QKD-enabled scenario creates QKDMesh
+[OK] QKDMesh selects QKDControlPlane and QKD addon algorithm qABNE
+[OK] qABNE classical-core rotation excludes reserved QKD core 0
+[OK] arrival -> classical admission -> QKD admission -> hold -> release executed dynamically
+[OK] admitted QKD sessions are registered only while active
+[OK] HoldRequestListener releases QKD spectrum through polymorphic ControlPlane.finalizeConnection
+[OK] no QKD session remains allocated after EventMachine finishes
+[OK] QKD feasibility is checked before classical resource commit
+     protectedAttempts=9, accepted=9, rejected=0, released=9, active=0, precommitChecks=9
+QKD Part 9 verification: ALL CHECKS PASSED
+
+===== QKDExistingSessionProtectionVerification =====
+[OK] baseline active QKD session established on core 0 / slot [1,1]
+     baselineMinSKR_Mbps=4.0
+[OK] overlapping classical candidate rejected before resource commitment
+     projectedMinSKR_Mbps=0.0, projectedMaxQBER=0.23820809214219318
+[OK] rejected candidate leaves classical and QKD resources unchanged
+[OK] non-overlapping classical candidate remains admissible
+[OK] committed classical changes refresh active QKD physical snapshots
+[OK] classical departure refreshes the remaining active QKD state
+     impactChecks=2, qkdImpactRejections=1, qkdStateRefreshes=2
+QKD Part 10 verification: ALL CHECKS PASSED
+
+===== QKDJointAdmissionVerification =====
+[OK] impossible QKD demand is rejected in the pre-commit admission hook
+[OK] classical commit is not followed by QKD rollback in the normal no-grooming path
+[OK] tentative QCh/Q-TRx resources are fully rolled back on joint-admission failure
+     attempts=9, precommitChecks=9, precommitRejects=9, accepted=0, activatedQChs=360, deactivatedQChs=360
+QKD Part 15 joint-admission verification: ALL CHECKS PASSED
+
+===== QKDKeyDemandVerification =====
+[OK] R_K=L_K/T_K reference demands: 64us=4 Mbit/s, 128us=2 Mbit/s, 256us=1 Mbit/s
+[OK] simulation.qkdKeyDemand parsed without changing legacy traffic JSON
+[OK] key-demand policy is reproducible and uses an independent QKD random stream
+[OK] QKD admission now requires bottleneck SKR >= request key demand
+     referenceDemand=4.0 Mbit/s, available=4.0 Mbit/s -> ACCEPT
+     excessiveDemand=10000.0 Mbit/s -> REJECT + spectrum rollback
+QKD Part 11 verification: ALL CHECKS PASSED
+
+===== QKDMetricsVerification =====
+[OK] QKD-enabled scenario creates QKDMesh
+[OK] QKDMesh selects QKDControlPlane without changing the legacy ControlPlane class
+[OK] QKD metrics snapshot captures attempts/acceptance/release
+[OK] peak discrete resources: QCh=1, QTRxPairs=1
+[OK] admission physics: meanSKR=177.0881302549179 Mbit/s, maxQBER=0.015000037587117161, maxPXT=4.444444444444445E-24 W
+QKD Part 14 metrics verification: ALL CHECKS PASSED
+
+===== QKDNativeArticleBaseVerification =====
+            criterio da qualificacao (otimo a no maximo 5 km de 25 km em todas as replicacoes; curva em U): OK
+            criterio da qualificacao (otimo a no maximo 5 km de 25 km em todas as replicacoes; curva em U): OK
+            criterio da qualificacao (otimo a no maximo 5 km de 25 km em todas as replicacoes; curva em U): OK
+[OK] small_core: native SNetS optimum=25 km (Python 25 km, article 25 km), MAE vs Python=5.1 Q-TRx, MAE vs article=16.1900 Q-TRx, no blocking
+[OK] butterfly: native SNetS optimum=30 km (Python 30 km, article 25 km), MAE vs Python=3.77 Q-TRx, MAE vs article=11.5000 Q-TRx, no blocking
+[OK] metro: native SNetS optimum=25 km (Python 25 km, article 25 km), MAE vs Python=2.42 Q-TRx, MAE vs article=13.8800 Q-TRx, no blocking
+QKD Part 22 native article-base verification: ALL CHECKS PASSED
+
+===== QKDPhysicalVerification =====
+[OK] alpha(1550 nm) = 0.18 dB/km
+[OK] Python reference SKR = 93.93937337526884 Mbit/s
+[OK] additional Python physical-layer reference points
+[OK] QTND reference optimum on 5-km grid = 25 km
+[OK] zero XT reproduces the multi-fiber baseline
+[OK] XT chain: PxtRx=1.0E-13 W -> pXT=2.340836805895038E-5 -> QBER=0.015158485793074801 -> SKR=93.54339669078391 Mbit/s
+QKD Part 1 verification: ALL CHECKS PASSED
+
+===== QKDQualificationScenarioVerification =====
+[OK] QTND = 30 km: 76 -> 30+30+16, 86 -> 30+30+26, 90 -> 30x3, 80 -> 30+30+20, 100 -> 30x3+10, 70 -> 30+30+10; 13 trusted-node sites (slide 28)
+[OK] 2->3 over 2-1-3: QCh in slot 1 of core 1 on every span (lambda=1566.1441 nm), min SKR=75.04 Mbit/s >= 2 Mbit/s, Q-TRx=6, PICh in slot 1 of core 0
+[OK] second session: next continuous slot (2) on every link; QChs dedicated
+[OK] 1->3 has no free QCh slot -> QKD session on alternative route 2,5,3 (slide 29)
+[OK] blocking causes: [SPECTRUM] / [SKR]
+[OK] QChs and PICh released on every link
+[OK] traffic file: qkdProtectedProbability=0.2 (drawn 0.198) and keyRateMbps=2 per generator
+[OK] SNetS simulation of the scenario (Exemplo_Qualificacao_QTND30): QKD acceptance=1.0000, protected fraction=0.204, mean Q-TRx/session=4.28, QKDMetrics.csv in SNetS layout
+QKD Part 23 qualification-scenario verification: ALL CHECKS PASSED
+
+===== QKDReproducibilityVerification =====
+[OK] classical and QKD-enabled generators produce identical arrival/holding sequences for the same traffic seed
+[OK] QKD protection classification uses an independent reproducible random stream
+[OK] changing the replication-derived seed changes the stochastic realization
+QKD Part 17 reproducibility verification: ALL CHECKS PASSED
+
+===== QKDRequestGenerationVerification =====
+[OK] original traffic JSON remains unchanged and valid
+[OK] simulation.qkdProtectedRequestProbability = 0.05 parsed
+[OK] dedicated QKDRequestGenerator 100000-sample: classical=94935, qkdProtected=5065, qkdRatio=0.05065
+[OK] legacy scenario -> Mesh; QKD scenario -> QKDMesh
+[OK] 0% and 100% QKD generator boundaries
+QKD Part 5/6 request-generation verification: ALL CHECKS PASSED
+
+===== QKDRoutePhysicalEvaluationVerification =====
+[OK] QKD route physical evaluation covers all 6 QTND spans
+[OK] per-span PXT uses QKD-span length, not full physical-link length
+[OK] each span completes PXT -> pXT -> pb -> QBER -> SKR
+[OK] route viability requires every span to satisfy SKR/QBER criteria
+[OK] route bottleneck = span 4, minSKR=93.54339669078391 Mbit/s, maxQBER=0.015158485793074801
+QKDRoutePhysicalResult{A->C, spans=6, minSKR_Mbps=93.54339669078391, maxQBER=0.015158485793074801, bottleneckSpanIndex=4, viable=true}
+QKD Part 7 verification: ALL CHECKS PASSED
+
+===== QKDRoutePlanningVerification =====
+[OK] classical route A->B->C retained: 2 links, 3 nodes
+[OK] QKD route: 120 km -> 6 spans with QTND=25 km
+[OK] trusted relays: 4 virtual + 1 physical intermediate = 5
+[OK] QKD route planning accepts only QKD_PROTECTED requests
+QKDRoutePlan{A->C, physicalLinks=2, spans=6, virtualTrustedNodes=4, physicalIntermediateTrustedNodes=1, totalTrustedRelays=5, totalDistanceKm=120.0}
+QKD Part 6 verification: ALL CHECKS PASSED
+
+===== QKDSpanGranularityVerification =====
+[OK] one QCh per QTND span (25 km + 15 km), Q-TRx=2, capacities SKR(25 km)=93.93937337526884 / SKR(15 km)=143.2402404123349 Mbit/s, 11 TDM slots for 4 Mbit/s
+[OK] 2->1 request reuses the 1->2 span QChs (undirected pools); span-0 slots=17
+[OK] full QCh (248/256 slots) -> new QCh only on the 25 km span at 1549.899833006258 nm, Q-TRx=3
+[OK] demand above one QCh capacity is rejected and rolled back
+[OK] all span QChs, TDM slots and both-direction lanes released
+QKD Part 21 span-granularity verification: ALL CHECKS PASSED
+
+===== QKDSpectrumAllocationVerification =====
+[OK] QKD session reserves real Spectrum state on the dedicated core
+[OK] one physical-link reservation covers all QTND spans of that link
+[OK] spectrum continuity is NOT imposed yet: A-B uses [3,5], B-C uses [6,8]
+     QKDChannelAllocation{A->B, core=0, spectrum=[3,5], slots=3, guardBand=0, coveredQkdSpans=4}
+     QKDChannelAllocation{B->C, core=0, spectrum=[6,8], slots=3, guardBand=0, coveredQkdSpans=2}
+[OK] session release restores the previous spectrum state
+[OK] allocation failure on a later link rolls back earlier QKD reservations
+     failure=Insufficient contiguous QKD spectrum on link <E,F>
+QKD Part 8 verification: ALL CHECKS PASSED
+
+===== QKDTopologyPlanningVerification =====
+[OK] SNetS network file -> qkd config: QKDConfig{enabled=true, qtndKm=25.0, quantumCoreId=1, qchGranularity=link, undirectedChannels=false, tdmSlots=0, wavelengthPolicy=fixed}
+[OK] 80 km / QTND 25 km -> 25 + 25 + 25 + 5 km
+     QKDSpan{index=0/4, logicalSource='A', logicalDestination='QKD_TN[A->B:1]', startKm=0.0, endKm=25.0, lengthKm=25.0}
+     QKDSpan{index=1/4, logicalSource='QKD_TN[A->B:1]', logicalDestination='QKD_TN[A->B:2]', startKm=25.0, endKm=50.0, lengthKm=25.0}
+     QKDSpan{index=2/4, logicalSource='QKD_TN[A->B:2]', logicalDestination='QKD_TN[A->B:3]', startKm=50.0, endKm=75.0, lengthKm=25.0}
+     QKDSpan{index=3/4, logicalSource='QKD_TN[A->B:3]', logicalDestination='B', startKm=75.0, endKm=80.0, lengthKm=5.0}
+[OK] QKD topology is logical only; no Mesh/Node/Link mutation occurs
+[OK] exact multiple: 75 km / 25 km -> 3 spans (no residual span)
+[OK] link shorter than QTND remains one QKD span
+[OK] legacy network file without qkd remains compatible
+[OK] invalid network.qkd.quantumCoreId is rejected before simulation
+QKD Part 3 verification: ALL CHECKS PASSED
+

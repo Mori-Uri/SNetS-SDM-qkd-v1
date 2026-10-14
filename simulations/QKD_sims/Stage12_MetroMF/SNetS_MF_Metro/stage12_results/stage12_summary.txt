@@ -1,0 +1,53 @@
+============================================================
+ SNetS-QKD - Stage 12: Metro MF topology reconstruction
+============================================================
+Simulation folder: simulations\QKD_sims\Stage12_MetroMF\SNetS_MF_Metro
+Traffic requests: 1820
+Offered classical load: 654000.000000 Gbit/s
+Offered SKR load: 4248.000000 Mbit/s
+Groomed SNetS demands: 958 (capacity 800.000 Gbit/s)
+Classical routing/spectrum: SNetS integrated K-shortest-path + first-fit, k=4
+Classical spectrum: 160 x 75 GHz CCh/PICh channels = 12 THz extended C+L
+Quantum spectrum: 960 x 12.5 GHz QCh candidates on a distinct MF fiber
+Modulation/reach table: native SNetS distance-adaptive table (not disclosed by the paper)
+Quantum scenario: Multi-Fiber, 1550 nm priority, independent QKD fiber, quantized TDM QCh sharing
+
+QTND sweep:
+   5 km -> Q-TRx  337 | normalized 100.0000% | reference  367 | abs.err  30.0 | classical blocked 9/1820
+  10 km -> Q-TRx  197 | normalized  58.4570% | reference  227 | abs.err  30.0 | classical blocked 9/1820
+  15 km -> Q-TRx  174 | normalized  51.6320% | reference  199 | abs.err  25.0 | classical blocked 9/1820
+  20 km -> Q-TRx  145 | normalized  43.0267% | reference  171 | abs.err  26.0 | classical blocked 9/1820
+  25 km -> Q-TRx  139 | normalized  41.2463% | reference  157 | abs.err  18.0 | classical blocked 9/1820
+  30 km -> Q-TRx  142 | normalized  42.1365% | reference  160 | abs.err  18.0 | classical blocked 9/1820
+  35 km -> Q-TRx  147 | normalized  43.6202% | reference  160 | abs.err  13.0 | classical blocked 9/1820
+  40 km -> Q-TRx  147 | normalized  43.6202% | reference  162 | abs.err  15.0 | classical blocked 9/1820
+  45 km -> Q-TRx  149 | normalized  44.2136% | reference  165 | abs.err  16.0 | classical blocked 9/1820
+  50 km -> Q-TRx  148 | normalized  43.9169% | reference  174 | abs.err  26.0 | classical blocked 9/1820
+
+Comparison with digitized Fig. 7(c), MF:
+  MAE  = 21.700000 Q-TRx
+  RMSE = 22.527761 Q-TRx
+  SNetS minimum = QTND 25 km | 139 Q-TRx
+  Digitized reference minimum = QTND 25 km | 157 Q-TRx
+
+Verification checks:
+  Frozen trace contains 1820 requests               : true
+  Offered classical load reproduces 654.000 Tbit/s : true
+  Offered SKR load reproduces 4.248 Gbit/s       : true
+  All 10 QTND points were produced by SNetS         : true
+  Minimum remains within 0.0 km of paper optimum : true
+  MAE stays within reconstruction tolerance         : true
+  Classical blocking remains <= 1.000%              : true (observed 0.495%)
+
+NOTE: Fig. 7 is a reconstruction, not a bit-identical validation.
+The paper discloses 160 classical C+L channels and 960 MF QChs in Fig. 2,
+but does not disclose its traffic seed, k, grooming container size,
+complete modulation/reach table, or the exact TDM time-slot granularity.
+This stage freezes those reconstruction assumptions so the SNetS result is
+repeatable and directly comparable with the digitized MF curve.
+
+STATUS: OK
+Message: Metro Multi-Fiber QTND x Q-TRx curve produced inside SNetS.
+Generated files:
+  simulations\QKD_sims\Stage12_MetroMF\SNetS_MF_Metro\stage12_results\metro_mf_qtrx_sweep.csv
+  simulations\QKD_sims\Stage12_MetroMF\SNetS_MF_Metro\stage12_results\stage12_summary.txt

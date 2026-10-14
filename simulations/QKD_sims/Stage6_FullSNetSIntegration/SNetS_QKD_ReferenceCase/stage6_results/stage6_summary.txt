@@ -1,0 +1,26 @@
+============================================================
+ SNetS-QKD - Stage 6: native SNetS QKD configuration integration
+============================================================
+Simulation folder: simulations\QKD_sims\Stage6_FullSNetSIntegration\SNetS_QKD_ReferenceCase
+QKD enabled: true
+Key size: 256 bits
+QTND: 25.0 km
+Wavelength: 1550.0 nm
+QKD random seed: 2024
+Generated verification requests: 30
+
+Observed intervals:
+  64 us  -> 4 Mbit/s | count = 9
+  128 us -> 2 Mbit/s | count = 10
+  256 us -> 1 Mbit/s | count = 11
+
+Verification checks:
+  qkd file parsed by SimulationFileManager     : true
+  QKD config propagated to Mesh               : true
+  Mesh request generator received QKD policy  : true
+  Generated SNetS request fields are correct  : true
+  All reference intervals were observed       : true
+  Classical fallback remains available        : true
+
+STATUS: OK
+Message: QKD configuration is now integrated into the native SNetS simulation-loading and request-generation path.

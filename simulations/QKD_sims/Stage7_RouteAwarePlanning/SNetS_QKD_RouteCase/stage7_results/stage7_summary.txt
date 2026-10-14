@@ -1,0 +1,29 @@
+============================================================
+ SNetS-QKD - Stage 7: route-aware QKD resource planning
+============================================================
+Simulation folder: simulations\QKD_sims\Stage7_RouteAwarePlanning\SNetS_QKD_RouteCase
+Classical route selected by SNetS: 1,2,3
+Route distance: 40.000 km
+QTND: 25.000 km | wavelength: 1550.000 nm
+QKD segmentation: 25.000 km + 15.000 km
+Bottleneck SKR: 93.939373375269 Mbit/s
+Q-TRx pairs per reference request: 2
+
+Observed update intervals (30 requests):
+  64 us  -> count = 9
+  128 us -> count = 10
+  256 us -> count = 11
+
+Verification checks:
+  SNetS selected shortest physical route 1,2,3  : true
+  Route distance passed to QKD planner = 40 km : true
+  All 30 classical requests were accepted      : true
+  Route-aware QKD plans are correct             : true
+  QKD seed still reproduces 9/10/11 counts      : true
+  Classical request receives no QKD plan        : true
+
+Stage-7 scope: planning is diagnostic only; no QCh spectrum/TDM
+reservation or QKD-induced blocking is applied yet.
+
+STATUS: OK
+Message: Classical SNetS routes now feed the discrete QKD planner automatically.

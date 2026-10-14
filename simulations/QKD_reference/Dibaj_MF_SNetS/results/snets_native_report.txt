@@ -1,0 +1,16 @@
+SNetS-QKD - artigo-base (Dibaj et al. 2024, MF) executado no motor nativo do SNetS
+==========================================================================
+
+Casos: C:\Users\uriel\Documents\Simulador\SNetS-SDM-qkd-v1\simulations\QKD_reference\Dibaj_MF_SNetS
+
+small_core  QTND otimo SNetS=25 km | Python=25 | artigo=25 | otimo por replicacao={25=7, 30=3} | MAE vs artigo=16.1900 Q-TRx | MAE vs Python=5.1000 Q-TRx | curva em U=true | bloqueio QKD max=0.0000 | bloqueio classico max=0.0000
+            criterio da qualificacao (otimo a no maximo 5 km de 25 km em todas as replicacoes; curva em U): OK
+
+butterfly   QTND otimo SNetS=30 km | Python=30 | artigo=25 | otimo por replicacao={30=10} | MAE vs artigo=11.5000 Q-TRx | MAE vs Python=3.7700 Q-TRx | curva em U=true | bloqueio QKD max=0.0000 | bloqueio classico max=0.0000
+            criterio da qualificacao (otimo a no maximo 5 km de 25 km em todas as replicacoes; curva em U): OK
+
+metro       QTND otimo SNetS=25 km | Python=25 | artigo=25 | otimo por replicacao={25=10} | MAE vs artigo=13.8800 Q-TRx | MAE vs Python=2.4200 Q-TRx | curva em U=true | bloqueio QKD max=0.0000 | bloqueio classico max=0.0000
+            criterio da qualificacao (otimo a no maximo 5 km de 25 km em todas as replicacoes; curva em U): OK
+
+Arquivos: snets_native_raw.csv, snets_native_statistics.csv, snets_native_summary.csv
+Status geral: OK

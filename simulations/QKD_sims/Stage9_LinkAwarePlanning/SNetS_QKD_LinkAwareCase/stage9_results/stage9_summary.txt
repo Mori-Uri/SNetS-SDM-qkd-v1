@@ -1,0 +1,39 @@
+============================================================
+ SNetS-QKD - Stage 9: physical-link-aware QKD spans
+============================================================
+Simulation folder: simulations\QKD_sims\Stage9_LinkAwarePlanning\SNetS_QKD_LinkAwareCase
+QTND: 25 km | wavelength: 1550 nm
+
+Classical routes selected by SNetS:
+  R1: 1,2,3 | distance 50 km
+  R2: 4,2,3 | distance 50 km
+
+Physical-link-aware QKD segmentation:
+  R1: 1<->2 [25 + 15 km] ; 2<->3 [10 km]
+  R2: 2<->4 [25 + 15 km] ; 2<->3 [10 km]
+  The 2<->3 / 10-km span is common to both routes.
+
+R1 key demand: 2.000000 Mbit/s | individual Q-TRx: 3
+R2 key demand: 4.000000 Mbit/s | individual Q-TRx: 3
+Individual-plan total without physical-span sharing: 6 Q-TRx
+Active physical QCh/Q-TRx pools after sharing       : 5
+Shared 2<->3 span: capacity 177.088130254936 Mbit/s | used 6.000000 Mbit/s | allocations 2
+
+Verification checks:
+  SNetS selected both expected classical routes       : true
+  Both routes report 50 km                            : true
+  Each route is split into 3 physical QKD spans       : true
+  No QTND span crosses an optical-network node        : true
+  Common 2<->3 span is shared across different routes : true
+  Five physical QCh/Q-TRx pools are active            : true
+  Sharing reduces individual total from 6 to 5 Q-TRx : true
+  25/15/10-km SKR capacities match physical model     : true
+  Finalization releases all physical QKD capacity     : true
+
+STATUS: OK
+Message: QTND segmentation is now tied to SNetS physical links, enabling topology-level MF reproduction.
+Generated files:
+  simulations\QKD_sims\Stage9_LinkAwarePlanning\SNetS_QKD_LinkAwareCase\stage9_results\link_aware_plans.csv
+  simulations\QKD_sims\Stage9_LinkAwarePlanning\SNetS_QKD_LinkAwareCase\stage9_results\link_aware_segments.csv
+  simulations\QKD_sims\Stage9_LinkAwarePlanning\SNetS_QKD_LinkAwareCase\stage9_results\physical_qch_pools.csv
+  simulations\QKD_sims\Stage9_LinkAwarePlanning\SNetS_QKD_LinkAwareCase\stage9_results\stage9_summary.txt

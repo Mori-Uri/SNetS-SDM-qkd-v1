@@ -1,0 +1,26 @@
+============================================================
+ SNetS-QKD - Stage 5: QKD attributes in SNetS requests
+============================================================
+Parameter file: simulations\QKD_sims\Stage5_RequestIntegration\qkd_request_generation.properties
+QKD key size: 256 bits
+Configured update intervals: 64, 128, 256 microseconds
+QKD random seed: 2024
+Generated verification requests: 30
+
+Observed QKD requests by update interval:
+  tau = 64 us -> demand = 4 Mbit/s | count = 9
+  tau = 128 us -> demand = 2 Mbit/s | count = 10
+  tau = 256 us -> demand = 1 Mbit/s | count = 11
+
+Verification checks:
+  QKD fields correctly attached to requests : true
+  Same QKD seed reproduces same sequence    : true
+  Original constructor stays classical-only: true
+  All configured intervals were observed   : true
+
+STATUS: OK
+Message: Request-level QKD key policy and SKR demand integration verified.
+
+Generated files:
+  simulations\QKD_sims\Stage5_RequestIntegration\results\qkd_requests.csv
+  simulations\QKD_sims\Stage5_RequestIntegration\results\stage5_summary.txt

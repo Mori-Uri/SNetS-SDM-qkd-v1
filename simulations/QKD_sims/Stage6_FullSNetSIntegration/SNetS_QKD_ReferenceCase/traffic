@@ -1,0 +1,5 @@
+{
+  "requestGenerators": [
+    {"source":"A","destination":"B","bitRate":1.0E11,"arrivalRate":1.0,"holdRate":1.0,"arrivalRateIncrease":0.0}
+  ]
+}

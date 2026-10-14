@@ -1,0 +1,40 @@
+============================================================
+ SNetS-QKD - Stage 8: shared QCh capacity with TDM
+============================================================
+Simulation folder: simulations\QKD_sims\Stage8_TDMSharing\SNetS_QKD_TDMCase
+Classical route: 1,2,3
+Active simultaneous requests: 30
+Aggregate end-to-end key demand: 67.000000 Mbit/s
+Observed intervals: 64 us=9, 128 us=10, 256 us=11
+
+TDM abstraction used in Stage 8:
+  QCh capacity = SKR supported by its QKD segment
+  request share = requested SKR / QCh SKR
+  allocation = first fit on residual QCh SKR capacity
+  no fixed time-slot count is assumed because the reference
+  work does not disclose a slot granularity.
+
+Segment 1: capacity 93.939373375269 | used 67.000000 | utilization 71.322596% | QCh=1
+Segment 2: capacity 143.240240412335 | used 67.000000 | utilization 46.774565% | QCh=1
+
+Naive per-request Q-TRx total (without sharing): 60
+Shared active Q-TRx pairs with TDM             : 2
+
+Verification checks:
+  SNetS route remained 1,2,3                  : true
+  All 30 simultaneous requests accepted      : true
+  QKD TDM allocation attached to requests    : true
+  Aggregate demand reproduced as 67 Mbit/s   : true
+  One shared QCh remained active per segment : true
+  Both channel capacities match QKD SKR      : true
+  Both shared QChs carry all 30 requests     : true
+  TDM reduces this test from 60 to 2 Q-TRx   : true
+  First-fit opens a new QCh after saturation : true
+  Finalization releases logical QKD capacity : true
+
+STATUS: OK
+Message: Multiple QKD requests now share segment-level QCh capacity through TDM.
+Generated files:
+  simulations\QKD_sims\Stage8_TDMSharing\SNetS_QKD_TDMCase\stage8_results\tdm_request_allocations.csv
+  simulations\QKD_sims\Stage8_TDMSharing\SNetS_QKD_TDMCase\stage8_results\tdm_channel_pools.csv
+  simulations\QKD_sims\Stage8_TDMSharing\SNetS_QKD_TDMCase\stage8_results\stage8_summary.txt

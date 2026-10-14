@@ -1,0 +1,2 @@
+SKR(1550 nm,25 km)=93.939373375268840 Mbit/s
+best Fig5 grid: wavelength=1550 nm, QTND=25 km, SKR/Q-TRx=58.712108359543 Mbit/s

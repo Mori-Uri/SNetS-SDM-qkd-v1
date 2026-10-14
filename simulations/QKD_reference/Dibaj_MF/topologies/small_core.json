@@ -1,0 +1,13 @@
+{
+  "name": "small_core",
+  "offeredClassicalGbps": 625000.0,
+  "offeredSkrMbps": 4100.0,
+  "edges": [
+    {"u":1,"v":2,"lengthKm":76.0},
+    {"u":1,"v":3,"lengthKm":86.0},
+    {"u":2,"v":5,"lengthKm":90.0},
+    {"u":3,"v":5,"lengthKm":80.0},
+    {"u":2,"v":4,"lengthKm":100.0},
+    {"u":3,"v":4,"lengthKm":70.0}
+  ]
+}

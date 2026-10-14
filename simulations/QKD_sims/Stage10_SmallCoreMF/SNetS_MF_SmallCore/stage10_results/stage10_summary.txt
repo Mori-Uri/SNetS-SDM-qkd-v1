@@ -1,0 +1,53 @@
+============================================================
+ SNetS-QKD - Stage 10: Small Core MF topology reconstruction
+============================================================
+Simulation folder: simulations\QKD_sims\Stage10_SmallCoreMF\SNetS_MF_SmallCore
+Traffic requests: 1757
+Offered classical load: 625000.000000 Gbit/s
+Offered SKR load: 4100.000000 Mbit/s
+Groomed SNetS demands: 870 (capacity 800.000 Gbit/s)
+Classical routing/spectrum: SNetS integrated K-shortest-path + first-fit, k=4
+Classical spectrum: 160 x 75 GHz CCh/PICh channels = 12 THz extended C+L
+Quantum spectrum: 960 x 12.5 GHz QCh candidates on a distinct MF fiber
+Modulation/reach table: native SNetS distance-adaptive table (not disclosed by the paper)
+Quantum scenario: Multi-Fiber, 1550 nm priority, independent QKD fiber, quantized TDM QCh sharing
+
+QTND sweep:
+   5 km -> Q-TRx  595 | normalized 100.0000% | reference  608 | abs.err  13.0 | classical blocked 0/1757
+  10 km -> Q-TRx  307 | normalized  51.5966% | reference  364 | abs.err  57.0 | classical blocked 0/1757
+  15 km -> Q-TRx  272 | normalized  45.7143% | reference  302 | abs.err  30.0 | classical blocked 0/1757
+  20 km -> Q-TRx  240 | normalized  40.3361% | reference  266 | abs.err  26.0 | classical blocked 0/1757
+  25 km -> Q-TRx  235 | normalized  39.4958% | reference  252 | abs.err  17.0 | classical blocked 0/1757
+  30 km -> Q-TRx  228 | normalized  38.3193% | reference  258 | abs.err  30.0 | classical blocked 0/1757
+  35 km -> Q-TRx  242 | normalized  40.6723% | reference  266 | abs.err  24.0 | classical blocked 0/1757
+  40 km -> Q-TRx  257 | normalized  43.1933% | reference  274 | abs.err  17.0 | classical blocked 0/1757
+  45 km -> Q-TRx  260 | normalized  43.6975% | reference  297 | abs.err  37.0 | classical blocked 0/1757
+  50 km -> Q-TRx  274 | normalized  46.0504% | reference  314 | abs.err  40.0 | classical blocked 0/1757
+
+Comparison with digitized Fig. 7(a), MF:
+  MAE  = 29.100000 Q-TRx
+  RMSE = 31.649645 Q-TRx
+  SNetS minimum = QTND 30 km | 228 Q-TRx
+  Digitized reference minimum = QTND 25 km | 252 Q-TRx
+
+Verification checks:
+  Frozen trace contains 1757 requests              : true
+  Offered classical load reproduces 625 Tbit/s     : true
+  Offered SKR load reproduces 4.100 Gbit/s          : true
+  All 10 QTND points were produced by SNetS         : true
+  Minimum remains within 5 km of paper optimum      : true
+  MAE stays within reconstruction tolerance         : true
+  Classical blocking remains <= 1.000%              : true (observed 0.000%)
+
+NOTE: Fig. 7 is a reconstruction, not a bit-identical validation.
+The paper discloses 160 classical C+L channels and 960 MF QChs in Fig. 2,
+but does not disclose its traffic seed, k, grooming container size,
+complete modulation/reach table, or the exact TDM time-slot granularity.
+Stage 10 freezes those reconstruction assumptions so the SNetS result is
+repeatable and directly comparable with the digitized MF curve.
+
+STATUS: OK
+Message: First Small Core Multi-Fiber QTND x Q-TRx curve produced inside SNetS.
+Generated files:
+  simulations\QKD_sims\Stage10_SmallCoreMF\SNetS_MF_SmallCore\stage10_results\small_core_mf_qtrx_sweep.csv
+  simulations\QKD_sims\Stage10_SmallCoreMF\SNetS_MF_SmallCore\stage10_results\stage10_summary.txt

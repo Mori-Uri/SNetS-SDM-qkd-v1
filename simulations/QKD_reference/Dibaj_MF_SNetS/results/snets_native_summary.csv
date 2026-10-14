@@ -1,0 +1,4 @@
+topology,optimum_qtnd_snets,optimum_qtnd_python,optimum_qtnd_article,replications_optimum_within_5km_of_25,mae_vs_article,rmse_vs_article,mae_vs_python,u_shape,qkd_blocking_max,classical_blocking_max
+small_core,25,25,25,10/10,16.1900,17.6260,5.1000,true,0.00000000,0.00000000
+butterfly,30,30,25,10/10,11.5000,16.4053,3.7700,true,0.00000000,0.00000000
+metro,25,25,25,10/10,13.8800,15.4358,2.4200,true,0.00000000,0.00000000

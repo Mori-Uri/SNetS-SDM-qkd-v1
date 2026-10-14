@@ -1,0 +1,4 @@
+# SHA-256 - componentes classicos preservados na entrega
+a51fff11bbfa9c967d53f882d4da9c05d81d48ea518a9996b9c7580c29c7b004  /mnt/data/snets_user_current/SNetS-SDM-qkd-v1/simulations/SNetS-SDM-SBRC26.jar
+9f1545050192cf98519467625d8c656ed81020ddb10ea927a300fac17f6a829a  /mnt/data/snets_user_current/SNetS-SDM-qkd-v1/src/main/java/gprmcsa/GPRMCSA.java
+80ee3f10c91536523139d67213cdd856269038213a9947e6c1270360fb988fd8  /mnt/data/snets_user_current/SNetS-SDM-qkd-v1/src/main/java/gprmcsa/coreSpectrumAssignment/CSBASDM.java

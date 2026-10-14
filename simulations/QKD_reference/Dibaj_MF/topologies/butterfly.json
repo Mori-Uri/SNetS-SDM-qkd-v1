@@ -1,0 +1,15 @@
+{
+  "name": "butterfly",
+  "offeredClassicalGbps": 612000.0,
+  "offeredSkrMbps": 4028.0,
+  "edges": [
+    {"u":1,"v":2,"lengthKm":30.0},
+    {"u":1,"v":3,"lengthKm":40.0},
+    {"u":2,"v":3,"lengthKm":50.0},
+    {"u":2,"v":4,"lengthKm":55.0},
+    {"u":3,"v":5,"lengthKm":55.0},
+    {"u":4,"v":5,"lengthKm":50.0},
+    {"u":4,"v":6,"lengthKm":40.0},
+    {"u":5,"v":6,"lengthKm":30.0}
+  ]
+}

@@ -1,0 +1,6 @@
+SegmentKey,FirstRoute,SegmentIndex,LengthKm,WavelengthNm,QCh,CapacityMbitPerSecond,UsedMbitPerSecond,Allocations
+"link=1<->2|lambda=1550.0|linkSegment=1|start=0.0|end=25.0","1,2,3",1,25.000000,1550.000,1,93.939373375269,2.000000000000,1
+"link=1<->2|lambda=1550.0|linkSegment=2|start=25.0|end=40.0","1,2,3",2,15.000000,1550.000,1,143.240240412335,2.000000000000,1
+"link=2<->3|lambda=1550.0|linkSegment=1|start=0.0|end=10.0","1,2,3",3,10.000000,1550.000,1,177.088130254936,6.000000000000,2
+"link=2<->4|lambda=1550.0|linkSegment=1|start=0.0|end=25.0","4,2,3",1,25.000000,1550.000,1,93.939373375269,4.000000000000,1
+"link=2<->4|lambda=1550.0|linkSegment=2|start=25.0|end=40.0","4,2,3",2,15.000000,1550.000,1,143.240240412335,4.000000000000,1

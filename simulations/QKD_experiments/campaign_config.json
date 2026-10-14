@@ -1,0 +1,16 @@
+{
+  "description": "Campanha QKD preliminar C1/C2/C3 e sweep de QTND. Os valores finais de warm-up, requisicoes e replicacoes ainda devem ser congelados antes dos resultados do artigo.",
+  "jar": "../SNetS-SDM-QKD.jar",
+  "baseScenarios": [
+    "NSFNet_C1_Classical7",
+    "NSFNet_C2_QKD_NoXT",
+    "NSFNet_C3_QKD_XT"
+  ],
+  "qtndSweepKm": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+  "qkdSweepScenarios": [
+    "NSFNet_C2_QKD_NoXT",
+    "NSFNet_C3_QKD_XT"
+  ],
+  "generatedDirectory": "generated_qtnd",
+  "analysisDirectory": "analysis_results"
+}

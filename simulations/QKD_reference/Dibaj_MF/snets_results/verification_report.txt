@@ -1,0 +1,5 @@
+SNetS-QKD addon - Dibaj MF reference verification
+Rows: 300
+VerificationSummary{totalRows=300, exactMatchingRows=300, mismatchingRows=0, missingExpectedRows=0, maxAbsoluteQtrxDifference=0, pythonPathMismatches=9812}
+Exact reproduction: true
+Elapsed seconds: 1.669

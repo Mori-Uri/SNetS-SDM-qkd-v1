@@ -1,0 +1,19 @@
+{
+  "name": "metro",
+  "offeredClassicalGbps": 654000.0,
+  "offeredSkrMbps": 4248.0,
+  "edges": [
+    {"u":1,"v":2,"lengthKm":30.0},
+    {"u":1,"v":3,"lengthKm":25.0},
+    {"u":2,"v":3,"lengthKm":40.0},
+    {"u":2,"v":4,"lengthKm":50.0},
+    {"u":3,"v":6,"lengthKm":20.0},
+    {"u":4,"v":5,"lengthKm":40.0},
+    {"u":4,"v":7,"lengthKm":40.0},
+    {"u":5,"v":6,"lengthKm":40.0},
+    {"u":5,"v":7,"lengthKm":45.0},
+    {"u":5,"v":8,"lengthKm":30.0},
+    {"u":6,"v":8,"lengthKm":35.0},
+    {"u":7,"v":8,"lengthKm":20.0}
+  ]
+}

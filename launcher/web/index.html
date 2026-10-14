@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SNetS Launcher</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23155e75'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fff'/%3E%3Ccircle cx='16' cy='8.5' r='3' fill='%23a5f3fc'/%3E%3Ccircle cx='16' cy='23.5' r='3' fill='%23a5f3fc'/%3E%3Ccircle cx='9.5' cy='12.2' r='3' fill='%23a5f3fc'/%3E%3Ccircle cx='22.5' cy='12.2' r='3' fill='%23a5f3fc'/%3E%3Ccircle cx='9.5' cy='19.8' r='3' fill='%23a5f3fc'/%3E%3Ccircle cx='22.5' cy='19.8' r='3' fill='%23a5f3fc'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <button class="btn ghost icon sidebar-toggle" id="btnSidebar" type="button" title="Recolher a pasta simulations">«</button>
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="14" class="bm-clad"/>
+      <circle cx="16" cy="16" r="3" class="bm-core0"/>
+      <circle cx="16" cy="8.5" r="3" class="bm-core"/><circle cx="16" cy="23.5" r="3" class="bm-core"/>
+      <circle cx="9.5" cy="12.2" r="3" class="bm-core"/><circle cx="22.5" cy="12.2" r="3" class="bm-core"/>
+      <circle cx="9.5" cy="19.8" r="3" class="bm-core"/><circle cx="22.5" cy="19.8" r="3" class="bm-core"/>
+    </svg>
+    <div>
+      <div class="brand-name">SNetS Launcher</div>
+      <div class="brand-sub" id="projectPath">carregando…</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn ghost" id="btnFigures" title="Gráficos com os resultados de vários casos, com estilo editável">Gráficos</button>
+    <button class="btn ghost" id="btnQkd" title="Verificadores do addon QKD e reprodução do artigo-base">Verificação QKD</button>
+    <button class="btn ghost" id="btnRuns" title="Execuções desta sessão">
+      <span class="dot" id="runsDot"></span><span id="runsLabel">Execuções</span>
+    </button>
+    <button class="btn ghost" id="btnSettings">Configurações</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">Pasta simulations</div>
+      <div class="sidebar-buttons">
+        <button class="btn small primary" id="btnNewCase">+ Caso</button>
+        <button class="btn small" id="btnNewFolder">+ Pasta</button>
+        <button class="btn small icon" id="btnRefreshTree" title="Atualizar lista">↻</button>
+      </div>
+      <input type="search" id="treeFilter" class="input" placeholder="Filtrar casos…" autocomplete="off">
+    </div>
+    <nav class="tree" id="tree" aria-label="Casos de simulação"></nav>
+  </aside>
+
+  <main class="main" id="main">
+    <section id="welcome" class="welcome"></section>
+    <section id="qkdView" hidden></section>
+    <section id="figView" hidden></section>
+    <section id="caseView" hidden>
+      <div class="case-head">
+        <div class="case-title">
+          <div class="crumbs" id="caseCrumbs"></div>
+          <h1 id="caseName"></h1>
+          <div id="caseMode" class="case-mode"></div>
+        </div>
+        <div class="case-actions">
+          <span class="dirty-badge" id="dirtyBadge" hidden></span>
+          <button class="btn" id="btnOpenFolder" title="Abrir a pasta do caso no explorador">Abrir pasta</button>
+          <button class="btn" id="btnReload" title="Descartar alterações e recarregar do disco">Recarregar</button>
+          <button class="btn primary" id="btnGoReview">Revisar e salvar</button>
+        </div>
+      </div>
+      <nav class="tabs" id="tabs" role="tablist"></nav>
+      <div class="tab-body" id="tabBody"></div>
+    </section>
+  </main>
+</div>
+
+<div class="drawer" id="runsDrawer" hidden>
+  <div class="drawer-head">
+    <h2>Execuções</h2>
+    <button class="btn small" id="btnCloseRuns">Fechar</button>
+  </div>
+  <div id="runsList" class="runs-list"></div>
+</div>
+
+<dialog id="modal" class="modal">
+  <form method="dialog" id="modalForm">
+    <h2 id="modalTitle"></h2>
+    <div id="modalBody"></div>
+    <div class="modal-error" id="modalError" hidden></div>
+    <div class="modal-actions">
+      <button class="btn" value="cancel" id="modalCancel" formnovalidate>Cancelar</button>
+      <button class="btn primary" value="ok" id="modalOk">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="js/util.js"></script>
+<script src="js/api.js"></script>
+<script src="js/schema.js"></script>
+<script src="js/forms.js"></script>
+<script src="js/validate.js"></script>
+<script src="js/traffic.js"></script>
+<script src="js/review.js"></script>
+<script src="js/run.js"></script>
+<script src="js/results.js"></script>
+<script src="js/sweep.js"></script>
+<script src="js/qkd.js"></script>
+<script src="js/ladder.js"></script>
+<script src="js/metricinfo.js"></script>
+<script src="js/presets.js"></script>
+<script src="js/figrender.js"></script>
+<script src="js/figures.js"></script>
+<script src="js/netedit.js"></script>
+<script src="js/qkdcase.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+SNetS-QKD - Stage 3: QTND x wavelength / SKR per Q-TRx
+============================================================
+Parameter file: simulations\QKD_sims\Stage3_QTND_QTRx\qkd_qtnd.properties
+Point-to-point link: 40.000 km
+QTND values: 10 | Wavelengths: 11 | Total points: 110
+Metric: continuous equivalent Q-TRx pairs = totalLinkKm / QTNDKm
+NOTE: DiscreteSegmentsDiagnostic is informational only and is NOT used in the Stage 3 objective.
+
+Best QTND by wavelength:
+  1520.000 nm -> QTND 25.000 km | SKR/Q-TRx = 56.294865844039 Mbit/s
+  1530.000 nm -> QTND 25.000 km | SKR/Q-TRx = 57.625057663621 Mbit/s
+  1540.000 nm -> QTND 25.000 km | SKR/Q-TRx = 58.438412829976 Mbit/s
+  1550.000 nm -> QTND 25.000 km | SKR/Q-TRx = 58.712108359543 Mbit/s
+  1560.000 nm -> QTND 25.000 km | SKR/Q-TRx = 58.438412829976 Mbit/s
+  1570.000 nm -> QTND 25.000 km | SKR/Q-TRx = 57.625057663621 Mbit/s
+  1580.000 nm -> QTND 25.000 km | SKR/Q-TRx = 56.294865844039 Mbit/s
+  1590.000 nm -> QTND 20.000 km | SKR/Q-TRx = 54.604747879619 Mbit/s
+  1600.000 nm -> QTND 20.000 km | SKR/Q-TRx = 52.794864700540 Mbit/s
+  1610.000 nm -> QTND 20.000 km | SKR/Q-TRx = 50.665194084302 Mbit/s
+  1620.000 nm -> QTND 20.000 km | SKR/Q-TRx = 48.260287333583 Mbit/s
+
+Global optimum: QTND 25.000 km / 1550.000 nm | SKR = 93.939373375269 Mbit/s | equivalent Q-TRx = 1.600000000000 | SKR/Q-TRx = 58.712108359543 Mbit/s
+No-trusted-node reference (QTND 40.000 km / 1550.000 nm): 50.101963624578 Mbit/s per Q-TRx
+Improvement of global optimum over QTND=link length: 17.185244 %
+
+Expected best: QTND 25.000 km / 1550.000 nm | SKR/Q-TRx 58.712108359543 Mbit/s
+Obtained reference metric: 58.712108359543 Mbit/s
+Absolute error: 0.000000000000 Mbit/s
+STATUS: OK
+Message: Reference SKR/Q-TRx value and global optimum verified.
+
+Generated files:
+  simulations\QKD_sims\Stage3_QTND_QTRx\results\skr_per_qtrx_long.csv
+  simulations\QKD_sims\Stage3_QTND_QTRx\results\skr_per_qtrx_matrix.csv
+  simulations\QKD_sims\Stage3_QTND_QTRx\results\qtnd_1550nm.csv

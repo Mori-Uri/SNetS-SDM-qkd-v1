@@ -1,0 +1,27 @@
+SNetS-QKD - Stage 2: wavelength x distance sweep
+============================================================
+Parameter file: simulations\QKD_sims\Stage2_WavelengthDistance\qkd_sweep.properties
+Distances: 9 | Wavelengths: 11 | Total points: 99
+Wavelength range: 1520.000 to 1620.000 nm, step 10.000 nm
+
+Best wavelength by distance:
+  1.000 km -> 1550.000 nm | SKR = 260.095696360 Mbit/s
+  5.000 km -> 1550.000 nm | SKR = 219.149192516 Mbit/s
+  10.000 km -> 1550.000 nm | SKR = 177.088130255 Mbit/s
+  15.000 km -> 1550.000 nm | SKR = 143.240240412 Mbit/s
+  20.000 km -> 1550.000 nm | SKR = 115.958692933 Mbit/s
+  25.000 km -> 1550.000 nm | SKR = 93.939373375 Mbit/s
+  30.000 km -> 1550.000 nm | SKR = 76.146244669 Mbit/s
+  35.000 km -> 1550.000 nm | SKR = 61.753704287 Mbit/s
+  40.000 km -> 1550.000 nm | SKR = 50.101963625 Mbit/s
+
+Reference point: 25.000 km / 1550.000 nm
+Reference SKR: 93.939373000 Mbit/s
+Obtained SKR: 93.939373375 Mbit/s
+Absolute error: 0.000000375 Mbit/s
+STATUS: OK
+Message: Reference point and best-wavelength region verified.
+
+Generated files:
+  simulations\QKD_sims\Stage2_WavelengthDistance\results\skr_wavelength_distance_long.csv
+  simulations\QKD_sims\Stage2_WavelengthDistance\results\skr_wavelength_distance_matrix.csv

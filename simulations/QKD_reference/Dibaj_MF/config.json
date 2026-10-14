@@ -1,0 +1,81 @@
+{
+  "kPaths": 2,
+  "classicalChannelsPerFiber": 160,
+  "classicalFibersPerLink": 10,
+  "classicalGuardChannels": 0,
+  "reservePichChannel": true,
+  "quantumChannels": 960,
+  "tdmSlots": 256,
+  "groomingCapacityGbps": 800.0,
+  "qtndValuesKm": [
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50
+  ],
+  "topologies": [
+    "small_core",
+    "butterfly",
+    "metro"
+  ],
+  "replications": [
+    {
+      "replication": 1,
+      "seed": 2855298535,
+      "directory": "rep_01_seed_2855298535"
+    },
+    {
+      "replication": 2,
+      "seed": 1146676384,
+      "directory": "rep_02_seed_1146676384"
+    },
+    {
+      "replication": 3,
+      "seed": 524768821,
+      "directory": "rep_03_seed_524768821"
+    },
+    {
+      "replication": 4,
+      "seed": 4067285479,
+      "directory": "rep_04_seed_4067285479"
+    },
+    {
+      "replication": 5,
+      "seed": 2651666590,
+      "directory": "rep_05_seed_2651666590"
+    },
+    {
+      "replication": 6,
+      "seed": 1626606285,
+      "directory": "rep_06_seed_1626606285"
+    },
+    {
+      "replication": 7,
+      "seed": 1121204223,
+      "directory": "rep_07_seed_1121204223"
+    },
+    {
+      "replication": 8,
+      "seed": 368549575,
+      "directory": "rep_08_seed_368549575"
+    },
+    {
+      "replication": 9,
+      "seed": 4040653223,
+      "directory": "rep_09_seed_4040653223"
+    },
+    {
+      "replication": 10,
+      "seed": 3957859000,
+      "directory": "rep_10_seed_3957859000"
+    }
+  ],
+  "useFixedReferencePaths": true,
+  "verifyClassicalRecomputation": true
+}

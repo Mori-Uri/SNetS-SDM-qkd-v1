@@ -1,0 +1,1819 @@
+Metrics,LoadPoint,BitRate,src,dest, ,rep0,rep1,rep2,rep3,rep4
+BitRate blocking probability,0,all,all,all, ,2.7825699758979224E-4,0.0,0.002434307324988583,3.7615364295532575E-4,8.885815035621819E-4
+BitRate blocking probability,1,all,all,all, ,0.005265269426524073,0.0022847815641227013,0.003203676778131468,0.003404984782116239,0.0010579868454878595
+BitRate blocking probability,2,all,all,all, ,0.009935446179680254,0.008808434473411135,0.006897848030825064,0.008779374678244944,0.017093340705884814
+BitRate blocking probability,3,all,all,all, ,0.022074972081829066,0.024396616320841957,0.024599770787258928,0.026088286056908567,0.03155892343164094
+BitRate blocking probability,4,all,all,all, ,0.04055244594669481,0.03380769355153354,0.04791480037516439,0.0761143945090745,0.055334366820884266
+
+
+General requested bitRate,0,all,all,all, ,2.374161951237822E15,2.3737492363121945E15,2.338235915768947E15,2.4199750277951355E15,2.325395228118371E15
+General requested bitRate,1,all,all,all, ,2.3742317589830055E15,2.386143833745776E15,2.424626931713946E15,2.363623865226955E15,2.3841766645201685E15
+General requested bitRate,2,all,all,all, ,2.3505802809366905E15,2.395721714258318E15,2.392473794231822E15,2.346561126283321E15,2.400537097657905E15
+General requested bitRate,3,all,all,all, ,2.381120353094832E15,2.287869250563147E15,2.3438050659587545E15,2.3238508875550535E15,2.4423855961731555E15
+General requested bitRate,4,all,all,all, ,2.38116272006571E15,2.3415777415653255E15,2.374248464342339E15,2.349999368240751E15,2.3113251430667325E15
+
+
+BitRate blocking probability by lack of transmitters,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of transmitters,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of transmitters,2,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of transmitters,3,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of transmitters,4,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+
+
+BitRate blocking probability by lack of receivers,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of receivers,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of receivers,2,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of receivers,3,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by lack of receivers,4,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+
+
+BitRate blocking probability by fragmentation,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by fragmentation,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by fragmentation,2,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by fragmentation,3,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by fragmentation,4,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+
+
+BitRate blocking probability by QoTN,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by QoTN,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by QoTN,2,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by QoTN,3,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by QoTN,4,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+
+
+BitRate blocking probability by QoTO,0,all,all,all, ,2.7825699758979224E-4,0.0,0.002434307324988583,3.7615364295532575E-4,8.885815035621819E-4
+BitRate blocking probability by QoTO,1,all,all,all, ,0.005265269426524073,0.0022847815641227013,0.003203676778131468,0.003404984782116239,0.0010579868454878595
+BitRate blocking probability by QoTO,2,all,all,all, ,0.009935446179680254,0.008808434473411135,0.006897848030825064,0.008779374678244944,0.017093340705884814
+BitRate blocking probability by QoTO,3,all,all,all, ,0.022074972081829066,0.024396616320841957,0.024599770787258928,0.026088286056908567,0.03155892343164094
+BitRate blocking probability by QoTO,4,all,all,all, ,0.04055244594669481,0.03380769355153354,0.04791480037516439,0.0761143945090745,0.055334366820884266
+
+
+BitRate blocking probability by other,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by other,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by other,2,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by other,3,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by other,4,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+
+
+BitRate blocking probability by Crosstalk,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk,2,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk,3,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk,4,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+
+
+BitRate blocking probability by Crosstalk in Others,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk in Others,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk in Others,2,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk in Others,3,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability by Crosstalk in Others,4,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+
+
+BitRate blocking probability per core 0,0,all,all,all, ,0.0010894661363374544,0.0,0.023671235268379637,0.004246252252896752,0.012636631727093981
+BitRate blocking probability per core 0,1,all,all,all, ,0.12481962566147338,0.060183665954757264,0.06834154240523159,0.08348391526089016,0.025206499922413306
+BitRate blocking probability per core 0,2,all,all,all, ,0.21201236942960988,0.19207240641021678,0.17649443202556078,0.2867034861889531,0.33540431303236296
+BitRate blocking probability per core 0,3,all,all,all, ,0.4332527198689827,0.3215665494365899,0.3636677771347604,0.38579576643006896,0.4468854571028098
+BitRate blocking probability per core 0,4,all,all,all, ,0.4162375502379146,0.39167576093576206,0.4851139841013392,0.6042090908922673,0.5990882710600426
+BitRate blocking probability per core 1,0,all,all,all, ,0.0,0.0,0.013411134501758137,9.424827878164889E-4,2.631221502971909E-4
+BitRate blocking probability per core 1,1,all,all,all, ,0.0034716405168718255,0.0024408005828907334,0.0018595419290612736,0.0,3.7419481981975234E-4
+BitRate blocking probability per core 1,2,all,all,all, ,0.022168081297156923,0.002594304043653441,0.003936826709816963,0.007055113730781679,0.016012671376574746
+BitRate blocking probability per core 1,3,all,all,all, ,0.007763153775607312,0.011548026630960178,0.009698366345098249,0.02692746094479643,0.006399879243362809
+BitRate blocking probability per core 1,4,all,all,all, ,0.011390806096036488,0.020523764992215567,0.01845877612039134,0.0548476999014826,0.04043758310912594
+BitRate blocking probability per core 2,0,all,all,all, ,0.0015924477608968458,0.0,9.055157448025872E-4,1.3975401337945454E-4,3.021170141704643E-4
+BitRate blocking probability per core 2,1,all,all,all, ,6.867860809692569E-4,0.0,8.483720089405295E-4,0.0027513189062833574,2.9671981474371635E-5
+BitRate blocking probability per core 2,2,all,all,all, ,0.009233594924137055,7.553235411095687E-4,0.0027066518006886447,0.0,7.932485534884167E-5
+BitRate blocking probability per core 2,3,all,all,all, ,4.0337478013017397E-4,0.0017606088927762905,0.001327383562026002,0.004004474931966673,0.011460139465076537
+BitRate blocking probability per core 2,4,all,all,all, ,0.003214149815318286,0.003685704059655268,0.006593707197499705,0.011027661410315923,0.014956202891271952
+BitRate blocking probability per core 3,0,all,all,all, ,4.5153905471024414E-4,0.0,0.0,0.0,0.0
+BitRate blocking probability per core 3,1,all,all,all, ,0.0,6.792197848670562E-5,0.0,4.294030684420536E-5,0.0011963529700029988
+BitRate blocking probability per core 3,2,all,all,all, ,7.56239227663153E-4,6.157764206369622E-4,2.5775533359533557E-5,5.616768685835572E-4,5.64204707720528E-4
+BitRate blocking probability per core 3,3,all,all,all, ,0.002382905201500818,0.0019400851447746402,3.0599187569779247E-4,0.0014689419471675114,0.0010934036088030186
+BitRate blocking probability per core 3,4,all,all,all, ,4.8114610484002E-4,0.0023568703585043383,0.003405514562075126,0.0037733055904659216,0.0043191393774119615
+BitRate blocking probability per core 4,0,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per core 4,1,all,all,all, ,6.21117665644884E-4,0.0,5.246421026366721E-4,0.0,0.0
+BitRate blocking probability per core 4,2,all,all,all, ,0.0,0.0,0.0,0.0,1.5099293769733254E-4
+BitRate blocking probability per core 4,3,all,all,all, ,4.733468073843694E-4,0.002673343021951036,7.308197373221366E-4,0.0021827351323302708,4.971057683709464E-4
+BitRate blocking probability per core 4,4,all,all,all, ,0.0,0.0018390159907881896,1.6819979225655055E-4,0.0018563068072270283,6.220371165422848E-4
+BitRate blocking probability per core 5,0,all,all,all, ,0.0,0.0,6.28478311723219E-4,1.4067776537443865E-4,0.0
+BitRate blocking probability per core 5,1,all,all,all, ,0.0,0.0,0.0,0.0010677554317886178,0.0
+BitRate blocking probability per core 5,2,all,all,all, ,2.4756253500880164E-4,3.51776272500364E-5,0.0011400827246310639,0.0,0.0017995615783274505
+BitRate blocking probability per core 5,3,all,all,all, ,6.985672371526277E-5,4.529328061081178E-4,9.361080744359554E-4,1.12024804076499E-4,4.4493362649676734E-4
+BitRate blocking probability per core 5,4,all,all,all, ,3.981814110780414E-4,0.0023951056338894204,0.0014759699365088108,0.007647414260183503,4.2492625506040016E-5
+BitRate blocking probability per core 6,0,all,all,all, ,1.2671495233108933E-4,0.0,0.0,2.2345770649019267E-4,7.868289653354324E-4
+BitRate blocking probability per core 6,1,all,all,all, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per core 6,2,all,all,all, ,0.0,0.0015125508139776963,0.0,2.190927280797937E-5,2.9677577419969745E-4
+BitRate blocking probability per core 6,3,all,all,all, ,1.1250179133698124E-4,6.779725956239695E-4,2.08630387609679E-4,2.651493170706859E-4,6.252189399209024E-4
+BitRate blocking probability per core 6,4,all,all,all, ,0.001950621640654673,0.0,0.0010900742964245875,2.2966911551986922E-4,2.111001633746241E-4
+
+
+BitRate blocking probability per pair,0,all,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,1,8, ,0.0,0.0,0.0,0.005096643278861914,0.0018624379269659703
+BitRate blocking probability per pair,0,all,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,5,3, ,0.0,0.0,0.023429403568412003,0.0,0.0
+BitRate blocking probability per pair,0,all,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,5,4, ,0.0,0.0,0.0,0.0,0.0013009809992951822
+BitRate blocking probability per pair,0,all,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,4,1, ,0.0,0.0,0.005458523222425093,0.0,0.0
+BitRate blocking probability per pair,0,all,3,6, ,0.0,0.0,0.0,0.0,0.006768736600154203
+BitRate blocking probability per pair,0,all,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,1,5, ,0.0,0.0,0.003156787758327742,0.0,0.015347649107606836
+BitRate blocking probability per pair,0,all,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,6,3, ,0.0,0.0,0.005965607108914862,0.0,0.0
+BitRate blocking probability per pair,0,all,8,1, ,0.0,0.0,0.010685856520592101,0.0,0.0
+BitRate blocking probability per pair,0,all,5,2, ,0.0,0.0,0.0,0.0,0.001210670282516109
+BitRate blocking probability per pair,0,all,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,3,8, ,0.0,0.0,0.016364566547479243,0.0,0.0
+BitRate blocking probability per pair,0,all,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,2,5, ,0.0,0.0,0.008920045861072656,0.0,0.009126463960956838
+BitRate blocking probability per pair,0,all,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,6,2, ,0.0,0.0,0.0,0.0,0.012557076164398894
+BitRate blocking probability per pair,0,all,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,1,7, ,0.0,0.0,0.0,0.013717879473505282,0.0
+BitRate blocking probability per pair,0,all,7,4, ,0.0,0.0,0.004505707230179642,0.0,0.0
+BitRate blocking probability per pair,0,all,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,5,1, ,0.012736960855880714,0.0,0.008412564935381275,0.0,0.0
+BitRate blocking probability per pair,0,all,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,4,2, ,0.0,0.0,0.00511728583780144,0.0,0.0
+BitRate blocking probability per pair,0,all,6,4, ,0.002200495914390695,0.0,0.010560629661323744,0.0,0.0
+BitRate blocking probability per pair,0,all,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,4,8, ,0.0018060081473738404,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,8,4, ,0.0,0.0,0.004887790369898966,0.0,0.0029619549572186986
+BitRate blocking probability per pair,0,all,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,6,1, ,0.0,0.0,0.027363778547881627,0.0,0.0
+BitRate blocking probability per pair,0,all,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,0,all,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,2,6, ,0.0,0.0,0.0,0.005110767504234396,0.0
+BitRate blocking probability per pair,1,all,1,8, ,0.01058440385404184,0.0,0.015597938179801561,0.02569409012330181,0.0
+BitRate blocking probability per pair,1,all,4,5, ,0.013270234520756619,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,5,3, ,0.006091008550350297,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,5,4, ,0.0021780189584715472,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,4,1, ,0.0,0.0,0.004966046624167721,0.010262800536863483,0.0
+BitRate blocking probability per pair,1,all,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,7,2, ,0.0,0.008482608635270153,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,7,1, ,0.004135223375245309,0.0025086577264258063,0.019406389178176234,7.46415743280186E-4,0.009739828987999114
+BitRate blocking probability per pair,1,all,2,4, ,0.001871415106269953,0.011021720335421484,0.0,0.0023678303382232563,0.027166104487534752
+BitRate blocking probability per pair,1,all,1,2, ,0.0030048973677057776,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,8,3, ,6.71096060170556E-4,0.0,0.0031003607547430883,0.0,0.0
+BitRate blocking probability per pair,1,all,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,1,5, ,0.058626696463019524,0.007134843526421515,4.98891499018032E-4,0.01505863737042885,0.0
+BitRate blocking probability per pair,1,all,4,7, ,0.0,0.05262061236270861,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,8,1, ,0.008790860798494178,0.0,0.016350835807820766,3.423240615414722E-4,0.0
+BitRate blocking probability per pair,1,all,5,2, ,0.0011492390282456162,0.0,0.010151059799457999,0.011164740573202584,0.0014953761537580001
+BitRate blocking probability per pair,1,all,4,6, ,0.0,0.006051693319700732,0.0,0.005000607856472865,0.0
+BitRate blocking probability per pair,1,all,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,2,7, ,0.0,0.007447714732667537,0.002715066343444261,0.0,0.013956678076414009
+BitRate blocking probability per pair,1,all,3,8, ,0.004186483412509268,0.0,0.0,0.0,7.347140730921752E-4
+BitRate blocking probability per pair,1,all,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,3,5, ,0.0,0.0,0.004657631525197374,0.0,0.0
+BitRate blocking probability per pair,1,all,2,8, ,0.001665571525142585,0.0,0.0,7.444937194260621E-4,0.0
+BitRate blocking probability per pair,1,all,2,5, ,0.0,0.011503384004501483,0.0,0.010959302792028705,0.0
+BitRate blocking probability per pair,1,all,8,2, ,0.0,0.008098818592670188,0.05168497758456916,4.9533022491479E-4,0.0
+BitRate blocking probability per pair,1,all,6,2, ,0.01164856409257338,0.0,0.016443459051757807,0.0,0.0
+BitRate blocking probability per pair,1,all,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,1,7, ,0.012229140093095999,0.006159148565418551,0.021312875441872457,0.0,0.0
+BitRate blocking probability per pair,1,all,7,4, ,0.0011721108705131846,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,5,1, ,0.006853147112982317,0.008310208088118038,2.5392764072241364E-4,0.03865729395360668,0.0
+BitRate blocking probability per pair,1,all,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,4,2, ,0.0,1.862201583582774E-4,0.020985552500077234,0.01846193810661777,0.0
+BitRate blocking probability per pair,1,all,6,4, ,0.014972510204011334,0.0,0.005038468093070898,0.0,0.0
+BitRate blocking probability per pair,1,all,1,4, ,0.012329532783236282,0.0,8.387152702527671E-4,0.0038611580551142785,0.0011325140269589677
+BitRate blocking probability per pair,1,all,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,4,8, ,0.0,0.004707334792319442,0.0,0.018684447833374997,0.0
+BitRate blocking probability per pair,1,all,7,3, ,0.027964953235782616,0.0,0.0028166051673963266,0.0,0.0
+BitRate blocking probability per pair,1,all,3,4, ,0.0,0.0,0.0,0.019895456151367622,0.0
+BitRate blocking probability per pair,1,all,8,4, ,0.0051549871868605286,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,3,7, ,0.03629624778146966,2.6967971423922304E-4,0.0,0.009660220346988858,0.0
+BitRate blocking probability per pair,1,all,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,6,7, ,0.015460457364187196,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,6,1, ,0.014873529705015882,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,1,3, ,0.003325646867967287,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,1,all,1,6, ,0.023999615743015772,0.0023640723355669367,0.0,0.0,0.001123736872651747
+BitRate blocking probability per pair,2,all,2,6, ,0.015022185188154494,0.006114619678604283,0.0,0.0,0.030394567660105853
+BitRate blocking probability per pair,2,all,1,8, ,0.013487331982064225,0.005443030536991607,0.11228846159167001,0.0293524330124877,0.04321418321238153
+BitRate blocking probability per pair,2,all,4,5, ,0.0,0.038025417033589706,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,5,3, ,0.0,3.4348305109102557E-4,0.006222500690553417,0.005261949348094606,0.0038318735571320887
+BitRate blocking probability per pair,2,all,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,5,4, ,0.012124491493369876,0.0,0.0015396567031396734,0.0,0.05230082371809266
+BitRate blocking probability per pair,2,all,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,2,1, ,0.002715952601638811,0.0,0.0,0.0,0.0024783165674460888
+BitRate blocking probability per pair,2,all,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,4,1, ,0.007872351631950023,0.0,6.372107516043193E-4,0.012373440944453038,0.05805256434842462
+BitRate blocking probability per pair,2,all,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,7,2, ,0.0,0.014728630420505248,0.016057875671095914,0.0,0.006838128670329311
+BitRate blocking probability per pair,2,all,7,1, ,0.014629540823130793,0.05823596644235866,0.007825305260749055,0.0011400191382065943,0.0822091116401076
+BitRate blocking probability per pair,2,all,2,4, ,0.0,0.0,0.00806646319091507,0.0,0.0
+BitRate blocking probability per pair,2,all,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,8,3, ,0.0328484507199535,0.015974127008730063,0.0072549599192914425,0.013736692546095537,0.006586445806250042
+BitRate blocking probability per pair,2,all,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,4,3, ,0.0,0.0,0.004763267616840608,0.0,0.005554579583921885
+BitRate blocking probability per pair,2,all,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,1,5, ,0.050745382316094795,0.036759643210639396,0.006365793515076894,0.008415729209880443,0.04567404813513056
+BitRate blocking probability per pair,2,all,4,7, ,0.025350306934052314,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,6,3, ,0.0,0.0,0.0,0.0337681996258255,0.0
+BitRate blocking probability per pair,2,all,8,1, ,0.05067228294648216,0.015599755403357438,0.007148686579596191,0.019562348204707352,0.04409510617709573
+BitRate blocking probability per pair,2,all,5,2, ,0.018667188463255623,0.03626683040524493,5.611358321057319E-4,0.04178906746734553,0.06159935148221033
+BitRate blocking probability per pair,2,all,4,6, ,0.0345962318927207,0.008176018888928459,0.0,0.013675450159294318,0.009420096542624695
+BitRate blocking probability per pair,2,all,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,2,7, ,6.77882985543173E-4,0.008471216679934227,0.048757924477488994,0.0,0.0
+BitRate blocking probability per pair,2,all,3,8, ,0.04339731714998991,0.0,0.0011421248889373272,0.0,0.00482116341846808
+BitRate blocking probability per pair,2,all,8,6, ,0.0,0.0,0.0,0.0024826766781146387,0.0
+BitRate blocking probability per pair,2,all,3,5, ,0.0,0.0,0.0,0.007675355330400953,0.04478607717352643
+BitRate blocking probability per pair,2,all,2,8, ,0.001162886157093062,0.0673154625052226,0.013850404224770588,0.024914489170250978,0.022318171091760233
+BitRate blocking probability per pair,2,all,2,5, ,0.02840982870014961,0.02953720802684017,0.012739439473126076,0.05013484246099205,0.1476860820639184
+BitRate blocking probability per pair,2,all,8,2, ,0.0110538405845651,0.025595415385191996,0.010436324853013037,0.020690649212681017,0.011105924861918746
+BitRate blocking probability per pair,2,all,6,2, ,0.0,0.0,0.0,0.0018680364461859831,0.0
+BitRate blocking probability per pair,2,all,2,3, ,0.0016210707334061549,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,1,7, ,0.0023706116047888994,0.03597966762275666,0.06511850892943549,0.005902245242453808,0.01029461731515394
+BitRate blocking probability per pair,2,all,7,4, ,0.0,0.00284738361294329,0.0,0.001868141153906066,0.0
+BitRate blocking probability per pair,2,all,6,5, ,0.0,0.0,0.0,0.0,4.001670852840148E-4
+BitRate blocking probability per pair,2,all,7,6, ,0.0,0.0,0.004660268226827756,0.0,0.0
+BitRate blocking probability per pair,2,all,5,1, ,0.010625834940819343,0.013777116565351633,1.3987797258665764E-4,0.055194195226350856,0.03181805820966773
+BitRate blocking probability per pair,2,all,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,4,2, ,0.0,0.03230762247277776,0.0,0.03123209651498115,0.0
+BitRate blocking probability per pair,2,all,6,4, ,0.01476136911860307,0.003501866383880702,0.012229700762379617,0.05652977061346466,0.0024585451565552804
+BitRate blocking probability per pair,2,all,1,4, ,0.0,0.010286591255217692,0.0,0.006326345547374588,9.841773227087366E-4
+BitRate blocking probability per pair,2,all,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,4,8, ,0.046037293540310636,0.0016252011573190763,0.0,0.007982647593845649,0.012184570010554013
+BitRate blocking probability per pair,2,all,7,3, ,0.04137291987108478,0.0323325626468059,0.014484966961048926,0.052046330652610696,0.01563109183038086
+BitRate blocking probability per pair,2,all,3,4, ,0.04858575688365277,0.0,0.0,0.00905003334108371,0.02948737106617682
+BitRate blocking probability per pair,2,all,8,4, ,0.009025363187021995,0.0,0.0,0.0,0.014057536447489038
+BitRate blocking probability per pair,2,all,3,7, ,0.013489644679313968,0.0052203874666191296,0.0028164184946123856,0.0,0.12485524921216466
+BitRate blocking probability per pair,2,all,7,5, ,0.0,0.0,0.0,0.0,0.0027855237087516913
+BitRate blocking probability per pair,2,all,6,7, ,0.0,0.0,0.008473924303820693,0.003864927940880169,0.0034856007059017435
+BitRate blocking probability per pair,2,all,6,1, ,0.0,0.0,0.010056530403734795,0.0,0.023913996216256367
+BitRate blocking probability per pair,2,all,1,3, ,0.0,0.01173994040152678,0.0,0.0,0.0
+BitRate blocking probability per pair,2,all,1,6, ,0.012685488883921821,0.0,0.0,0.0,0.004806355775977501
+BitRate blocking probability per pair,3,all,2,6, ,0.0,0.002633546020168422,0.03710722267940737,0.06028704152732213,0.01822306344252866
+BitRate blocking probability per pair,3,all,1,8, ,0.0467734528734663,0.05427577170509531,0.09773290506159533,0.061216912440398646,0.1463153448192388
+BitRate blocking probability per pair,3,all,4,5, ,0.026251697369441777,0.059802051315247795,0.0034948655700409595,0.0,0.010333905809469088
+BitRate blocking probability per pair,3,all,5,3, ,0.048217783341033,0.03490213758193448,0.05330010695721455,0.0,0.020431023880236515
+BitRate blocking probability per pair,3,all,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,5,4, ,0.005315949005365766,0.013783480673489772,0.003545306917173251,0.017014758607038657,0.01175909753268878
+BitRate blocking probability per pair,3,all,5,8, ,0.0,0.0,0.0,0.0,1.8934212768789756E-4
+BitRate blocking probability per pair,3,all,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,4,1, ,0.0,0.01690215767580867,0.006946334731059942,0.022013674569027662,0.0
+BitRate blocking probability per pair,3,all,3,6, ,0.0,0.008202902100739845,0.0,0.0,0.045472192404090235
+BitRate blocking probability per pair,3,all,7,2, ,0.0018526634403029127,0.060849229108226016,0.008795644254637134,0.037316780958442354,0.03517454288010672
+BitRate blocking probability per pair,3,all,7,1, ,0.049161293708172904,0.03695463804422425,0.023704739144334255,0.05829178893033932,0.014323899726744587
+BitRate blocking probability per pair,3,all,2,4, ,0.04357332611028406,0.0,0.006690894062685302,0.06243643235896539,0.0
+BitRate blocking probability per pair,3,all,1,2, ,0.006419392405121346,0.0,0.009361724536952961,0.003602097487351598,0.0
+BitRate blocking probability per pair,3,all,8,3, ,0.041661468690844375,0.009730227079407282,0.05311729455154464,0.015941887398904255,0.06972286412727435
+BitRate blocking probability per pair,3,all,7,8, ,0.0,0.0018169229253605119,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,4,3, ,0.0026721442789501178,8.534278396274335E-4,0.010516126923569043,0.015225478561770955,0.004333274529476325
+BitRate blocking probability per pair,3,all,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,1,5, ,0.05563615251845293,0.03191961489942263,0.028491121648360755,0.037726476058731355,0.1563872246084571
+BitRate blocking probability per pair,3,all,4,7, ,0.0,0.0209339847524671,0.024314235677316057,0.0,0.07350773981906113
+BitRate blocking probability per pair,3,all,6,3, ,0.0,0.04099452054238965,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,8,1, ,0.09173191614448582,0.13838996212623367,0.1290296234695725,0.06635593501772244,0.08964364159978076
+BitRate blocking probability per pair,3,all,5,2, ,0.28878805741189933,0.09179112420958561,0.09861890952687194,0.12215762765831244,0.15165242775655396
+BitRate blocking probability per pair,3,all,4,6, ,0.0,0.02050063861167943,0.025538301706394862,0.00382121236733033,0.0032046408409728945
+BitRate blocking probability per pair,3,all,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,2,7, ,0.036837286364356715,0.01282560444711406,0.00716915913268597,0.06996364038429492,0.0019662002015865096
+BitRate blocking probability per pair,3,all,3,8, ,0.004938515297865223,0.011686066995821838,0.0,0.12689110251113803,0.1273095831293349
+BitRate blocking probability per pair,3,all,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,3,5, ,0.016195332787674245,0.02688691244054574,0.001478992418108656,0.0510170842576202,0.05122236859893826
+BitRate blocking probability per pair,3,all,2,8, ,0.015375339850013707,0.023745275654366346,0.032993760810688756,0.06898457050765061,0.048005956312817025
+BitRate blocking probability per pair,3,all,2,5, ,0.06824912058989231,0.07687914482990123,0.07995189583627431,0.09170219978393865,0.12310615700684029
+BitRate blocking probability per pair,3,all,8,2, ,0.04758276204082158,0.061792232227623485,0.027968710816357392,0.02417330911552462,0.05402357990394081
+BitRate blocking probability per pair,3,all,6,2, ,3.2240386274454846E-4,0.00353537578267151,0.03750785356278547,0.050029272863754685,0.02964864663272608
+BitRate blocking probability per pair,3,all,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,1,7, ,0.054368967090685616,0.0761588655647307,0.031081301024924308,0.025186689052830474,0.03367051129512765
+BitRate blocking probability per pair,3,all,7,4, ,0.0,0.007645882334100465,0.0,0.0646468638576594,0.0
+BitRate blocking probability per pair,3,all,6,5, ,0.0,0.0,0.0,0.0,0.004677358444261867
+BitRate blocking probability per pair,3,all,7,6, ,0.0,0.0,0.0076940292471011735,0.0,0.00850856690179043
+BitRate blocking probability per pair,3,all,5,1, ,0.0528659465665076,0.13803401552898237,0.0877674538107331,0.05831544129067176,0.07637638699467254
+BitRate blocking probability per pair,3,all,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,3,1, ,0.0,0.0,0.010295073553557547,0.007852132045517417,0.0
+BitRate blocking probability per pair,3,all,4,2, ,0.0,0.0,0.02313450702750951,0.06734294413669314,0.0
+BitRate blocking probability per pair,3,all,6,4, ,0.005378581735053847,0.032992142824481256,0.005938534459735337,0.07637037313868825,0.0532842537123901
+BitRate blocking probability per pair,3,all,1,4, ,0.019904254246287195,0.011407276376946503,0.0642336790687574,0.0,0.003823920181506905
+BitRate blocking probability per pair,3,all,3,2, ,0.00528054600935787,0.0,4.728617908664086E-4,0.0,0.007774803825073766
+BitRate blocking probability per pair,3,all,4,8, ,0.0030730530419368477,0.03505974067573364,0.07408916061347683,0.0,0.012507306681243347
+BitRate blocking probability per pair,3,all,7,3, ,0.07644508506823763,0.024035181652927326,0.0949444671751984,0.02140846746015666,0.10079658940776408
+BitRate blocking probability per pair,3,all,3,4, ,0.022681762444661437,0.016799807509667208,0.09185680556175713,0.031253140632532615,0.014406007405711537
+BitRate blocking probability per pair,3,all,8,4, ,0.0025741383562799575,0.010556933454238852,0.0,0.0,4.2903099965495013E-4
+BitRate blocking probability per pair,3,all,3,7, ,0.04976521195272528,0.0783394386066001,0.02939099100478927,0.044125625160788176,0.1044354469740583
+BitRate blocking probability per pair,3,all,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,3,all,6,7, ,0.0,0.0,0.0,0.0,0.002940450920528142
+BitRate blocking probability per pair,3,all,6,1, ,0.06707541252719357,0.0493761760042552,0.06872273882085665,0.005508788043719639,0.04527564580836837
+BitRate blocking probability per pair,3,all,1,3, ,0.0,0.002045345666335232,7.030461746719101E-4,0.0,0.0
+BitRate blocking probability per pair,3,all,1,6, ,0.008216844959030845,0.019525737554279093,0.019435015127767005,0.02170120932784427,0.019990480236521134
+BitRate blocking probability per pair,4,all,2,6, ,0.03147880542110521,0.01510692184290567,0.11714748468295805,0.13906268601592528,0.04137562884120422
+BitRate blocking probability per pair,4,all,1,8, ,0.21514891160733096,0.08337261404700205,0.16196561666616932,0.32784608362838225,0.2680445829126809
+BitRate blocking probability per pair,4,all,4,5, ,0.002664391661494298,0.0,0.09235750680565506,0.029911320265470418,0.0
+BitRate blocking probability per pair,4,all,5,3, ,0.09236739857809734,0.047454970881707595,0.020957997451710526,0.13293410742332157,0.21559825892884327
+BitRate blocking probability per pair,4,all,6,8, ,0.009802753508066479,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,4,all,5,4, ,0.0,0.011330643258828165,0.02141612224930225,0.04694102997053046,0.04287161876210512
+BitRate blocking probability per pair,4,all,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,4,all,2,1, ,0.0,0.010177832086058628,0.0,0.012733530290200183,0.0
+BitRate blocking probability per pair,4,all,5,7, ,0.0031034818919865627,0.0,0.0,0.012072807511944289,0.0
+BitRate blocking probability per pair,4,all,4,1, ,0.0,0.030110545213318657,0.0,0.009872614742693155,0.03608802508889985
+BitRate blocking probability per pair,4,all,3,6, ,0.0,0.013880466988572183,0.0,0.06710945611733056,2.4367425441329443E-4
+BitRate blocking probability per pair,4,all,7,2, ,0.022346294531018104,0.0934882070873996,0.06355791420431259,0.049237230416618046,0.041385968321409006
+BitRate blocking probability per pair,4,all,7,1, ,0.016212086956388327,0.12703918981048964,0.05501032384672353,0.09897206646361023,0.05887263851007805
+BitRate blocking probability per pair,4,all,2,4, ,0.0,0.07017056216991205,0.0,0.06126196813270734,0.002974210844248219
+BitRate blocking probability per pair,4,all,1,2, ,0.0,0.0,0.004288168964064803,0.0,0.004581251833450824
+BitRate blocking probability per pair,4,all,8,3, ,0.04606568235600763,0.05857136704855639,0.045873402089805775,0.12315836885364272,0.07538674906411419
+BitRate blocking probability per pair,4,all,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,4,all,4,3, ,0.0547369963521315,0.050293451797700416,0.005122595982877417,0.04289462678616805,0.033609994498326995
+BitRate blocking probability per pair,4,all,5,6, ,0.0,0.0,0.0,0.05565297801399133,0.0
+BitRate blocking probability per pair,4,all,1,5, ,0.15510447349187664,0.07664272035575993,0.21291555700343562,0.3073082420974149,0.14299091739438857
+BitRate blocking probability per pair,4,all,4,7, ,0.0,0.0,0.07063132463401679,3.04140471280269E-4,0.0
+BitRate blocking probability per pair,4,all,6,3, ,0.01524159935498212,0.0,0.032972933985441766,0.0016989958477004767,0.05368722167326579
+BitRate blocking probability per pair,4,all,8,1, ,0.16051053140924912,0.08209224487708912,0.12932558281432216,0.27141033466449677,0.21542708085426296
+BitRate blocking probability per pair,4,all,5,2, ,0.1053423250711072,0.0869975972663261,0.1648144741789042,0.18243059006252277,0.11863516692682813
+BitRate blocking probability per pair,4,all,4,6, ,0.011421241844613706,0.0,0.1338838761664671,0.10686550635674359,0.08745787282567795
+BitRate blocking probability per pair,4,all,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,4,all,2,7, ,0.025959878901828815,0.002189991266442882,0.14238923674280976,0.10435967427742342,0.07037467924674114
+BitRate blocking probability per pair,4,all,3,8, ,0.049525786741043784,0.023935233422652347,0.08105341049284852,0.167942287332324,0.008586683486638255
+BitRate blocking probability per pair,4,all,8,6, ,0.0,0.0,0.0,0.011367669980030309,0.0
+BitRate blocking probability per pair,4,all,3,5, ,0.04946710303081419,0.04161131085695586,0.03763525560411781,0.18906793388726378,0.05953511053133835
+BitRate blocking probability per pair,4,all,2,8, ,0.04475467475151987,0.08184095755563474,0.09866835567611355,0.12456633324811295,0.08030986777095095
+BitRate blocking probability per pair,4,all,2,5, ,0.19475768915686803,0.08873838063752917,0.24452040828406785,0.29265492110169333,0.19641074020544563
+BitRate blocking probability per pair,4,all,8,2, ,0.10762229172044456,0.08179163435246344,0.02832783077317491,0.024439461659092193,0.081643031982523
+BitRate blocking probability per pair,4,all,6,2, ,0.04408137741910669,0.04709489373259942,0.03189464642070138,0.05192928985390313,0.04710258275593076
+BitRate blocking probability per pair,4,all,2,3, ,0.0290793550238452,0.0,0.006335786351937147,0.0,0.024832945786566783
+BitRate blocking probability per pair,4,all,1,7, ,0.01713335757942305,0.029407681079318047,0.20019633862990036,0.09840764420808082,0.04141661350197808
+BitRate blocking probability per pair,4,all,7,4, ,0.0,0.08103019302707884,0.0,0.0,0.03614302087166974
+BitRate blocking probability per pair,4,all,6,5, ,0.0,0.0,0.0,0.010220860712822044,0.0
+BitRate blocking probability per pair,4,all,7,6, ,0.0,0.0,0.0,0.02815690658928361,0.022215063649162696
+BitRate blocking probability per pair,4,all,5,1, ,0.16869512645623905,0.17304004572560144,0.12815278370002164,0.3300524308814769,0.18417686249364018
+BitRate blocking probability per pair,4,all,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair,4,all,3,1, ,0.0,0.0,0.0,0.0,0.0013295528320165645
+BitRate blocking probability per pair,4,all,4,2, ,0.0,0.0854201098040277,0.03874109056065304,0.0010895399149314239,0.0
+BitRate blocking probability per pair,4,all,6,4, ,0.041857241875518085,0.03259901739075959,0.03565808882500365,0.06549805289875468,0.14788424697691988
+BitRate blocking probability per pair,4,all,1,4, ,0.007227504588270892,0.0,0.008802968277628604,0.013238814665005455,0.021081355008438715
+BitRate blocking probability per pair,4,all,3,2, ,0.0,0.004920451535475064,0.0,0.0,0.0
+BitRate blocking probability per pair,4,all,4,8, ,0.041641320326215654,0.0,0.008132901707028755,0.05126707439380707,0.004323935087945952
+BitRate blocking probability per pair,4,all,7,3, ,0.21155526530861918,0.0676435643217183,0.04707714824231329,0.24147755034498597,0.12795277189833218
+BitRate blocking probability per pair,4,all,3,4, ,0.0,0.01919000748191699,0.049169394979478205,0.0351811369485264,0.018019892396204024
+BitRate blocking probability per pair,4,all,8,4, ,0.02640408136419432,0.013457989707006329,0.027132208083401735,0.04693309942204318,0.020869248184696192
+BitRate blocking probability per pair,4,all,3,7, ,0.05796295099091104,0.028487856617953642,0.07744322275399768,0.1421407518026439,0.22984309767121347
+BitRate blocking probability per pair,4,all,7,5, ,0.001145919919998908,0.0,0.004763547644983766,6.153710021327123E-4,0.0
+BitRate blocking probability per pair,4,all,6,7, ,0.007517106071812479,0.0,0.02450152432128698,0.006249065388412752,0.003859096901836727
+BitRate blocking probability per pair,4,all,6,1, ,0.1110152217868867,0.08525954956005989,0.048787916112406224,0.14687549688569346,0.1876979075251598
+BitRate blocking probability per pair,4,all,1,3, ,0.0,0.0,0.0,0.008522657220904705,0.019864259764022393
+BitRate blocking probability per pair,4,all,1,6, ,0.022739254106638167,0.04689249439628135,0.02656564450531943,0.1435558760210375,0.010537419999248331
+
+
+BitRate blocking probability per bitRate,0,100.0Gbps,all,all, ,0.001555903450397499,0.0,0.003923150554939959,0.0019817001171386654,0.0016621061205223512
+BitRate blocking probability per bitRate,0,200.0Gbps,all,all, ,1.4229537144596073E-4,0.0,0.005453652341455925,3.1132572601347313E-4,5.165733576446737E-4
+BitRate blocking probability per bitRate,0,400.0Gbps,all,all, ,0.0,0.0,0.0021732005902336034,0.0,5.120519996656902E-4
+BitRate blocking probability per bitRate,0,300.0Gbps,all,all, ,3.0453878927334225E-5,0.0,5.131610817046972E-4,0.0,5.300676639417672E-4
+BitRate blocking probability per bitRate,0,500.0Gbps,all,all, ,0.0,0.0,0.0,0.0,0.0017283043162353937
+BitRate blocking probability per bitRate,1,100.0Gbps,all,all, ,0.004480866605174235,0.003343798622433535,0.0017550796659545518,0.0020101704620095603,0.0013138812712006644
+BitRate blocking probability per bitRate,1,200.0Gbps,all,all, ,0.005674909919510558,0.0019530561894856619,0.006546507809757234,0.007150668743315366,4.922758228090146E-5
+BitRate blocking probability per bitRate,1,400.0Gbps,all,all, ,0.005629551213439339,5.499399158864412E-4,0.0021589950585693173,0.002013706604143784,0.0
+BitRate blocking probability per bitRate,1,300.0Gbps,all,all, ,0.006805789510602444,0.004681467478532231,0.003730245591871229,0.003514647498658248,0.0011003199747176393
+BitRate blocking probability per bitRate,1,500.0Gbps,all,all, ,0.0022267099851653468,0.0,5.08187012567503E-4,0.0016807482523158825,0.003859457174084667
+BitRate blocking probability per bitRate,2,100.0Gbps,all,all, ,0.010475034304273033,0.009375528831448498,0.004862063382299662,0.007006273521258951,0.012560864750733525
+BitRate blocking probability per bitRate,2,200.0Gbps,all,all, ,0.008705651381970615,0.008816490895489491,0.006631123554022827,0.006478717327120476,0.014711832968636216
+BitRate blocking probability per bitRate,2,400.0Gbps,all,all, ,0.0028018454869651803,0.004934950845183161,0.004989471751912926,0.009707291626260316,0.027505796540318424
+BitRate blocking probability per bitRate,2,300.0Gbps,all,all, ,0.011944176685138986,0.007623144693841094,0.004104924747083862,0.009154547365521917,0.017111204591077674
+BitRate blocking probability per bitRate,2,500.0Gbps,all,all, ,0.01992162796978973,0.01636749967521593,0.017176051687263553,0.011698865349832171,0.009613998308887938
+BitRate blocking probability per bitRate,3,100.0Gbps,all,all, ,0.010977568551851363,0.024944928501988203,0.022340053502998596,0.02741220258096376,0.019473703981349257
+BitRate blocking probability per bitRate,3,200.0Gbps,all,all, ,0.015790084174206864,0.01788244333232762,0.01769771099887636,0.028758097623161626,0.029771620676512265
+BitRate blocking probability per bitRate,3,400.0Gbps,all,all, ,0.02674917921099534,0.03107037211394799,0.027480081348868757,0.02097591069735105,0.03543235871454769
+BitRate blocking probability per bitRate,3,300.0Gbps,all,all, ,0.03009609802214097,0.018938674189934567,0.030003888358542834,0.02513462187770032,0.033028568686931103
+BitRate blocking probability per bitRate,3,500.0Gbps,all,all, ,0.020817409476644084,0.03416655818041827,0.023683937207632025,0.03029611982019586,0.03799197309131775
+BitRate blocking probability per bitRate,4,100.0Gbps,all,all, ,0.027077030497148973,0.030900128258734817,0.026476297667495156,0.06562401231013194,0.03382150932870468
+BitRate blocking probability per bitRate,4,200.0Gbps,all,all, ,0.030163385671388907,0.03660223195990698,0.04277766734450932,0.08516401089091015,0.04810972272029441
+BitRate blocking probability per bitRate,4,400.0Gbps,all,all, ,0.06177400253086284,0.03759005753801353,0.062286631256434535,0.07116570946246915,0.054743299022613295
+BitRate blocking probability per bitRate,4,300.0Gbps,all,all, ,0.0348452898673751,0.02442329896566207,0.043240091168551674,0.07856850655741263,0.06827846953969453
+BitRate blocking probability per bitRate,4,500.0Gbps,all,all, ,0.04531480900369069,0.04270653465691095,0.06268067499725481,0.07559744284198365,0.06910496587978299
+
+
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,1,8, ,0.0,0.0,0.0,0.015475800164688996,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,1,5, ,0.0,0.0,0.016876422154546673,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,8,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.008523755586135003
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,3,8, ,0.0,0.0,0.11790875228548904,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,2,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.09121878642317151
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,1,7, ,0.0,0.0,0.0,0.08524188525417814,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,5,1, ,0.06617721900443688,0.0,0.002213851750477141,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,6,4, ,0.012748729929655839,0.0,0.07340463748206118,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,8,4, ,0.0,0.0,0.03507685010290845,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,100.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,1,8, ,0.0,0.0,0.0,0.021625706077209976,0.00819579386872408
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,5,3, ,0.0,0.0,0.10636168133606319,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.004031107513310735
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,4,1, ,0.0,0.0,0.0435836997960406,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,1,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,6,3, ,0.0,0.0,0.025632537223787583,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,8,1, ,0.0,0.0,0.0210088083966087,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,2,5, ,0.0,0.0,0.031167036830458777,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,1,7, ,0.0,0.0,0.0,0.002130332619580883,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,7,4, ,0.0,0.0,0.021666262968124878,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,5,1, ,0.0,0.0,0.03184097292108505,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,4,2, ,0.0,0.0,0.0334899151277526,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,6,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,4,8, ,0.006428547309145286,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.013254491098361097
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,200.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,1,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.03299227200230687
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,1,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,8,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,2,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,1,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,5,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,6,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,6,1, ,0.0,0.0,0.10154442781667031,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,400.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,1,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,1,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,8,1, ,0.0,0.0,0.023158523747133588,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,2,5, ,0.0,0.0,0.0,0.0,0.03754344522433274
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,1,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,5,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,6,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,4,8, ,9.48636942093702E-4,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,300.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,1,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,1,5, ,0.0,0.0,0.0,0.0,0.1324107234927395
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,8,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,2,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,1,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,5,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,6,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,0,500.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,1,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,4,5, ,0.010316199213352929,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,5,3, ,0.0022173237546311416,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,7,2, ,0.0,0.02228670293597668,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,7,1, ,0.020543053893940882,0.02094059612278435,0.018826714833651503,0.0,0.06541999947517235
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,1,5, ,0.0022614451848696313,0.04942621722823772,0.0,0.016988258453281006,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,8,1, ,0.0,0.0,0.04295249034142287,0.0017023503752606015,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,5,2, ,0.0,0.0,0.029988538427553363,0.038516011012596815,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,4,6, ,0.0,0.0,0.0,0.04588598030061705,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.003803682075959396
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,2,8, ,0.0076063258639362,0.0,0.0,0.00675182425151354,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,2,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,8,2, ,0.0,0.014321324349237576,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,1,7, ,0.026698532387627327,0.03183225541481423,0.006214717000746466,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,5,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,6,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,1,4, ,0.035836561180022784,0.0,0.004316353111279611,0.02565231240673877,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,4,8, ,0.0,0.029270668112197275,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,7,3, ,0.14473289410088291,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,8,4, ,0.03692346489591677,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,100.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.007365318835270001
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,1,8, ,0.04873756837513009,0.0,0.029059314093110324,0.13295597377159044,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,5,4, ,0.008638221903046316,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,4,1, ,0.0,0.0,0.0,0.051190285448376484,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,7,2, ,0.0,0.021328824247543482,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,7,1, ,0.003991062658783296,0.0,0.09512680279868148,0.004114295673186533,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,2,4, ,0.011001994131409553,0.05526831912639155,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,1,2, ,0.018061679195316368,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,1,5, ,0.0,0.0,0.0024195165161357366,0.07312909267955041,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,8,1, ,0.03588356391212589,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,5,2, ,0.006215554424131056,0.0,0.024900260928248215,0.020899465523199233,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,4,6, ,0.0,0.031478653363717635,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,2,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,8,2, ,0.0,0.0,0.13747061384294362,0.0022951375610885615,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,6,2, ,0.0,0.0,0.04527258486195312,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,1,7, ,0.0,0.0,0.017275482963059755,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,7,4, ,0.0044294549107484595,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,5,1, ,0.0,0.0,9.183866083595064E-4,0.1002053938116996,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,4,2, ,0.0,9.005535173654217E-4,0.01373775290883014,0.06363292397117441,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,6,4, ,0.0,0.0,0.022169731605981388,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.002876852088424859
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,7,3, ,0.046962330176161,0.0,0.01443251206028118,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,3,4, ,0.0,0.0,0.0,0.01959533738227153,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,6,7, ,0.02397395461115757,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,6,1, ,0.0636672202701516,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,1,3, ,0.017863023212609477,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,200.0Gbps,1,6, ,0.01072911431136544,0.008966777031426799,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,2,6, ,0.0,0.0,0.0,0.020505516726793255,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,1,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,5,3, ,0.024196459403292955,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,2,4, ,0.0,0.0,0.0,0.008177919634982336,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,8,3, ,0.0,0.0,0.01106259905689221,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,1,5, ,0.2254631738091881,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,8,1, ,0.0,0.0,0.029520187004700254,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,2,7, ,0.0,0.03082613870390474,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,3,8, ,0.007712038073257033,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,2,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,1,7, ,0.0,0.0,0.08198525838437712,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,5,1, ,0.0,0.0,0.0,0.06432227835898188,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,6,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,1,4, ,0.021025152809089943,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,3,7, ,0.03749434632826306,0.001011495931800439,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,400.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,1,8, ,0.0,0.0,0.04588082987296259,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,4,1, ,0.0,0.0,0.02064032276616456,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,8,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,1,5, ,0.018684820565164878,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,4,7, ,0.0,0.1797111192563347,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,8,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.00912345593306245
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,2,7, ,0.0,0.0,0.012085944763996657,0.0,0.040780333396908786
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,3,8, ,0.005773198340007214,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,3,5, ,0.0,0.0,0.014228616230986375,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,2,5, ,0.0,0.0382073463225599,0.0,0.02252387235207283,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,8,2, ,0.0,0.024529423944962003,0.06758863538989587,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,6,2, ,0.04257311119258048,0.0,0.004488891259743561,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,1,7, ,0.030579590743631743,0.0,0.004512331704483124,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,5,1, ,0.0,0.04173887991009995,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,4,2, ,0.0,0.0,0.058457315731025125,0.029961241327999835,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,6,4, ,0.04804483805185967,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0017204524768079234
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,4,8, ,0.0,0.0,0.0,0.08087847247537915,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,7,3, ,0.0,0.0,8.165840428840287E-4,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,3,4, ,0.0,0.0,0.0,0.06163795063125156,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,3,7, ,0.10917888828725746,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,6,7, ,0.031055483680076264,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,300.0Gbps,1,6, ,0.07170103040889166,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,1,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,4,5, ,0.13454628220401887,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,7,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.12762170445092882
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,8,3, ,0.003958760357166084,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,1,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,8,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,5,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,2,5, ,0.0,0.0,0.0,0.040471876890723145,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,6,2, ,0.0,0.0,0.02342752530040335,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,1,7, ,0.0,0.0,0.005306137643078476,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,5,1, ,0.031845592227224835,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,6,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,7,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,3,7, ,0.0,0.0,0.0,0.06156194065015343,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,1,500.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.005736227682118787
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,1,8, ,0.009350571412797614,0.0,0.0,0.0,0.019196136261930785
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,5,3, ,0.0,0.0,0.0,0.010075291647561152,0.0208415241340354
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,4,1, ,0.03971171523762232,0.0,0.0,0.08910066491584583,0.0304058638146557
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,7,2, ,0.0,0.0032170554625306482,0.0,0.0,0.030443463352880888
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,7,1, ,0.03976532795032654,0.0918339372089026,0.0,0.0,0.36549167537968186
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,8,3, ,0.0,0.0,0.0,0.034763871530634746,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,1,5, ,0.24861899679025962,0.19105534915040717,0.017299152975492272,0.0,0.005178277767016553
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,6,3, ,0.0,0.0,0.0,0.00530766847598034,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,8,1, ,0.0,0.03672450703755752,0.017509296309452676,0.01661292454252984,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,5,2, ,0.0,0.0071161066190414835,0.0,0.0060976474414415486,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,4,6, ,0.0038327148219264723,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,2,7, ,0.0067034051374419085,0.0,0.06178738241819348,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,3,5, ,0.0,0.0,0.0,0.04949968543646921,0.015879159463532713
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,2,8, ,0.0,0.0,0.027425647814610453,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,2,5, ,0.008757237164362875,0.0,0.013019486939528393,0.0,0.08632420138097276
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,8,2, ,0.0027407155772026463,0.12108537731622124,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,6,2, ,0.0,0.0,0.0,0.01651709381335506,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,1,7, ,0.0,0.0,0.0,0.014346031342567542,0.07702814283828124
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,7,4, ,0.0,0.0,0.0,0.017070452218559056,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,7,6, ,0.0,0.0,0.028895340084004552,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,5,1, ,0.0,0.006048169279622921,0.0,0.004662102851865394,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,6,4, ,0.04303930454213032,0.0,0.0033807335285767123,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,1,4, ,0.0,0.0024577580533395762,0.0,0.04210486475045737,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,4,8, ,0.0,0.00896105963767145,0.0,0.008593084904728977,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,7,3, ,0.0,0.0,0.10292059997321823,0.00786788384603748,0.03644728746779714
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,3,4, ,0.17126975004535258,0.0,0.0,0.042229449738390254,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.03338102480474485
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,6,7, ,0.0,0.0,0.0,0.020154196593491488,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,100.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.004241294486866243
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,1,8, ,0.017634163759982825,0.010944179836936413,0.09203584393275577,0.0,0.030978975046106322
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,4,5, ,0.0,0.04230078430097577,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,5,3, ,0.0,0.0013527798632857254,0.0076080480983822946,0.0,9.626778084397466E-4
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,5,4, ,0.04233674730187961,0.0,0.007106070947759248,0.0,0.018974638170607835
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,2,1, ,0.013465885961474617,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.010931372410851152
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,7,1, ,0.04728604080633389,0.06460201652449572,0.004959227547757503,0.0,0.033944068973546335
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,2,4, ,0.0,0.0,0.03280560318068612,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,8,3, ,0.0,0.0030330582251420204,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,4,3, ,0.0,0.0,0.021223148658364065,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,1,5, ,0.0,0.0,0.0,0.029596038977007928,0.01114291760605304
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,4,7, ,0.10031462891539128,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,6,3, ,0.0,0.0,0.0,0.10445320816690892,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,8,1, ,5.177444833642048E-4,0.0,0.0,9.083632690868078E-4,0.11097633224473887
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,5,2, ,0.0,0.02316170193411605,0.0024252288921767103,0.11251866077727485,0.059361468309396634
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,4,6, ,0.0,0.0,0.0,0.0,0.03467174655770046
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,2,7, ,0.0,0.03265650344836659,0.004168168332807725,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,3,8, ,0.025689442785932978,0.0,0.0,0.0,0.01781681991811952
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,8,6, ,0.0,0.0,0.0,0.010801760309179148,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0068452375254914
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,2,8, ,0.007892872315638828,0.018172750447460608,0.016465849673742858,0.0,0.011602570994437657
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,2,5, ,0.05260005017593273,0.0,0.011149942276285508,0.012122265611932383,0.02532159434170077
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,8,2, ,0.04447178642497664,0.0,0.061924864708115666,0.03255589252886275,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,2,3, ,0.007005010547456482,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,1,7, ,0.014052204481520081,0.05069615392483648,0.06481520203979409,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0015414229666725445
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,5,1, ,0.0,0.029322814267094634,0.0,0.05423388624658835,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,4,2, ,0.0,0.1568826891285029,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,6,4, ,0.0109830555733581,0.01922667415126814,0.0,0.010622713529110107,0.004665926798984024
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,1,4, ,0.0,0.009487809824071262,0.0,0.0,0.004754852292620363
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,4,8, ,0.0202641859346025,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,7,3, ,0.0,0.0,0.0,0.0021043926546416014,0.008864354688722337
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.024667963338945227
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,3,7, ,0.05592696178959846,0.0,0.0,0.0,0.24273835473189684
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.009523270496776615
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,6,7, ,0.0,0.0,0.04480124934612096,0.0,0.01737542214850341
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0427679565286966
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,1,3, ,0.0,0.037823027441008156,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,200.0Gbps,1,6, ,2.1619324669414078E-4,0.0,0.0,0.0,0.022884929730486538
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,2,6, ,0.03070177296406159,0.0,0.0,0.0,0.18043892820341279
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,1,8, ,0.007073587811564687,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,5,3, ,0.0,0.0,0.024625370345548504,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.007802442594333634
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.1405023615152991
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,7,1, ,0.0,0.027912021546030417,0.019083992200560253,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,8,3, ,0.0,0.0,0.013514011887855885,0.0,0.02977781607745576
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.01940851946668988
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,1,5, ,0.0,0.0,0.0,0.0,0.07779317144493657
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,8,1, ,0.0,0.0,0.01850820720248731,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,5,2, ,0.0,0.06245729377355128,0.0,0.06195839796594183,0.18312662486561115
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,4,6, ,0.0,0.0,0.0,0.057117951736078296,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,2,7, ,0.0,0.0,0.06923958406139476,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,3,8, ,0.014495167078063934,0.0,0.0046159335337922795,0.0,9.756455126672701E-4
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.13327074805666206
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,2,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,2,5, ,0.0,0.0,0.0049018764736745105,0.08823873443588612,0.19081734203756212
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,8,2, ,0.0,0.0,0.0,0.0,0.06195603439315241
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,1,7, ,0.0,0.08387744202267064,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,5,1, ,0.03253137351895166,0.0,7.072923955159053E-4,0.14903253894438528,0.18245544446649029
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,6,4, ,0.02394611332557743,0.0,0.039076572777728795,0.10346414398411292,0.005163283273484998
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,1,4, ,0.0,0.025528380166477283,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,4,8, ,0.0,0.002012978936296308,0.0,0.0,0.08248330323248088
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,7,3, ,0.0,0.06419378915330926,0.0,0.04216475358901395,0.019044517609898504
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,3,4, ,0.0,0.0,0.0,0.0,0.13345186149405086
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.011862229974417167
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,3,7, ,0.0,0.014086877794161299,0.01215382544799852,0.0,0.10963456667518072
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,400.0Gbps,1,6, ,0.07033784294587868,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,2,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,1,8, ,0.02243537466702027,0.0,0.0,0.09329454452352538,0.13123136791849832
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,4,5, ,0.0,0.10395341127237062,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,5,3, ,0.0,0.0,0.0,0.012801971285115706,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.1064293373077279
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,4,1, ,0.0,0.0,0.0020950065696415062,0.0,0.04606450920999259
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,7,2, ,0.0,0.04159677172555266,0.08590577301058935,0.0,0.010550462633325553
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,7,1, ,0.0,0.0,0.0,0.006794861635199516,0.030846200645594766
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,8,3, ,0.0035274054640569395,0.05883369639994111,0.0,0.029601451822128207,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,1,5, ,0.020593281044810775,0.008112643618807194,0.016571991139767237,0.0,0.07250879493612242
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,8,1, ,0.08635632162130391,0.0,0.0,0.03811825497902558,0.03925582445397552
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,5,2, ,0.005386363827852667,0.03702303269038545,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,4,6, ,0.09237076947487655,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,2,7, ,0.0,0.0,0.07200531148412453,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,3,8, ,0.20945002544719404,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,2,8, ,0.0,0.0,0.0,0.0019479137965723833,0.0687086471831303
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,2,5, ,0.042128728372288954,0.1397829319767683,0.0236075034767366,0.09919865771094263,0.2599499954240469
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,8,2, ,0.0,0.0,0.0,0.02879790730739272,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,6,2, ,0.0,0.0,0.0,1.2177975086060693E-4,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,1,7, ,0.0,0.0,0.051710615195629035,0.012711688105012274,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,7,4, ,0.0,0.011589946728528717,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,5,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,4,2, ,0.0,0.0,0.0,0.1046252064224471,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,6,4, ,9.843669280795797E-4,0.0,0.0,0.05515180624425064,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,4,8, ,0.0,0.0,0.0,0.0279823782105673,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,7,3, ,0.13619384230871648,0.0,0.0,0.0,0.014068496249355045
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,3,4, ,0.01930029399691455,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,8,4, ,0.009981209462606203,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.038399951061734994
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,6,1, ,0.0,0.0,0.0,0.0,0.044324444783343984
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,300.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,2,6, ,0.06962307762463903,0.046781820104039154,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,1,8, ,0.0,0.021171197341254312,0.4517683955695774,0.046648416322471874,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,4,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,5,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.12380022695864146
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,7,2, ,0.0,0.0,0.0,0.0,0.007380523053430939
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,7,1, ,0.0,0.11014083388837512,0.0,0.0,0.01488449340805595
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,8,3, ,0.2194225723721991,0.0,0.03958955824712498,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,1,5, ,0.0,0.0,0.0,0.0,0.035076826712158844
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,8,1, ,0.12791109761797342,0.153540103017591,0.0,0.04010553099974268,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,5,2, ,0.3275551760924703,0.036528283360586444,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,4,6, ,0.0,0.08018787980099863,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,2,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,3,8, ,0.0,0.0,0.0,0.0,0.01091034582806015
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,3,5, ,0.0,0.0,0.0,0.0,0.06989421290319603
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,2,8, ,0.0,0.2900114408407755,0.07195897677277069,0.13907063630461128,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,2,5, ,0.0,0.0,0.015177908565826445,0.0,0.006309520727341802
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,8,2, ,0.0,0.0,0.0,0.08818380972295692,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,6,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,1,7, ,0.0,0.0,0.43987773695871507,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,5,1, ,0.0,0.0437533050148449,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,6,4, ,0.0,0.0,0.0,0.14403236552140877,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,4,8, ,0.24865436620319842,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,7,3, ,0.026609435198134176,0.14396696944456638,0.0,0.15402637598338398,0.0022464424607108653
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,3,4, ,0.1089758405247682,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,8,4, ,0.03612167530432146,0.0,0.0,0.0,0.03536421718109918
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,3,7, ,0.0,0.0,0.0,0.0,0.15439183536764767
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,6,1, ,0.0,0.0,0.09513081616995986,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,2,500.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,2,6, ,0.0,0.010182410281618861,0.0,0.011974088126653893,0.0034301064657969466
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,1,8, ,0.0,0.017272385730189292,0.120953404665827,0.0926605079210562,0.05206402493566227
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,4,5, ,0.0,0.008225688545858239,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,5,3, ,0.0,0.05855751776749192,0.02680400285946868,0.0,0.0596401765957631
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,5,4, ,0.02929000810399505,0.0,0.025744186030592746,0.05287343751450677,0.021220381807747227
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,4,1, ,0.0,0.006672610544028223,0.027603255151235826,0.071869729624175,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,7,2, ,0.01638022907046915,0.02204293170215207,0.010468904685845524,0.015814069563250842,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,7,1, ,0.0,0.0,0.10515497932319309,0.028784495462945918,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,2,4, ,0.0,0.0,0.0349645125170465,0.0457086108374491,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,1,2, ,0.04779069910222142,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,8,3, ,0.027392846642549467,0.05407038110595137,0.005434718968455727,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,4,3, ,0.0,0.0,0.0,0.07625905670676332,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,1,5, ,0.0,0.04264268879266027,0.002148116887919311,0.046354304917371365,0.0162636692165984
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,4,7, ,0.0,0.12012204639879932,0.0238652374280798,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,8,1, ,0.016147627216831377,0.13867192322598143,0.13947259205930715,0.05807166995219756,0.0015693280559316849
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,5,2, ,0.4072955689066963,0.08886088876255299,0.010853950277654846,0.05076698998032711,0.5017849130352618
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,4,6, ,0.0,0.01901021527045861,0.0,0.0,0.0027747776860571425
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,2,7, ,0.023277591498406625,0.00829901389189083,0.05476470558768161,0.03553187242300053,0.002565302273891037
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,3,8, ,0.026477801508341562,0.0,0.0,0.027562434352631157,0.07120283812895846
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,3,5, ,0.0,0.0,0.0,0.27608992872964233,0.03969986154329422
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,2,8, ,0.0,0.025231664006636702,0.0,0.12620841232670285,0.021762475624856288
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,2,5, ,0.04325905393183267,0.008047127920258468,0.2760846216007034,0.06732881997604111,0.0482531195780279
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,8,2, ,0.0,0.01227426578680683,0.07878544641363631,0.04106390677982552,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,6,2, ,0.0,0.0,0.03402721108418666,0.09282781644568242,0.015359696288820496
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,1,7, ,0.05859718801648859,0.043642781435495236,0.057913445842428884,0.09550209819445292,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,7,4, ,0.0,0.04263690714709133,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,5,1, ,0.0,0.05078254152993058,0.029990309668592747,0.021668500393997373,0.055236554712180544
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,4,2, ,0.0,0.0,0.011805413990874999,0.03226782375891237,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,6,4, ,0.0,0.0,0.0,0.017582992054100455,0.002269028805472644
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,1,4, ,0.022729625805309198,0.002418483917366575,0.027586826292692265,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,3,2, ,0.0,0.0,0.0038054465351268904,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,4,8, ,0.0,0.23536610109004685,0.08738956028334266,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,7,3, ,0.0,0.0,0.0,0.02609278770540374,0.07173484462409693
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,3,4, ,0.0029802244288315172,0.0,0.002600464682932781,0.0010091928174842586,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,8,4, ,0.01542286264280986,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,3,7, ,2.650241296305245E-4,0.36725517160768656,0.037662320795990446,0.08058091968085088,0.1661309200219536
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,6,1, ,0.0,0.0,0.02118954268201475,0.011871846500837103,0.058037484668706854
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,1,3, ,0.0,0.0,0.004249073215746227,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,100.0Gbps,1,6, ,0.0,0.0,0.061114732904156074,0.025257095527812964,0.022509712643758804
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,2,6, ,0.0,0.0,0.005306618082238799,0.04467455181695244,0.04181805605438157
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,1,8, ,0.15685316695910953,0.010500178019228324,0.08393284491334037,0.05582552282048174,0.15058007535033524
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,4,5, ,0.0,0.0881628953039015,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,5,3, ,0.0,2.9134970430004986E-4,0.06283725263083247,0.0,0.022866077623885525
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,5,4, ,0.0,8.661936177011038E-4,0.0,0.06051470678441747,0.010701041541919374
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,5,8, ,0.0,0.0,0.0,0.0,9.303840859784269E-4
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,7,2, ,0.0,0.0,0.005992313364972301,0.023772901972616674,0.013671567345301514
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,7,1, ,0.10323221256943076,0.08802220561597805,0.014370426854966926,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,2,4, ,0.11277973914701181,0.0,0.0,0.10480037852995605,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,8,3, ,0.0,0.0,0.048239078324767516,0.0,0.044318226845107125
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,7,8, ,0.0,0.007083126224604596,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,4,3, ,0.01248061241329774,0.0,0.00952351797820964,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,1,5, ,0.0,0.009662049911720002,0.07659921558159315,0.09322968935697473,0.13030502524580348
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,4,7, ,0.0,0.004256553314951096,0.0,0.0,0.2905454321078144
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,6,3, ,0.0,0.04661800859704682,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,8,1, ,0.0647353008119173,0.05189343148910464,0.04946910226648774,0.03789366460123669,0.02003079827200996
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,5,2, ,0.06832243783287716,0.0989538902363029,0.06978553205857754,0.16974736009690305,0.03788149877346892
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,4,6, ,0.0,0.06028539348266743,0.0,0.012111675203881669,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,2,7, ,0.0,0.0,7.507402242953728E-5,0.018042012451067055,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,3,8, ,0.0,0.0,0.0,0.14627173528658846,0.04270170774512528
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,3,5, ,0.0,0.006191848835320932,0.0,0.006986528733527899,0.007668292124743392
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,2,8, ,0.0,0.01400457144686705,0.05463948463611227,0.003391572872164049,0.007123643280745948
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,2,5, ,0.0,0.015725804988905336,0.0695946053652556,0.026196232089592243,0.1281646084817315
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,8,2, ,0.03140790761409275,0.10628136981631629,0.0,0.0041114186236287905,0.012517149990644853
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,6,2, ,0.0,0.014262622122085906,0.07380832108944903,0.047221813631425184,0.08427261170668435
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,1,7, ,0.10059928466638696,0.07056616176157145,0.029167278503837983,0.022262107198769927,0.11495255876045556
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,7,4, ,0.0,0.0,0.0,0.13278284310927174,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.04371680330803565
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,5,1, ,0.13008433442410308,0.2044514140147974,0.0,0.16739334543396575,0.09959542387525541
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,3,1, ,0.0,0.0,0.02737358970716235,0.047112999466970486,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,4,2, ,0.0,0.0,0.015308972160558302,0.1805778962554428,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,6,4, ,0.0,0.08217468396156725,0.013277049302676652,0.1336832792968043,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,1,4, ,0.0,0.04082545634133834,0.0690318550164673,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,3,2, ,0.031308748243643277,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,4,8, ,0.0,0.016533190387660844,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,7,3, ,0.030955171172450866,0.009259808490275476,0.1310210014136114,0.024786279207294957,0.04375358201933264
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,3,4, ,0.02121952235697391,0.0,0.008253717093841874,0.010596089055442863,0.033907386799662244
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,3,7, ,0.039876124636287064,0.0,0.024082899540954064,0.040370848133737466,0.19955360404459235
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.013530241645776906
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,6,1, ,0.0,0.0,0.0,0.012496652032016914,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,200.0Gbps,1,6, ,0.031132008178261377,0.037568051980713536,0.023556026244828256,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,2,6, ,0.0,0.0,0.09403192508060745,0.0,0.00997644057508123
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,1,8, ,0.025405808816390065,0.12936533824684093,0.07133055365643916,0.05088008593590769,0.1754730328966099
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,4,5, ,0.10689963469054871,0.10690282171833693,0.0,0.0,0.01654114366620971
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,5,3, ,0.13764978122441002,0.0,0.0028441115399067815,0.0,0.005732393004936982
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,4,1, ,0.0,0.0,0.0,0.017736895489748553,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.15599467341094547
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,7,2, ,0.0,0.37269694783070545,0.0,0.07413384928278195,0.06271235020612327
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,7,1, ,0.025588414770859297,0.033208402570335915,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,2,4, ,0.05676766578079931,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,1,2, ,0.0,0.0,0.018708358890052953,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,8,3, ,0.14332057722397104,0.0,0.17138892325570312,0.052856801998791614,0.0599258310966433
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,1,5, ,0.06956311619402096,0.004334668110843983,0.0,0.0,0.17254977573020353
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,8,1, ,0.08167723194699439,0.18116945992455932,0.1931411032609132,0.061497795143250523,0.13167154996392547
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,5,2, ,0.31281998376232395,0.028736737092909394,0.12603243475984569,0.15779524089762975,8.029259866842662E-4
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,4,6, ,0.0,0.00929790357882471,0.10069791623368712,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,2,7, ,0.07564533821573272,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,3,8, ,0.0,0.033136624601279155,0.0,0.19446664429074356,0.13656687106180135
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,3,5, ,0.024795056151709797,0.044127317519700594,0.0,0.02573527662670746,0.11150634574721559
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,2,8, ,0.04703579666222367,0.06521697724516105,0.016761502389823,0.0907070904960111,0.1027960640614709
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,2,5, ,0.0513883526807522,0.11824456973891344,0.0,0.29170828696250084,0.24140732574736967
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,8,2, ,0.01753050306615204,0.0102069581865867,0.05010246984560624,0.021754280425930576,0.03879437098107373
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,6,2, ,0.0,0.0,0.00659660163301707,0.0645411600556779,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,1,7, ,0.044940810572868924,0.10366746609050306,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,7,4, ,0.0,0.0,0.0,0.06599506254169928,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,7,6, ,0.0,0.0,0.0,0.0,4.1869328939613725E-4
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,5,1, ,0.053977913688929485,0.21046953514843753,0.07651394148569446,0.034900303955222325,0.10652097153289107
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,4,2, ,0.0,0.0,9.990242950652902E-4,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,6,4, ,0.017092913140641805,0.021402598629299253,0.00841558423285109,0.04772241824392081,0.020887285899272013
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,1,4, ,0.002349009474145675,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,4,8, ,0.004676965777433627,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,7,3, ,0.12985505791859742,0.02979103617228418,0.1339178791098884,0.0,0.07128391465082907
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,3,4, ,0.09325151295107507,0.0,0.12844782169555174,0.05495861819668221,0.01443498282120658
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,3,7, ,0.03745675341845838,0.11106306455535744,0.0674677688924431,9.73982522451507E-4,0.04258680027089191
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,6,1, ,0.0,0.2615520596833008,0.13804270991239664,0.004172660283853471,0.07141468303087246
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,400.0Gbps,1,6, ,0.0,0.06352652910339311,0.02551207870305198,0.0,0.006410047510503466
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,2,6, ,0.0,0.0,0.03971516769452827,0.07787655895140944,0.016002789488783302
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,1,8, ,0.018394116858805955,0.07721632898176484,0.0937091207087788,0.055555516492843564,0.1809224611235038
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,4,5, ,0.0,0.06729584468728617,0.011543730472396874,0.0,0.03451197111502133
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,5,3, ,0.05592703217520842,0.029393371430403558,0.02623834766382394,0.0,0.016613845316226273
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,5,4, ,0.0,0.07094163461887518,0.0,0.0,0.018426761289662752
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,4,1, ,0.0,0.028431174968966008,0.007843532904743317,0.006354412342893899,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,3,6, ,0.0,0.02790850467713287,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,7,2, ,0.0,0.02375876277951215,0.04308142243918183,0.0,0.07244554970092398
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,7,1, ,0.06386651254898233,0.0,0.0,0.09710571003818101,0.06248770836846278
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,2,4, ,0.0,0.0,0.0,0.1166833876434924,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,1,2, ,0.0,0.0,0.014251284286633,0.014862935946316559,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,8,3, ,0.024775834351239465,0.0,0.03485563100563768,0.002431439869024309,0.023292645342383688
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,4,3, ,0.0,0.0,0.025112091071237286,0.0,0.019165177955916542
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,1,5, ,0.11596546244015948,0.010329765201702095,0.01303895670774498,0.026016657682787016,0.23726683826323167
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,4,7, ,0.0,0.0,0.06942950108391532,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,6,3, ,0.0,0.09454795797812224,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,8,1, ,0.2292762865434098,0.03576631207351087,0.1294842383967589,0.07593856226827046,0.05202953752620015
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,5,2, ,0.2440865726254396,0.10966877149470845,0.05898606522849709,0.17752236982287167,0.11651437228125731
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,4,6, ,0.0,0.0,0.0,0.005389530166455542,0.012244481296196609
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,2,7, ,0.052638436358383375,0.03995939400520723,0.0,0.0,0.006867806415246742
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,3,8, ,0.0,0.019879872174713285,0.0,0.10806057871332994,0.10471879100971528
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,3,5, ,0.019172074130519384,0.0911750717162727,0.006925624379558071,0.0,0.024951260403313365
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,2,8, ,0.0,0.004232635860333044,0.0,0.06318369995873929,0.09374931843365228
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,2,5, ,0.13379635400605597,0.009625120231570482,0.09386654257539007,0.05798144757569464,0.08236452505018471
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,8,2, ,0.1314439467009589,0.09033996265724276,0.030731907737989044,0.0037022971631783174,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,6,2, ,0.0013804656216626565,0.0,0.020651905893197695,0.03723709488890479,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,1,7, ,0.047966638522751945,0.08243061070423224,0.06273203969184235,0.008564504253062781,0.006754564483297763
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,7,4, ,0.0,0.0,0.0,0.1306902145650355,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.02192283992373894
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,7,6, ,0.0,0.0,0.03708478675009024,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,5,1, ,0.07345227476196008,0.06936495662430713,0.18607830961053273,0.030812850858922287,0.05017737812787126
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,3,1, ,0.0,0.0,0.0205232286362653,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,4,2, ,0.0,0.0,0.0640144297329692,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,6,4, ,0.0,0.018323830819627882,0.0,0.10869939548544039,0.17793790952596808
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,1,4, ,0.07820438999103992,0.00693030893829953,0.17641092273930833,0.0,0.012638123703503317
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.026692045881838787
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,7,3, ,0.1374883321093479,0.020773128325808927,0.09893914081634118,0.03738713611491995,0.25291531649798943
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,3,4, ,0.0,0.0,0.2285669898624127,0.0,0.016966973253317873
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,8,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,3,7, ,0.1088788444163384,0.011958692396436973,0.0,0.12195306854334022,0.08176775842197624
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,6,1, ,0.08484682641597903,0.0,0.12381111815933067,0.0,0.07022214695645781
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,1,3, ,0.0,0.006526183137069727,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,300.0Gbps,1,6, ,0.005510962267108215,0.0,0.0,0.06569579256278918,0.06716972016110193
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,2,6, ,0.0,0.0,0.024807620727433637,0.131245614930615,0.016869863425373593
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,1,8, ,0.054835248972570895,0.0,0.14516474326150733,0.07171650233338074,0.12477017260901271
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,4,5, ,0.0,0.03558754329275031,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,5,3, ,0.0,0.10140276091246395,0.2550485933508589,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,4,1, ,0.0,0.08615702104363011,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.028214402773075832
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,7,2, ,0.0,0.0,0.0,0.060365892594749705,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,7,1, ,0.0,0.0,0.005685863553739088,0.20605550238055373,0.005507816376338688
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,8,3, ,0.0,0.0,0.0,0.027900037870842158,0.2628465010221628
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,4,3, ,0.0,0.008065899554428935,0.013839902968764018,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,1,5, ,0.0986690939310811,0.083222987171477,0.04272540859310783,0.026751912316375987,0.09869338284469092
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,4,7, ,0.0,0.008913173019811786,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,8,1, ,0.0,0.2792605535209275,0.08847712666019708,0.1421084274220159,0.2966892630398408
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,5,2, ,0.4942988854714715,0.30408247145471784,0.30797045398908457,0.009826234687499156,0.3076548110225735
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,4,6, ,0.0,0.012502275991011157,0.010497323290370278,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,2,7, ,0.0,0.0,0.0,0.4516475398873926,7.340659697412359E-4
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,3,8, ,0.0,0.0,0.0,0.12200921233833831,0.33351756768936347
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,3,5, ,0.03647167602390913,0.0,0.0,0.01090156079023032,0.024409454521103807
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,2,8, ,0.0,0.0,0.10951274874951952,0.09594829491786003,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,2,5, ,0.07391966198071964,0.5340493840763268,0.0,0.0713621181480254,0.09556172302610615
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,8,2, ,0.0,0.11823068178860247,0.0,0.05151338518373924,0.2930367483552054
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,6,2, ,0.0,0.0,0.0,0.00101677120205087,0.005855339144214479
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,1,7, ,0.009248253469481086,0.04228158864110976,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,5,1, ,0.0,0.1958404673093922,0.12939392317058207,0.0,0.058933883994783345
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,4,2, ,0.0,0.0,0.02771602002641186,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,6,4, ,0.0,0.035651553596176555,0.0,0.03227744188662731,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,1,4, ,0.0,0.0,0.023382858235752726,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,4,8, ,0.008975306069135184,0.0,0.36514687419509595,0.0,0.09295057594471291
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,7,3, ,0.0736945988202478,0.06707560565720574,0.0,0.0,0.029093563704322003
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,3,4, ,0.0,0.10790122070619654,0.0,0.18001012715947176,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,8,4, ,0.0,0.10692218769155179,0.0,0.0,0.0048037008850995
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,3,7, ,0.05348111223882863,0.0,0.0,0.0,0.0604312420058574
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,6,1, ,0.17726908017320317,0.016186983040878965,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,3,500.0Gbps,1,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,2,6, ,0.0,9.803576242000207E-4,0.009544648163659408,0.03713250206826212,0.08217222021965616
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,1,8, ,0.07028614957460123,0.1872304557810274,0.12379848197821461,0.2736849004894587,0.2057736162614645
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,4,5, ,0.0,0.0,0.020901539475389898,0.007109047623375631,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,5,3, ,0.09304351070609572,0.0646504441002697,0.050873549000638243,0.07981229265000395,0.0533596258531317
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,6,8, ,0.030461133187208073,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,5,4, ,0.0,0.0,0.008792167023928021,0.25516146157195946,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,5,7, ,0.016176575265751593,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,4,1, ,0.0,0.06203134240418487,0.0,0.021764867920673288,0.02231978669894753
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0014521445184337367
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,7,2, ,0.0,0.07754816155678577,0.017131175038243365,0.029827285403428626,0.1600768935801793
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,7,1, ,0.0,0.086171776875768,0.059674187882473854,0.04503069245680054,7.479330475296835E-4
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.02597482231616016
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,1,2, ,0.0,0.0,0.008876170098119873,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,8,3, ,0.09432279723832633,0.0,0.05837473440702779,0.0043072098380093835,0.07243794162488401
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,4,3, ,0.02463171753322994,0.0320570527191501,0.03360661348189359,0.007668822603174554,0.0012551557304200755
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,1,5, ,0.006279332404802473,0.042400798096395104,0.13285865803840194,0.2706188904840548,0.10531520957933085
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,4,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,6,3, ,0.03622549365688831,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,8,1, ,0.06640181523396532,0.012130222723846729,0.07206030839836766,0.4690731725982557,0.12429472450422818
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,5,2, ,0.10254890652338469,0.10635309990232614,0.10805206123654641,0.15503930774500962,0.1468876868508172
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,4,6, ,0.05165072245107853,0.0,0.012921793092768825,0.1374027501489426,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,2,7, ,0.09228889454365816,0.011868745693455902,0.04295009217224024,0.05681195745894536,0.10827013520910678
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,3,8, ,0.0,0.03411695159686861,0.0,0.048790816801137483,0.02026706898255482
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,3,5, ,0.0011944414799016465,0.029363809313172437,0.0325841459531899,0.41811055224017835,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,2,8, ,0.0263452466435883,0.037496540434890514,0.09401717874526126,0.252632033142777,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,2,5, ,0.12027287361387598,0.10772354767921011,0.05951253653821379,0.24802903107164892,0.07326807738292689
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,8,2, ,0.07911389291433268,0.03913470210221442,0.13601965809685657,0.04692325575049265,0.05742804447710599
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,6,2, ,0.01986217246981877,0.0,0.012312028066316741,0.014190175890258195,0.0196388730976061
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,2,3, ,0.06393831584233783,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,1,7, ,0.0,0.011382548679104586,0.02577198133663729,0.18276970376652693,0.018494292853465936
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,7,4, ,0.0,0.039788770969837406,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,7,6, ,0.0,0.0,0.0,0.0023042635615496726,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,5,1, ,0.10732345595101937,0.5059654564303728,0.07978838147251485,0.06848424635437401,0.1121606693584992
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.007799774370126289
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,6,4, ,0.0456585466602278,0.022262950182032018,0.024089053070841564,0.10965872485434064,0.029325677406306472
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,1,4, ,0.029619571987320875,0.0,0.012038069222825123,0.004030655603235492,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,4,8, ,0.060353483455484934,0.0,0.010543834538236227,0.1721961211476051,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,7,3, ,0.08216641156648165,0.00418862416527937,0.07867110514843172,0.011607818753609653,0.11496380610633168
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,3,4, ,0.0,0.044058231934792684,0.0,0.11046380938250175,0.047550809390964864
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,8,4, ,0.13706757366823885,0.023160129749009318,0.009977530977244183,0.0,0.11057981382758637
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,3,7, ,0.0,0.035216040129691116,0.062063666091382697,0.05705202110738325,0.14154355173938932
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,7,5, ,0.0,0.0,0.0294893654640208,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,6,7, ,0.027940025299586446,0.0,0.037313311370758495,0.048626933055755835,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,6,1, ,0.06462816421885259,0.0,0.006790061443613486,0.0733503519549695,0.04300054653958809
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,1,3, ,0.0,0.0,0.0,0.07092652512443103,0.0
+BitRate blocking probability per pair and bitRate,4,100.0Gbps,1,6, ,0.0,0.0027037660404412474,0.022423477918246348,0.04021322639368718,0.020674447415055832
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,2,6, ,0.03360404210584955,0.039818073647929136,0.04059543777972876,0.136964038541672,0.024872450022287114
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,1,8, ,0.08550240358121992,0.0476953442467125,0.09445311954266779,0.27555595798236465,0.18257817344685479
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,4,5, ,0.012224395761766484,0.0,0.10841687221576955,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,5,3, ,0.041552338498570394,0.025346971403152577,0.015284119655373955,0.0461676053965561,0.23444117556273716
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,6,8, ,0.028820995278833948,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,5,4, ,0.0,0.0,0.017526109381071873,0.014164911922030149,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,2,1, ,0.0,0.04956570774551713,0.0,0.059235570521366875,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,5,7, ,0.0,0.0,0.0,0.0522911299376886,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,4,1, ,0.0,0.0444775263136069,0.0,3.21798276590382E-4,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,3,6, ,0.0,0.008811300334045286,0.0,0.16015522237592134,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,7,2, ,0.0,0.04355453819328835,0.02643137062220706,0.01611541627397408,0.0032531333125506157
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,7,1, ,0.02442596347901436,0.03865092232754563,0.09097182682609561,0.13027689649792695,0.03079204260573127
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,2,4, ,0.0,0.3267173623620337,0.0,0.1803339525589844,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,8,3, ,0.0,0.031014270125059615,0.06970136281938809,0.1788208297720013,0.05148267302908078
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,4,3, ,0.011967547895900165,0.0498068458373724,0.0,0.12192538960363318,0.009278194976220703
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,5,6, ,0.0,0.0,0.0,0.1406938554493796,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,1,5, ,0.09775843450218348,0.11024858018192386,0.16712715329919947,0.4416044219386026,0.24347235903325132
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,4,7, ,0.0,0.0,0.07874515923606122,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,6,3, ,0.03336134416597183,0.0,0.0,0.0,0.00678253900549985
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,8,1, ,0.20696325930429982,0.15768071734837696,0.10320068184162628,0.3631747965021179,0.26367608151480476
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,5,2, ,0.08426740968946089,0.0,0.0560858995175369,0.162107143910396,0.13726255205876253
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,4,6, ,0.01119944036225004,0.0,0.15080267223496727,0.1727505580143189,0.05793256245778797
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,2,7, ,0.041114876611038,0.0,0.05161538448350352,0.14301190286183607,0.0292752897298175
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,3,8, ,0.028120958926095816,0.04817347076361843,0.02374115969223886,0.11203778238084784,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,8,6, ,0.0,0.0,0.0,0.03345821402385538,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,3,5, ,0.0,0.0,0.09616010357483402,0.11901885568159415,0.04575147605190914
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,2,8, ,0.0864361527616173,0.017001583813386522,0.02808168470380715,0.11499973589642805,0.04505309759443273
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,2,5, ,0.15775703409301445,0.034449426626144745,0.12633637687403415,0.3195303891159222,0.12553813483948775
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,8,2, ,0.05323536808630155,0.035150634932396174,0.02255172460900767,0.03985158282964003,0.12911806097047818
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,6,2, ,0.11292069886944332,0.18652500546769535,0.07167078822485462,0.1124630476932403,0.0024202185144825837
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,2,3, ,0.05316065813891271,0.0,0.0,0.0,0.01648268178866489
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,1,7, ,0.0,0.009324300740888108,0.1702948793268937,0.10080895757588111,0.09896841838140802
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,7,4, ,0.0,0.19866749702891778,0.0,0.0,0.13923769890461485
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,7,6, ,0.0,0.0,0.0,0.0025507740926047264,0.09969197104352283
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,5,1, ,0.11457966301436955,0.0762911645031503,0.2270006050872696,0.2198696908566464,0.1278913976716899
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,4,2, ,0.0,0.23886811507299793,0.19302883314749064,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,6,4, ,0.006061526927803396,0.05770156383946487,0.08592935552583325,0.03612993869297828,0.3195205527375815
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,1,4, ,0.0032577915008849445,0.0,0.0024103976228425296,0.0,0.019664984595765673
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,3,2, ,0.0,0.01863938276518199,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,4,8, ,0.03883620240903413,0.0,0.0,0.026666775654309922,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,7,3, ,0.12990626786030413,0.0638585125269444,0.024082914241175295,0.22217867287278759,0.14659131258974512
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,3,4, ,0.0,0.0014741146410175122,0.02751646410060934,0.024114606755855906,0.014770561566913521
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,8,4, ,0.014743417539109802,0.0061395953781302375,0.007126393655365537,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,3,7, ,0.012925843865871924,0.0,0.19250993194960941,0.17520134619440716,0.1536670268522499
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,7,5, ,0.0,0.0,0.0,0.0027978989479036246,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,6,7, ,0.011057495064932856,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,6,1, ,0.03247273636683897,0.029303667817345648,0.10904097971762933,0.11116407784006387,0.07578872146450154
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.020603360456396734
+BitRate blocking probability per pair and bitRate,4,200.0Gbps,1,6, ,0.0,0.0100716435203886,0.024388766238098544,0.19526257299183533,0.03227015596666895
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,2,6, ,0.08955594488346913,0.0,0.25862866128873485,0.150659687760778,0.10205464193788491
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,1,8, ,0.32192912177691124,0.07175682511377139,0.2074187083643895,0.18922771456584894,0.12874321148306336
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,4,5, ,0.0,0.0,0.10614261242980683,0.038123867126396774,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,5,3, ,0.23333721594162377,0.1195241102482693,0.024747350680294607,0.038429696909701515,0.37411917549634593
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,5,4, ,0.0,0.018938683211533754,0.006957782509895465,0.006800400213910067,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,4,1, ,0.0,0.017966906904237332,0.0,0.044037695032807384,0.07507465716168629
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,3,6, ,0.0,0.0,0.0,0.025087535805190766,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,7,2, ,0.012975991250497717,0.1524678997445354,0.017180516694151122,0.07398769935696632,0.01985923832638162
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,7,1, ,0.024487257377641247,0.19244739570587582,0.031031067278441585,0.14495617228999153,0.16213644055800902
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,1,2, ,0.0,0.0,0.017289901919500687,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,8,3, ,0.0,0.18233407757679734,0.0,0.23675973363341893,0.051639162201036454
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,4,3, ,0.1429719808191276,0.11224491234472614,0.0,0.0,0.007834564776164532
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,1,5, ,0.27032826698527607,0.08960534590154924,0.38998085814606764,0.18949707315583417,0.1876095617415822
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,4,7, ,0.0,0.0,0.1211687038127226,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,6,3, ,0.0,0.0,0.14581104066948478,0.011867194837582643,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,8,1, ,0.14530005370304186,0.052207308903620075,0.1421810055381718,0.19964096296372336,0.28945412405970017
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,5,2, ,0.13093698080969185,0.1253718946255276,0.3129303903364594,0.12290780377555748,0.20836184693992368
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,4,6, ,0.0,0.0,0.14728184714996406,0.017062232098063408,0.04639053188775424
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,2,7, ,0.0,0.0,0.13913071131114424,0.10299933178904891,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,3,8, ,0.04941006684678417,0.031573532352523456,0.14899615876324357,0.27706844051779433,0.02125617122024422
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,3,5, ,0.16322044681212114,0.12485658681226658,0.014269105817277193,0.13461013868041954,0.011341026626947096
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,2,8, ,0.08424253701961383,0.0,0.2154157508280665,0.10650749890552103,0.10839777609448452
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,2,5, ,0.37144630085834474,0.052956307445648866,0.3517485225792558,0.37274308942418743,0.24197464798311893
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,8,2, ,0.22111348670540734,0.17967332390276072,0.0010190086632331067,0.022438850381249327,0.06572405880445815
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,6,2, ,0.059239112136061006,0.017227026601580406,0.0,0.07486034539058789,0.03447819737871222
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,2,3, ,0.02949553800662959,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,1,7, ,0.048363419514686104,0.04092777532587585,0.2249088535960812,0.10029718716236576,0.011911914249991827
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,7,6, ,0.0,0.0,0.0,0.056877652404975935,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,5,1, ,0.351493171575654,0.17328006229695006,0.19913830286523088,0.5925760387679395,0.16350661180329842
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,4,2, ,0.0,0.06365901669112672,0.0,0.003875173091410089,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,6,4, ,0.07479304749388598,0.04992472770268845,0.007357872357765151,0.031117300596141984,0.07192677007638627
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,1,4, ,0.0061857100936413,0.0,0.027594654355514482,0.0,0.10230439718592055
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,4,8, ,0.0,0.0,0.0,0.0,0.018806913294240942
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,7,3, ,0.30906147720606025,0.03714299314051817,0.041138155305763445,0.1351400182477624,0.034765768754587374
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,3,4, ,0.0,0.027364092801752428,0.0,0.0,0.02848665760908846
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,8,4, ,0.0,0.021483746489726365,0.056233672102827925,0.09262950705158723,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,3,7, ,0.03750609283982515,0.03172199168084351,0.029161762858378095,0.14659141556274913,0.2889630279472988
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,7,5, ,0.00694001980935671,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,6,7, ,0.0,0.0,0.012597179312623382,0.0012967056743345639,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,6,1, ,0.14183222335189724,0.04050113647438727,0.0,0.12177437468732372,0.1711117302242879
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,400.0Gbps,1,6, ,0.078605984562804,0.10263671311492009,0.08408770364738789,0.1654617072991486,7.366668857798837E-4
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,2,6, ,0.026656070191941068,0.0,0.15044145376011614,0.24125580411096326,0.0012277555895090467
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,1,8, ,0.08517637793646879,0.09487746986302864,0.1040456955929771,0.28733542754746566,0.4639120655736581
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,4,5, ,0.0,0.0,0.1580500999214912,0.024515368502171928,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,5,3, ,0.014109840161196879,0.032134825404665605,0.005916865408921219,0.29406410245296066,0.187520442046055
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,5,4, ,0.0,0.021794941865726558,0.0949838316211576,0.03908618265686844,0.00563688164825419
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,4,1, ,0.0,0.026363099582145572,0.0,0.0,0.02659272781479458
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,3,6, ,0.0,0.0548206220314469,0.0,0.13604545138926788,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,7,2, ,0.09852866439246363,0.04274125384712474,0.046668368960228135,0.006113470109526561,0.0011706348191221222
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,7,1, ,0.01932145997564593,0.027690235203208062,0.07475407349531733,0.06292711463891527,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,2,4, ,0.0,0.0,0.0,0.05414031589647668,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.014669600298200228
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,8,3, ,0.11794271064117315,0.0,0.04071375598849835,0.0903962554319284,0.0671844962349493
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,4,3, ,0.04817069105681609,0.03271529041385652,0.0,0.03020870943809635,0.05419279507463901
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,5,6, ,0.0,0.0,0.0,0.048700300237593835,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,1,5, ,0.16904547677474532,0.04101662584154193,0.05332554178982762,0.2764399566393163,0.09718816262509829
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,4,7, ,0.0,0.0,0.08373594025262436,8.894968702642973E-4,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.21164441020786995
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,8,1, ,0.20889513004012145,0.055408056537495955,0.13117025183686584,0.13526647192226268,0.21662476571922745
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,5,2, ,0.08637301968350103,0.141519166737922,0.06275505637918831,0.1839068191145442,0.060242350856240225
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,4,6, ,0.003866777461631806,0.0,0.1524683778540728,0.06434098056300365,0.18198435084907993
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,2,7, ,0.0,0.0,0.14812439476462072,0.0,0.17040993040342586
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,3,8, ,0.006785837725489931,0.0,0.15679238498233417,0.36913831763593125,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,3,5, ,0.04215863497367421,0.0,0.0016548115980714634,0.1752125794129355,6.597676754501584E-4
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,2,8, ,0.0015247686394023673,0.1600924408489431,0.1100546346573039,0.07991819498222273,0.21562901869407772
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,2,5, ,0.021757498508499496,0.0881883313058242,0.09572161002015438,0.1420464320627929,0.07200700609371186
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,8,2, ,0.20188633513606802,0.16786385032020276,0.0,0.0057278233426858016,0.08788137886989578
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,6,2, ,0.0,0.007777399258883212,0.0,0.013471794187487696,0.1318947121661769
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,2,3, ,0.0,0.0,0.019492929102019566,0.0,0.08312877831237078
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,1,7, ,0.010370791673891816,0.07759722763653869,0.3680456366083964,0.021706877115342353,0.06621838124595172
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,7,4, ,0.0,0.10037443000712135,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,6,5, ,0.0,0.0,0.0,0.02963301866483141,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,7,6, ,0.0,0.0,0.0,0.048645159541866045,0.004185387090659079
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,5,1, ,0.1391861452123638,0.038960406431931265,0.08718405115251986,0.37409562431120985,0.3628981748575097
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,6,4, ,0.06841679577860242,0.014852422123547029,0.03057459060492108,0.039897920217288226,0.1993606073477672
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,1,4, ,0.0,0.0,0.0,0.038479021088956025,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,4,8, ,0.09835659525351953,0.0,0.0,0.02307332611544518,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,7,3, ,0.190164334354025,0.053853741797842025,0.07638822949049945,0.3889590140045462,0.20508627081451533
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,3,4, ,0.0,0.0,0.03719224926116429,0.08101877446547014,0.011477096087109201
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,8,4, ,0.013770757219879361,0.0058384880973684945,0.04299911602781709,0.05183463641222148,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,3,7, ,0.14403365476531885,0.022800417303853585,0.06767174936630806,0.2239981072052027,0.21796820873904316
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,6,7, ,0.0,0.0,0.0,0.0,0.016129840528958918
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,6,1, ,0.028972884556718502,0.06913997911276383,0.1363912707863786,0.24541522849760072,0.265658914635736
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,300.0Gbps,1,6, ,0.009094857599186911,0.06750552583909461,0.0011336798970953015,0.11868894523378358,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,2,6, ,0.0,0.03163294706497637,0.0,0.0874246485401912,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,1,8, ,0.46362814079344866,0.04888954320110826,0.26257661811137617,0.6595715825323016,0.3022478494909281
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,4,5, ,0.0,0.0,0.0,0.07228703178065211,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,5,3, ,0.06762725271529997,0.0,0.0,0.0,0.14963872583719545
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,6,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,5,4, ,0.0,0.0,0.0,0.0,0.33231184603851754
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,5,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,2,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,5,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,4,1, ,0.0,0.0,0.0,0.0,0.04091171198162186
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,3,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,7,2, ,0.0,0.15612709697253715,0.5539771635521615,0.11269057586813482,0.07094860646848193
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,7,1, ,0.0,0.39370143850600875,0.016971060672431287,0.11539066339397114,0.07228375995637278
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,2,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,1,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,8,3, ,0.041322702958757396,0.07636601181249629,0.11970757641518912,0.015845074489305538,0.15110200905047683
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,7,8, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,4,3, ,0.0,0.0,0.0,0.0,0.09218600855343627
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,5,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,1,5, ,0.22663080022371934,0.07669841684521156,0.28062629904992564,0.25068567420037785,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,4,7, ,0.0,0.0,0.024448338662362984,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,6,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,8,1, ,0.0,0.1718925702446861,0.16902905866291898,0.22377146639441517,0.11694773192455815
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,5,2, ,0.057665222667539276,0.014641024887509806,0.35689934867412554,0.46754276580628645,0.08447812665318043
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,4,6, ,0.0,0.0,0.1625380185926379,0.18636385668000122,0.1461569034295004
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,8,7, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,2,7, ,0.0,0.0,0.2377778393519998,0.32839949884865277,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,3,8, ,0.15980957667777584,0.0,0.0,0.040648767329847735,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,8,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,3,5, ,0.03701969417365273,0.0051972900062228315,0.032707672489782985,0.08568407618333997,0.31597144375846065
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,2,8, ,0.014915793965971286,0.30697360820610703,0.0,0.009904187481806815,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,2,5, ,0.23554459708721856,0.1986887961704562,0.5593468562927542,0.483597878610835,0.5309630955542491
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,8,2, ,0.01849644216146384,0.003504080559190435,0.0,0.004516516350007163,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,6,2, ,0.0,0.042008777455237185,0.11969422697534643,0.03857093377968064,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,2,3, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,1,7, ,0.0608493392692644,0.0,0.1614068603537809,0.21115446828498793,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,7,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,6,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,7,6, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,5,1, ,0.08964360115713361,0.0,0.031526644064925155,0.39542208847681254,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,8,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,3,1, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,4,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,6,4, ,0.020398365177582818,0.0,0.0,0.21268936802973903,0.12533129458925008
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,1,4, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,3,2, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,4,8, ,0.0,0.0,0.042689120778248366,0.07952761054409266,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,7,3, ,0.36552200842749744,0.1479566354175452,0.0,0.29338298683039676,0.1428187900881097
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,3,4, ,0.0,0.057605286866840626,0.27606901269407425,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,8,4, ,0.0,0.015052547726872523,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,3,7, ,0.06952782150802711,0.1422607149729607,0.051199170355762734,0.06029428500713424,0.44919750059621544
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,7,5, ,0.0,0.0,0.0,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,6,7, ,0.0,0.0,0.1034178767539024,0.0,0.0
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,6,1, ,0.366689266803169,0.4322845508164444,0.0,0.16726040125445615,0.5058136585894346
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,1,3, ,0.0,0.0,0.0,0.0,0.11382468179693232
+BitRate blocking probability per pair and bitRate,4,500.0Gbps,1,6, ,0.0,0.041642368672480064,0.0,0.2453884619213277,0.0
+
+
