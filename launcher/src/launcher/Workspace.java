@@ -41,9 +41,27 @@ final class Workspace {
         return settings.simulationsDir();
     }
 
-    /** Resolves a "/"-separated path relative to the simulations folder, refusing escapes. */
+    /** Prefix of the paths inside the verification folder (Part 27). */
+    static final String VERIF = "@verificacao";
+
+    File verificationDir() {
+        return settings.verificationDir();
+    }
+
+    static boolean isVerification(String rel) {
+        return rel != null && (rel.equals(VERIF) || rel.startsWith(VERIF + "/") || rel.startsWith(VERIF + "\\"));
+    }
+
+    /**
+     * Resolves a "/"-separated path relative to the simulations folder, refusing escapes. Paths that
+     * start with "@verificacao" are relative to the verification folder instead.
+     */
     File resolve(String rel) throws IOException {
         File base = simulationsDir().getCanonicalFile();
+        if (isVerification(rel)) {
+            base = verificationDir().getCanonicalFile();
+            rel = rel.length() > VERIF.length() ? rel.substring(VERIF.length() + 1) : "";
+        }
         if (rel == null || rel.trim().isEmpty() || rel.equals("/") || rel.equals(".")) {
             return base;
         }
@@ -77,6 +95,14 @@ final class Workspace {
         out.put("root", root);
         out.put("simulationsDir", base.getAbsolutePath());
         out.put("exists", base.isDirectory());
+        File v = verificationDir();
+        out.put("verificationDir", v.getAbsolutePath());
+        out.put("verificationExists", v.isDirectory());
+        if (v.isDirectory()) {
+            Map<String, Object> vr = node(v, VERIF, 0);
+            vr.put("name", v.getName());
+            out.put("verification", vr);
+        }
         return out;
     }
 

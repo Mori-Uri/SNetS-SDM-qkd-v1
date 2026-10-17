@@ -63,6 +63,8 @@ final class LadderReport {
     void addCase(File caseDir) {
         String rel = simulationsDir.toURI().relativize(caseDir.toURI()).getPath();
         if (rel.endsWith("/")) rel = rel.substring(0, rel.length() - 1);
+        // Part 27: the cases live in the verification folder, which the launcher shows as "@verificacao"
+        if (!rel.startsWith("/") && !rel.contains(":")) rel = "@verificacao/" + rel;
         if (!cases.contains(rel)) cases.add(rel);
     }
 

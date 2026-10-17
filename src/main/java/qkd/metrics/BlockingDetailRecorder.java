@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import network.Circuit;
+import network.Core;
 import network.ControlPlane;
 import network.Link;
 import request.RequestForConnection;
@@ -54,6 +55,19 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
     public static final String[] CAUSES = {C_FRAG, C_QOTN, C_QOTO, C_XT, C_XTO, C_TX, C_RX, C_SPECTRUM, C_OTHER,
             C_QKD_PROTECT, C_QKD_SPECTRUM, C_QKD_SKR, C_QKD_PICH, C_QKD_QTRX, C_QKD_OTHER};
 
+    /*
+     * Part 27: spectrum diagnosis of each blocked request, independent of the cause chosen by the
+     * RMSCA algorithm. On the route of the blocked candidate, with the fewest slots any modulation
+     * that reaches the route length needs, the best state over the classical cores is:
+     */
+    public static final String D_AVAILABLE = "Spectrum: free band available";
+    public static final String D_CONTIGUITY = "Spectrum: contiguity fragmentation";
+    public static final String D_CONTINUITY = "Spectrum: continuity fragmentation";
+    public static final String D_NO_SLOTS = "Spectrum: not enough free slots";
+    public static final String D_NO_ROUTE = "Spectrum: no route";
+    public static final String D_QKD = "Spectrum: QKD side";
+    public static final String[] DIAGNOSES = {D_AVAILABLE, D_CONTIGUITY, D_CONTINUITY, D_NO_SLOTS, D_NO_ROUTE, D_QKD};
+
     /** Request classes: 0 classical (not protected), 1 QKD-protected. */
     private static final int CLASSICAL = 0, QKD = 1;
 
@@ -64,6 +78,7 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
     private final long[] attempts = new long[2];
     private final long[] blocked = new long[2];
     private final Map<String, long[]> blockedByCause = new LinkedHashMap<String, long[]>();
+    private final Map<String, long[]> blockedByDiagnosis = new LinkedHashMap<String, long[]>();
     /** core -> requests whose final circuit used / tried that core (same rule as SNetS). */
     private final Map<Integer, Long> genPerCore = new TreeMap<Integer, Long>();
     /** core -> cause -> blocked requests. */
@@ -76,6 +91,7 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         this.warmupArrivals = Math.max(0, warmupArrivals);
         this.warmupDone = this.warmupArrivals <= 0;
         for (String c : CAUSES) blockedByCause.put(c, new long[2]);
+        for (String d : DIAGNOSES) blockedByDiagnosis.put(d, new long[2]);
         if (cp != null && cp.getMesh() != null) {
             for (Link l : cp.getMesh().getLinkList()) {
                 String n = linkName(l);
@@ -92,6 +108,7 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
     private void reset() {
         attempts[0] = attempts[1] = blocked[0] = blocked[1] = 0;
         for (long[] v : blockedByCause.values()) v[0] = v[1] = 0;
+        for (long[] v : blockedByDiagnosis.values()) v[0] = v[1] = 0;
         genPerCore.clear();
         blockedPerCore.clear();
         for (long[] v : perLink.values()) java.util.Arrays.fill(v, 0);
@@ -138,6 +155,14 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
             blocked[cls]++;
             cause = qkdCause != null ? qkdCause : classicalCause(cp, blockedCircuit);
             blockedByCause.get(cause)[cls]++;
+            String diag;
+            try {
+                diag = blockedCircuit == null ? (qkdCause != null ? D_QKD : D_NO_ROUTE) : spectrumDiagnosis(cp, blockedCircuit);
+            } catch (RuntimeException e) {
+                diag = D_NO_ROUTE;
+            }
+            if (qkdCause != null && D_AVAILABLE.equals(diag)) diag = D_QKD;
+            blockedByDiagnosis.get(diag)[cls]++;
             if (core >= 0) {
                 Map<String, Long> m = blockedPerCore.get(core);
                 if (m == null) { m = new LinkedHashMap<String, Long>(); blockedPerCore.put(core, m); }
@@ -156,6 +181,52 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
                 }
             }
         }
+    }
+
+    /**
+     * Part 27: why the spectrum could not hold the blocked request on its route. Uses the free
+     * spectrum views of the classical cores (guard bands of the request included), as the
+     * fragmentation test of SNetS does, but over every classical core and without depending on the
+     * order of the tests of the algorithm.
+     */
+    static String spectrumDiagnosis(ControlPlane cp, Circuit c) {
+        gprmcsa.routing.Route route = c.getRoute();
+        if (route == null || route.getLinkList() == null || route.getLinkList().isEmpty()) return D_NO_ROUTE;
+        int need = Integer.MAX_VALUE;
+        double dist = route.getDistanceAllLinks();
+        gprmcsa.modulation.Modulation longest = null;
+        for (gprmcsa.modulation.Modulation m : cp.getMesh().getAvaliableModulations()) {
+            if (longest == null || m.getMaxRange() > longest.getMaxRange()) longest = m;
+            if (m.getMaxRange() >= dist) need = Math.min(need, m.requiredSlots(c.getRequiredBitRate()));
+        }
+        if (need == Integer.MAX_VALUE && longest != null) need = longest.requiredSlots(c.getRequiredBitRate());
+        if (need == Integer.MAX_VALUE || need <= 0) return D_NO_ROUTE;
+        int gb = c.getGuardBand();
+        Link first = route.getLinkList().get(0);
+        int best = 0; // 0 no slots, 1 continuity, 2 contiguity, 3 available
+        for (Core core : first.getCores()) {
+            if (core.isQkdReserved()) continue;
+            int id = core.getId();
+            boolean eachLink = true;
+            for (Link l : route.getLinkList()) {
+                Core lc = l.getCore(id);
+                if (lc == null || lc.isQkdReserved()) { eachLink = false; break; }
+                int free = 0;
+                for (int[] b : lc.getFreeSpectrumBands(gb)) free += b[1] - b[0] + 1;
+                if (free < need) { eachLink = false; break; }
+            }
+            if (!eachLink) continue;
+            int total = 0, longestBand = 0;
+            for (int[] b : util.IntersectionFreeSpectrum.merge(route, gb, id)) {
+                int w = b[1] - b[0] + 1;
+                total += w;
+                longestBand = Math.max(longestBand, w);
+            }
+            int state = longestBand >= need ? 3 : total >= need ? 2 : 1;
+            best = Math.max(best, state);
+            if (best == 3) break;
+        }
+        return best == 3 ? D_AVAILABLE : best == 2 ? D_CONTIGUITY : best == 1 ? D_CONTINUITY : D_NO_SLOTS;
     }
 
     private static int rawCore(Circuit c) {
@@ -195,6 +266,7 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         s.attempts = attempts.clone();
         s.blocked = blocked.clone();
         for (Map.Entry<String, long[]> e : blockedByCause.entrySet()) s.blockedByCause.put(e.getKey(), e.getValue().clone());
+        for (Map.Entry<String, long[]> e : blockedByDiagnosis.entrySet()) s.blockedByDiagnosis.put(e.getKey(), e.getValue().clone());
         s.genPerCore.putAll(genPerCore);
         for (Map.Entry<Integer, Map<String, Long>> e : blockedPerCore.entrySet())
             s.blockedPerCore.put(e.getKey(), new LinkedHashMap<String, Long>(e.getValue()));
@@ -207,6 +279,7 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         public long[] attempts;
         public long[] blocked;
         public final Map<String, long[]> blockedByCause = new LinkedHashMap<String, long[]>();
+        public final Map<String, long[]> blockedByDiagnosis = new LinkedHashMap<String, long[]>();
         public final Map<Integer, Long> genPerCore = new TreeMap<Integer, Long>();
         public final Map<Integer, Map<String, Long>> blockedPerCore = new TreeMap<Integer, Map<String, Long>>();
         public final Map<String, long[]> perLink = new TreeMap<String, long[]>();
@@ -253,6 +326,14 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
                 if (!anyQkd && c.startsWith("QKD")) continue;
                 row(sb, snaps, "Blocking probability by cause", cl, "all", c, "all", s -> {
                     long[] b = s.blockedByCause.get(c);
+                    return k < 0 ? ratio(b[0] + b[1], s.attempts[0] + s.attempts[1]) : ratio(b[k], s.attempts[k]);
+                });
+            }
+            for (String d : DIAGNOSES) {
+                if (!anyQkd && d.equals(D_QKD)) continue;
+                row(sb, snaps, "Blocking probability by spectrum diagnosis", cl, "all", d, "all", s -> {
+                    long[] b = s.blockedByDiagnosis.get(d);
+                    if (b == null) return Double.NaN;
                     return k < 0 ? ratio(b[0] + b[1], s.attempts[0] + s.attempts[1]) : ratio(b[k], s.attempts[k]);
                 });
             }

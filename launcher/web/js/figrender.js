@@ -9,6 +9,7 @@
  *   bars  : { categories:[{key,label}], series:[{key,name,style,values:{catKey:{mean,ci,n}}}], stacked, normalize }
  *   panels: { panels:[{title, model}] }    (small multiples of bars/line)
  *   cores : { diagrams:[{title, cores:[{id,x,y,util,block,unused}]}] }
+ *   slots : { panels:[{title, from, to, rows:[{link, core, values:Float64Array}]}], range:{min,max}, legendTitle }
  */
 (function (App) {
   'use strict';
@@ -57,6 +58,10 @@
       topoCols: 3, topoNodeR: 11, topoLinkWidth: 5, topoDir: 'both', topoLabels: 'none', topoLegend: 'right',
       topoFormat: 'percent', topoDigits: 1, topoMin: '', topoMax: '', topoNodeFill: '#ffffff', topoNodeStroke: '#000000',
       topoNoData: '#bdbdbd', topoLabelColor: '#c00000', topoAutoHeight: true, topoPanelBorder: false,
+      topoTrusted: true, topoTrustedFill: '#7030a0', topoTrustedR: 0,
+      // spectrum (slot) heat map
+      slotScale: 'traffic', slotRange: 'fixed', slotMin: '', slotMax: '', slotRowH: 12, slotTickStep: '', slotLegend: 'right',
+      slotFormat: 'percent', slotDigits: 1, slotGridColor: '#000000', slotZero: 'scale', slotCellGrid: true, slotLinkSep: true, slotPanelTitle: true,
     };
   }
 
@@ -446,7 +451,7 @@
       const uMin = App.parseNumber(String(st.xMin)), uMax = App.parseNumber(String(st.xMax));
       let mn = Number.isFinite(uMin) ? uMin : Math.min(...xsAll), mx = Number.isFinite(uMax) ? uMax : Math.max(...xsAll);
       if (!(mx > mn)) { mn -= 1; mx += 1; }
-      const t = xsAll.length <= 12 && !Number.isFinite(uMin) && !Number.isFinite(uMax) ? { ticks: xsAll, step: 0 } : linearTicks(mn, mx, 8);
+      const t = xsAll.length <= 12 && !model.scatter && !Number.isFinite(uMin) && !Number.isFinite(uMax) ? { ticks: xsAll, step: 0 } : linearTicks(mn, mx, 8);
       const pad = Number.isFinite(uMin) || Number.isFinite(uMax) ? 0 : (mx - mn) * 0.03;
       xSpec = { type: 'num', min: mn - pad, max: mx + pad, ticks: t.ticks, fmt: (v) => (model.xLabel ? model.xLabel(v) : fmtNumber(v, st.xFormat, Number(st.xDigits), st.decimal, t.step || undefined)) };
     }
@@ -840,6 +845,32 @@
           g.appendChild(textEl(mx, my, lab, { size: Math.max(7, fs - 2), font: st.font, color: st.topoLabelColor || '#c00000', anchor: 'middle', weight: 600 }));
         }
       }
+      // Parte 27: trusted nodes every QTND km (from the source of each direction, as the QKD planner does)
+      if (p.qtnd > 0 && st.topoTrusted !== false) {
+        const tr = Number(st.topoTrustedR) > 0 ? Number(st.topoTrustedR) : Math.max(2.5, nodeR * 0.36);
+        const tg = S('g');
+        for (const l of p.links) {
+          const A = P.get(String(l.a)), B = P.get(String(l.b));
+          if (!A || !B || !Number.isFinite(l.km) || l.km <= 0) continue;
+          const n = Math.max(1, Math.ceil(l.km / p.qtnd - 1e-12));
+          if (n < 2) continue;
+          const dx = B.x - A.x, dy = B.y - A.y, d = Math.max(1e-6, Math.hypot(dx, dy));
+          const nx = -dy / d, ny = dx / d;
+          const both = range && dir === 'both';
+          const off = both ? lw / 2 + 0.4 : 0;
+          const dirs = both ? [[A, B, 1, l.a + '→' + l.b], [B, A, -1, l.b + '→' + l.a]] : [[A, B, 0, l.a + '–' + l.b]];
+          for (const [P0, P1, sg, name] of dirs) {
+            for (let k = 1; k < n; k++) {
+              const f = Math.min(0.999, (k * p.qtnd) / l.km);
+              const x = P0.x + (P1.x - P0.x) * f + nx * off * sg, y = P0.y + (P1.y - P0.y) * f + ny * off * sg;
+              const c = S('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: tr.toFixed(1), fill: st.topoTrustedFill || '#7030a0', stroke: '#ffffff', 'stroke-width': 0.8 });
+              c.appendChild(S('title', null, 'Nó confiável ' + k + ' de ' + (n - 1) + ' em ' + name + ' · ' + fmtNumber(k * p.qtnd, 'auto', 1, st.decimal) + ' km da origem (QTND ' + fmtNumber(p.qtnd, 'auto', 1, st.decimal) + ' km)'));
+              tg.appendChild(c);
+            }
+          }
+        }
+        g.appendChild(tg);
+      }
       for (const q of p.nodes) {
         const c = P.get(String(q.id));
         const circ = S('circle', { cx: c.x.toFixed(1), cy: c.y.toFixed(1), r: nodeR, fill: q.fill || st.topoNodeFill || '#ffffff', stroke: st.topoNodeStroke || '#000000', 'stroke-width': 1.3 });
@@ -854,6 +885,203 @@
     if (range && st.topoLegend === 'bottom') heatLegend(root, model, st, box.x, box.y + box.h - L.legendH, box.w, L.legendH, false);
   }
 
+  // ------------------------------------------------------------ spectrum heat map (slots × cores × links)
+
+  const SLOT_SCALES = [
+    { id: 'traffic', name: 'Verde → amarelo → laranja → vermelho', stops: [[0, '#00B050'], [1 / 3, '#FFFF00'], [2 / 3, '#FFC000'], [1, '#FF0000']] },
+    { id: 'bins5', name: '5 faixas: verde, amarelo, laranja, marrom, vermelho', bins: ['#00B050', '#FFFF00', '#FFC000', '#C55A11', '#FF0000'] },
+    { id: 'heat', name: 'Igual ao mapa da topologia', stops: [[0, '#00A651'], [1 / 3, '#FFDD00'], [2 / 3, '#FF8C00'], [1, '#D7191C']] },
+    { id: 'viridis', name: 'Viridis (daltonismo e impressão)', stops: [[0, '#440154'], [0.25, '#3B528B'], [0.5, '#21918C'], [0.75, '#5EC962'], [1, '#FDE725']] },
+    { id: 'blues', name: 'Branco → azul', stops: [[0, '#F7FBFF'], [0.5, '#6BAED6'], [1, '#08306B']] },
+    { id: 'gray', name: 'Branco → preto', stops: [[0, '#FFFFFF'], [1, '#000000']] },
+  ];
+
+  function hexRgb(h) { const m = /^#?([0-9a-f]{6})$/i.exec(h); const n = m ? parseInt(m[1], 16) : 0; return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+
+  /** Returns color(v) for the scale and range (continuous scales are quantized in 1 % steps). */
+  function slotColorFn(st, range) {
+    const sc = SLOT_SCALES.find((x) => x.id === st.slotScale) || SLOT_SCALES[0];
+    const span = range.max - range.min;
+    const cache = new Map();
+    const zero = st.slotZero === 'white' ? '#FFFFFF' : st.slotZero === 'gray' ? '#E7E6E6' : null;
+    const stops = sc.stops ? sc.stops.map(([t, c]) => [t, hexRgb(c)]) : null;
+    return (v) => {
+      if (!Number.isFinite(v)) return '#BDBDBD';
+      if (zero && v <= 0) return zero;
+      let t = span > 0 ? (v - range.min) / span : 0;
+      t = Math.max(0, Math.min(1, t));
+      if (sc.bins) return sc.bins[Math.min(sc.bins.length - 1, Math.floor(t * sc.bins.length))];
+      const q = Math.round(t * 100);
+      if (cache.has(q)) return cache.get(q);
+      const tq = q / 100;
+      let col = stops[stops.length - 1][1];
+      for (let i = 1; i < stops.length; i++) {
+        if (tq <= stops[i][0]) {
+          const [t0, c0] = stops[i - 1], [t1, c1] = stops[i];
+          const f = t1 > t0 ? (tq - t0) / (t1 - t0) : 0;
+          col = c0.map((x, k) => Math.round(x + (c1[k] - x) * f));
+          break;
+        }
+      }
+      const out = '#' + col.map((x) => x.toString(16).padStart(2, '0')).join('');
+      cache.set(q, out);
+      return out;
+    };
+  }
+
+  function slotGeometry(model, st, W) {
+    const fs = Math.max(7, Number(st.fontSize) || 12);
+    const rowH = Math.max(2, Number(st.slotRowH) || 12);
+    const legendW = st.slotLegend === 'right' ? 110 : 0;
+    const legendH = st.slotLegend === 'bottom' ? fs * 4 + 12 : 0;
+    const titleH = st.showTitle && st.title ? st.titleSize * 1.7 : 4;
+    const ptH = st.slotPanelTitle !== false ? fs * 1.9 : 0;
+    const headH = fs * 2.4;
+    const labels = [];
+    for (const p of model.panels) for (const r of p.rows) labels.push(r.link);
+    const linkColW = Math.max(textWidth('Enlace', fs, st.font, 700), ...labels.map((t) => textWidth(t, fs, st.font, 700))) + 18;
+    const coreColW = textWidth('Núcleo', fs, st.font, 700) + 16;
+    const panelH = model.panels.map((p) => ptH + headH + p.rows.length * rowH + 14);
+    const H = Math.round(titleH + panelH.reduce((a, b) => a + b, 0) + legendH + 6);
+    return { fs, rowH, legendW, legendH, titleH, ptH, headH, linkColW, coreColW, panelH, H };
+  }
+
+  function slotLegend(root, model, st, color, x, y, w, h, vertical) {
+    const sc = SLOT_SCALES.find((q) => q.id === st.slotScale) || SLOT_SCALES[0];
+    const fs = Math.max(8, (Number(st.fontSize) || 12) - 1);
+    const { min, max } = model.range;
+    const fmt = (v) => fmtNumber(v, st.slotFormat === 'fixed' ? 'fixed' : 'percent', Number(st.slotDigits) || 0, st.decimal);
+    const title = model.legendTitle || '';
+    if (sc.bins) {
+      const n = sc.bins.length;
+      const items = sc.bins.map((c, i) => [c, fmt(min + (max - min) * i / n) + ' – ' + fmt(min + (max - min) * (i + 1) / n)]).reverse();
+      if (vertical) {
+        root.appendChild(textEl(x, y + fs, title, { size: fs, font: st.font, color: st.textColor, weight: 600 }));
+        items.forEach(([c, t], i) => {
+          const yy = y + fs * 1.8 + i * (fs * 1.6);
+          root.appendChild(S('rect', { x, y: yy, width: 14, height: fs * 1.1, fill: c, stroke: st.axisColor, 'stroke-width': 0.6 }));
+          root.appendChild(textEl(x + 19, yy + fs * 0.9, t, { size: fs, font: st.font, color: st.textColor }));
+        });
+      } else {
+        root.appendChild(textEl(x + w / 2, y + fs, title, { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 600 }));
+        const iw = Math.min(170, w / n);
+        const x0 = x + (w - iw * n) / 2;
+        items.slice().reverse().forEach(([c, t], i) => {
+          root.appendChild(S('rect', { x: x0 + i * iw, y: y + fs * 1.6, width: 14, height: fs * 1.1, fill: c, stroke: st.axisColor, 'stroke-width': 0.6 }));
+          root.appendChild(textEl(x0 + i * iw + 19, y + fs * 2.5, t, { size: fs, font: st.font, color: st.textColor }));
+        });
+      }
+      return;
+    }
+    const id = 'slotheat' + (++gradSeq);
+    const defs = S('defs');
+    const grad = S('linearGradient', vertical ? { id, x1: 0, y1: 1, x2: 0, y2: 0 } : { id, x1: 0, y1: 0, x2: 1, y2: 0 });
+    for (let i = 0; i <= 20; i++) grad.appendChild(S('stop', { offset: (i * 5) + '%', 'stop-color': color(min + (max - min) * i / 20) }));
+    defs.appendChild(grad);
+    root.appendChild(defs);
+    const ticks = 5;
+    if (vertical) {
+      root.appendChild(textEl(x, y + fs, title, { size: fs, font: st.font, color: st.textColor, weight: 600 }));
+      const bw = 16, top = y + fs * 1.8, bh = Math.max(60, Math.min(280, h - fs * 2.5));
+      root.appendChild(S('rect', { x, y: top, width: bw, height: bh, fill: `url(#${id})`, stroke: st.axisColor, 'stroke-width': 0.6 }));
+      for (let i = 0; i <= ticks; i++) {
+        const yy = top + bh - bh * i / ticks;
+        root.appendChild(S('line', { x1: x + bw, x2: x + bw + 4, y1: yy, y2: yy, stroke: st.axisColor }));
+        root.appendChild(textEl(x + bw + 6, yy + fs * 0.35, fmt(min + (max - min) * i / ticks), { size: fs, font: st.font, color: st.textColor }));
+      }
+    } else {
+      const bh = 12, bw = Math.min(w, 420), bx = x + (w - bw) / 2;
+      root.appendChild(textEl(x + w / 2, y + fs, title, { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 600 }));
+      root.appendChild(S('rect', { x: bx, y: y + fs * 1.5, width: bw, height: bh, fill: `url(#${id})`, stroke: st.axisColor, 'stroke-width': 0.6 }));
+      for (let i = 0; i <= ticks; i++) {
+        const xx = bx + bw * i / ticks;
+        root.appendChild(S('line', { x1: xx, x2: xx, y1: y + fs * 1.5 + bh, y2: y + fs * 1.5 + bh + 4, stroke: st.axisColor }));
+        root.appendChild(textEl(xx, y + fs * 1.5 + bh + 5 + fs, fmt(min + (max - min) * i / ticks), { size: fs, font: st.font, color: st.textColor, anchor: 'middle' }));
+      }
+    }
+  }
+
+  function drawSlots(root, model, st, box) {
+    const G = slotGeometry(model, st, box.w);
+    const { fs, rowH } = G;
+    const color = slotColorFn(st, model.range);
+    const fmt = (v) => fmtNumber(v, st.slotFormat === 'fixed' ? 'fixed' : 'percent', Number(st.slotDigits) || 0, st.decimal);
+    const gridC = st.slotGridColor || '#000000';
+    if (st.showTitle && st.title) root.appendChild(textEl(box.x + (box.w - G.legendW) / 2, box.y + st.titleSize * 1.15, st.title, { size: st.titleSize, font: st.font, color: st.titleColor, anchor: 'middle', weight: 700 }));
+    let y = box.y + G.titleH;
+    const x0 = box.x + 6;
+    const gx = x0 + G.linkColW + G.coreColW;
+    const gw = Math.max(40, box.w - 6 - G.linkColW - G.coreColW - G.legendW - 10);
+    model.panels.forEach((p, pi) => {
+      const n = p.to - p.from + 1;
+      const cw = gw / n;
+      const g = S('g');
+      if (G.ptH) g.appendChild(textEl(x0, y + fs * 1.25, p.title, { size: fs, font: st.font, color: st.titleColor, weight: 700 }));
+      let yy = y + G.ptH;
+      // header: column titles and slot numbers
+      const hb = yy + G.headH;
+      g.appendChild(textEl(x0 + G.linkColW / 2, hb - fs * 0.55, 'Enlace', { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
+      g.appendChild(textEl(x0 + G.linkColW + G.coreColW / 2, hb - fs * 0.55, 'Núcleo', { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
+      let step = Number(st.slotTickStep) || 0;
+      if (!(step > 0)) {
+        const need = (textWidth(String(p.to), fs - 1, st.font) + 8) / cw;
+        step = [1, 2, 5, 10, 16, 20, 25, 32, 40, 50, 64, 80, 100, 160, 200].find((k) => k >= need) || Math.ceil(need);
+      }
+      const tfs = Math.max(7, fs - 1);
+      for (let k = 0; k < n; k++) {
+        const sn = p.from + k;
+        if (sn !== p.from && sn % step !== 0) continue;
+        const cx = gx + (k + 0.5) * cw;
+        g.appendChild(textEl(cx, hb - fs * 0.55, String(sn), { size: tfs, font: st.font, color: st.textColor, anchor: 'middle' }));
+        g.appendChild(S('line', { x1: cx.toFixed(2), x2: cx.toFixed(2), y1: hb - 3, y2: hb, stroke: st.axisColor, 'stroke-width': 0.8 }));
+      }
+      yy = hb;
+      const cells = S('g', { 'shape-rendering': 'crispEdges' });
+      const lines = S('g');
+      const rows = p.rows;
+      const top = yy;
+      let groupStart = 0;
+      for (let ri = 0; ri < rows.length; ri++) {
+        const r = rows[ri];
+        const ry = top + ri * rowH;
+        // runs of equal colour
+        let k = 0;
+        while (k < n) {
+          const c = color(r.values[k]);
+          let e = k + 1, lo = r.values[k], hi = r.values[k];
+          while (e < n && color(r.values[e]) === c) { const v = r.values[e]; if (v < lo) lo = v; if (v > hi) hi = v; e++; }
+          const rect = S('rect', { x: (gx + k * cw).toFixed(2), y: ry.toFixed(2), width: ((e - k) * cw + 0.35).toFixed(2), height: (rowH + 0.35).toFixed(2), fill: c });
+          const sl = e - k > 1 ? 'slots ' + (p.from + k) + '–' + (p.from + e - 1) : 'slot ' + (p.from + k);
+          rect.appendChild(S('title', null, 'Enlace ' + r.link + ' · núcleo ' + r.core + ' · ' + sl + ': ' + (Math.abs(hi - lo) > 1e-9 ? fmt(lo) + ' a ' + fmt(hi) : fmt(lo))));
+          cells.appendChild(rect);
+          k = e;
+        }
+        g.appendChild(textEl(x0 + G.linkColW + G.coreColW / 2, ry + rowH / 2 + Math.min(fs, rowH) * 0.36, rowH >= 7 ? String(r.core) : '', { size: Math.min(fs, Math.max(6, rowH - 1)), font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
+        lines.appendChild(S('line', { x1: x0 + G.linkColW, x2: gx + gw, y1: (ry + rowH).toFixed(2), y2: (ry + rowH).toFixed(2), stroke: gridC, 'stroke-width': rowH >= 6 ? 0.5 : 0, 'stroke-opacity': 0.7 }));
+        const last = ri === rows.length - 1 || rows[ri + 1].link !== r.link;
+        if (last) {
+          const gy0 = top + groupStart * rowH, gy1 = ry + rowH;
+          g.appendChild(textEl(x0 + G.linkColW / 2, (gy0 + gy1) / 2 + fs * 0.36, r.link, { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
+          lines.appendChild(S('line', { x1: x0, x2: gx + gw, y1: gy1.toFixed(2), y2: gy1.toFixed(2), stroke: gridC, 'stroke-width': st.slotLinkSep !== false ? 1.6 : 0.6 }));
+          groupStart = ri + 1;
+        }
+      }
+      const bottom = top + rows.length * rowH;
+      if (st.slotCellGrid !== false && cw >= 5) {
+        for (let k = 1; k < n; k++) { const xx = (gx + k * cw).toFixed(2); lines.appendChild(S('line', { x1: xx, x2: xx, y1: top, y2: bottom, stroke: gridC, 'stroke-width': 0.5, 'stroke-opacity': 0.8 })); }
+      }
+      // frame and column separators
+      lines.appendChild(S('rect', { x: x0, y: top, width: (gx + gw - x0).toFixed(2), height: (bottom - top).toFixed(2), fill: 'none', stroke: gridC, 'stroke-width': 1.2 }));
+      for (const xx of [x0 + G.linkColW, gx]) lines.appendChild(S('line', { x1: xx, x2: xx, y1: top, y2: bottom, stroke: gridC, 'stroke-width': 1 }));
+      g.appendChild(cells);
+      g.appendChild(lines);
+      root.appendChild(g);
+      y += G.panelH[pi];
+    });
+    if (st.slotLegend === 'right') slotLegend(root, model, st, color, box.x + box.w - G.legendW + 8, box.y + G.titleH + G.ptH + G.headH, G.legendW - 10, 320, true);
+    if (st.slotLegend === 'bottom') slotLegend(root, model, st, color, box.x, box.y + G.H - G.legendH, box.w, G.legendH, false);
+  }
+
   // ------------------------------------------------------------ entry point
 
   function render(model, st) {
@@ -865,6 +1093,7 @@
       H = Math.round((st.showTitle && st.title ? st.titleSize * 1.6 : 0) + rows * Number(st.panelHeight) + (rows - 1) * (Number(st.panelGap) || 0));
     }
     if (model && model.kind === 'topo' && st.topoAutoHeight !== false) H = Math.max(150, topoHeight(model, st, W));
+    if (model && model.kind === 'slots') H = Math.max(150, slotGeometry(model, st, W).H);
     const root = S('svg', { xmlns: NS, width: W, height: H, viewBox: `0 0 ${W} ${H}`, 'font-family': st.font });
     root.appendChild(S('rect', { x: 0, y: 0, width: W, height: H, fill: st.bg }));
     if (st.border === 'outer') root.appendChild(S('rect', { x: 0.5, y: 0.5, width: W - 1, height: H - 1, fill: 'none', stroke: st.borderColor }));
@@ -874,6 +1103,7 @@
     else if (model.kind === 'bars') drawBars(root, model, st, box);
     else if (model.kind === 'cores') drawCores(root, model, st, box);
     else if (model.kind === 'topo') drawTopo(root, model, st, box);
+    else if (model.kind === 'slots') drawSlots(root, model, st, box);
     else if (model.kind === 'panels') {
       const n = model.panels.length;
       const cols = Math.max(1, Math.min(Number(st.panelCols) || 1, n));
@@ -922,5 +1152,5 @@
     });
   }
 
-  App.figRender = { render, serialize, toPng, defaultStyle, fmtNumber, marker, dashArray, PALETTES, PALETTE_NAMES, MARKERS, MARKER_NAMES, DASHES, FONTS };
+  App.figRender = { render, serialize, toPng, defaultStyle, fmtNumber, marker, dashArray, PALETTES, PALETTE_NAMES, MARKERS, MARKER_NAMES, DASHES, FONTS, SLOT_SCALES };
 })(window.App);

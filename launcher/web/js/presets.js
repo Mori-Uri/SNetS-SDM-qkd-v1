@@ -242,10 +242,12 @@
   /** Model for figRender ('topo') drawing a network (no values): used by the Rede preview. */
   function topoPanel(network, title, extra) {
     const { pos } = coordsFor(network);
+    const q = network && network.qkd && network.qkd.enabled ? Number(network.qkd.qtndKm) : 0;
     return Object.assign({
       title: title || '',
       nodes: [...pos.entries()].map(([id, p]) => ({ id, x: p.x, y: p.y })),
       links: undirectedLinks(network).map((l) => ({ a: l.a, b: l.b, km: l.km, both: l.dirs.size > 1 })),
+      qtnd: Number.isFinite(q) && q > 0 ? q : 0, // Parte 27: trusted nodes every qtnd km
     }, extra || {});
   }
 

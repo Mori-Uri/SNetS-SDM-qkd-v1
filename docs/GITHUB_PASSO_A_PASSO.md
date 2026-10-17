@@ -2,7 +2,7 @@
 
 O repositório será **privado**: só você e quem você convidar podem ver o código. O arquivo `.gitignore` da pasta já
 deixa de fora os PDFs dos artigos (direitos autorais), os documentos .docx, as saídas do plano de verificação
-(`simulations/QKD_ladder`), as cópias de segurança e os arquivos temporários do launcher. O que vai para o GitHub
+(`verificacao/QKD_ladder`), as cópias de segurança e os arquivos temporários do launcher. O que vai para o GitHub
 (cerca de 70 MB):
 
 - o código (`src`);
@@ -34,7 +34,7 @@ deixa de fora os PDFs dos artigos (direitos autorais), os documentos .docx, as s
 5. Clique em **Create repository**.
 
 O GitHub Desktop faz o primeiro commit com todos os arquivos que o `.gitignore` não exclui. Confira a lista à esquerda:
-não deve aparecer nenhum `.pdf`, nem `docs/artigos`, nem `simulations/QKD_ladder`.
+não deve aparecer nenhum `.pdf`, nem `docs/artigos`, nem `verificacao/QKD_ladder`.
 
 ## 4. Enviar para o GitHub (privado)
 

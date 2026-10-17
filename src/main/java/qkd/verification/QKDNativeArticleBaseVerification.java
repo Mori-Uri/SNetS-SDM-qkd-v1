@@ -23,7 +23,9 @@ public final class QKDNativeArticleBaseVerification {
     private static final double MAX_MAE_VS_PYTHON = 10.0;
 
     public static void main(String[] args) throws Exception {
-        File root = new File(args.length > 0 ? args[0] : "simulations/QKD_reference/Dibaj_MF").getAbsoluteFile();
+        File root = new File(args.length > 0 ? args[0]
+                : (new File("verificacao/QKD_reference/Dibaj_MF").isDirectory() ? "verificacao/QKD_reference/Dibaj_MF"
+                        : "simulations/QKD_reference/Dibaj_MF")).getAbsoluteFile();
         File work = args.length > 1 ? new File(args[1]).getAbsoluteFile()
                 : new File(System.getProperty("java.io.tmpdir"), "snets_native_article_verification");
         check(new File(root, "config.json").isFile(), "Dibaj_MF folder not found: " + root);

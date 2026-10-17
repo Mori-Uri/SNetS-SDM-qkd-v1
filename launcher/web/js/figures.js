@@ -47,6 +47,7 @@
   function parseCsv(text) {
     const lines = text.split(/\r?\n/);
     const header = (lines[0] || '').split(',');
+    if (isSlotHeader(header)) return parseSlotCsv(lines, header);
     if ((header[0] || '').trim().toLowerCase() === 'loadpoint') {
       const w = App.results.parseCsv(text);
       return finishParsed({ ok: w.ok, dims: [], rows: w.rows || [] });
@@ -78,6 +79,67 @@
       rows.push({ metric: c[0].trim(), lp, dims: d, reps: c.slice(k + 1).map(Number).filter(Number.isFinite) });
     }
     return finishParsed({ ok: true, dims, rows });
+  }
+
+  /** What to do when a results file is missing (Parte 27). */
+  function fileHint(file) {
+    const f = String(file || '');
+    if (/Fragmentation$/.test(f)) return ' Ligue a métrica ' + f + ' na aba Métricas do caso e rode a simulação de novo.';
+    if (f === 'SlotUtilization') return ' Ele é gravado pelo simulador da Parte 27 (métrica SlotUtilization, ligada por padrão, junto com SpectrumUtilization).';
+    if (f === 'BlockingDetails') return ' Ele é gravado pelo simulador da Parte 25 em diante (o diagnóstico do espectro, pelo da Parte 27).';
+    return '';
+  }
+
+  /** Index of a dimension by name, ignoring case ("Link" and "link"). */
+  function dimIndex(p, name) {
+    const n = String(name).toLowerCase();
+    return p.dims.findIndex((d) => d.toLowerCase() === n);
+  }
+
+  // ---------------------------------------------------------------- SlotUtilization.csv (Parte 27)
+
+  function isSlotHeader(header) {
+    return (header[0] || '').trim().toLowerCase() === 'metrics' && (header[2] || '').trim() === 'Link'
+      && (header[3] || '').trim() === 'Core' && (header[4] || '').trim() === 'Replication';
+  }
+
+  /**
+   * SlotUtilization.csv: Metrics,LoadPoint,Link,Core,Replication,1..S. One row per load point, link, core and
+   * replication; keeps the mean of the replications of each slot (Float64Array) by "lp|link|core".
+   */
+  function parseSlotCsv(lines, header) {
+    const nSlots = header.length - 5;
+    const sums = new Map(), counts = new Map();
+    const links = [], linkSet = new Set(), cores = new Set(), lps = new Set(), reps = new Set();
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line) continue;
+      const c = line.split(',');
+      if (c.length < 6) continue;
+      const lp = Number(c[1]);
+      if (!Number.isFinite(lp)) continue;
+      const link = c[2].trim(), core = c[3].trim();
+      const key = lp + '|' + link + '|' + core;
+      let acc = sums.get(key);
+      if (!acc) { acc = new Float64Array(nSlots); sums.set(key, acc); counts.set(key, 0); }
+      for (let k = 0; k < nSlots; k++) { const v = Number(c[5 + k]); if (Number.isFinite(v)) acc[k] += v; }
+      counts.set(key, counts.get(key) + 1);
+      if (!linkSet.has(link)) { linkSet.add(link); links.push(link); }
+      cores.add(core); lps.add(lp); reps.add(c[4].trim());
+    }
+    for (const [key, acc] of sums) { const n = counts.get(key) || 1; for (let k = 0; k < nSlots; k++) acc[k] /= n; }
+    const p = { ok: true, slot: true, dims: [], rows: [], nSlots, links, cores: [...cores].sort((a, b) => Number(a) - Number(b)), means: sums, nReps: reps.size };
+    finishParsed(p);
+    p.lps = [...lps].sort((a, b) => a - b);
+    return p;
+  }
+
+  /** Natural order of link names "<a-b>": by source, then destination (numbers as numbers). */
+  function linkCompare(a, b) {
+    const pa = /^<([^<>]+?)-([^<>]+)>$/.exec(a), pb = /^<([^<>]+?)-([^<>]+)>$/.exec(b);
+    if (!pa || !pb) return String(a).localeCompare(String(b));
+    const cmp = (x, y) => { const nx = Number(x), ny = Number(y); return Number.isFinite(nx) && Number.isFinite(ny) ? nx - ny : String(x).localeCompare(String(y)); };
+    return cmp(pa[1], pb[1]) || cmp(pa[2], pb[2]);
   }
 
   function finishParsed(p) {
@@ -164,6 +226,12 @@
     'Lack of free spectrum': ['Falta de espectro livre', '#404040'], 'Other': ['Outros', '#000000'],
     'QKD session protection': ['QKD: proteção de sessões ativas', '#9DC3E6'], 'QKD QCh spectrum': ['QKD: espectro do QCh', '#ED7D31'],
     'QKD SKR': ['QKD: SKR insuficiente', '#A9D18E'], 'QKD PICh': ['QKD: PICh', '#F4B183'], 'QKD QTx/QRx': ['QKD: falta de QTx/QRx', '#5B9BD5'], 'QKD other': ['QKD: outros', '#D9D9D9'],
+    'Spectrum: free band available': ['Havia faixa livre (bloqueio por QoT/XT ou proteção QKD)', '#7030A0'],
+    'Spectrum: contiguity fragmentation': ['Fragmentação: contiguidade (slots livres não vizinhos)', '#ED7D31'],
+    'Spectrum: continuity fragmentation': ['Fragmentação: continuidade (slots livres desalinhados entre enlaces)', '#FFC000'],
+    'Spectrum: not enough free slots': ['Faltavam slots livres', '#404040'],
+    'Spectrum: no route': ['Sem rota', '#A5A5A5'],
+    'Spectrum: QKD side': ['Recusada pelo lado QKD', '#5B9BD5'],
     'classical': ['Clássicas (não protegidas)', null], 'qkd': ['Protegidas por QKD', null], 'all': ['Todas as requisições', null],
   };
 
@@ -185,33 +253,70 @@
 
   // ================================================================ templates
 
+  // Parte 27: models grouped by subject (optgroups of the "Modelo de gráfico" box); ids are kept, so saved figures still open
+  const TEMPLATE_GROUPS = ['Bloqueio', 'Causas de bloqueio', 'Núcleos', 'Espectro e utilização', 'Fragmentação', 'Mapas de calor', 'Correlações', 'QKD', 'Outros'];
   const TEMPLATES = [
-    { id: 'bp', name: 'Probabilidade de bloqueio × carga', type: 'line', file: 'BlockingProbability', metric: 'Blocking probability', y: 'Probabilidade de Bloqueio de Circuito', x: 'Carga (Erlangs)', xMode: 'erl' },
-    { id: 'bbp', name: 'Bloqueio de banda × carga', type: 'line', file: 'BitRateBlockingProbability', metric: 'BitRate blocking probability', y: 'Probabilidade de Bloqueio de Banda', x: 'Carga (Erlangs)', xMode: 'erl' },
-    { id: 'util', name: 'Utilização do espectro × carga', type: 'line', file: 'SpectrumUtilization', metric: 'Utilization', y: 'Utilização do Espectro', x: 'Carga (Erlangs)', xMode: 'erl' },
-    { id: 'causes', name: 'Causas de bloqueio (barras empilhadas)', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability by /i, xAxis: 'cases', stacked: true, y: 'Probabilidade de Bloqueio' },
-    { id: 'causes100', name: 'Causas de bloqueio em % (empilhadas 100 %)', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability by /i, xAxis: 'cases', stacked: true, normalize: true, y: '' },
-    { id: 'causesGroup', name: 'Causas de bloqueio (barras agrupadas)', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability by (qoto|crosstalk)/i, xAxis: 'cases', stacked: false, y: 'Probabilidade de Bloqueio' },
-    { id: 'links', name: 'Utilização dos enlaces (ordenada)', type: 'bars', file: 'SpectrumUtilization', metric: 'Utilization Per Link', itemsFrom: 'dim', dim: 'Link', xAxis: 'items', layout: 'panels', sort: 'asc', y: 'Taxa de Utilização dos Enlaces', x: 'Enlaces', rotate: -90 },
-    { id: 'bpAll', name: 'Bloqueio total, clássicas e QKD × carga (BlockingDetails)', type: 'line', file: 'BlockingDetails', metric: 'Blocking probability', seriesBy: 'dim:Class', y: 'Probabilidade de Bloqueio', x: 'Carga (Erlangs)', xMode: 'erl' },
-    { id: 'causesAll', name: 'Causas de bloqueio de todas as requisições, com causas QKD (empilhadas)', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability by cause', itemsFrom: 'dim', dim: 'Cause', xAxis: 'cases', stacked: true, y: 'Probabilidade de Bloqueio' },
-    { id: 'causesAll100', name: 'Causas de bloqueio de todas as requisições em % (empilhadas 100 %)', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability by cause', itemsFrom: 'dim', dim: 'Cause', xAxis: 'cases', stacked: true, normalize: true, y: '' },
-    { id: 'coreCauses', name: 'Bloqueio por núcleo com as causas (empilhadas)', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability per core by cause', itemsFrom: 'dim', dim: 'Core', seriesDim: 'Cause', xAxis: 'items', stacked: true, y: 'Probabilidade de Bloqueio do núcleo', x: 'Núcleo' },
-    { id: 'coreCausesShare', name: 'Parcela do bloqueio total em cada núcleo, por causa (empilhadas)', type: 'bars', file: 'BlockingDetails', metric: 'Share of all requests blocked per core by cause', itemsFrom: 'dim', dim: 'Core', seriesDim: 'Cause', xAxis: 'items', stacked: true, y: 'Requisições bloqueadas / todas as requisições', x: 'Núcleo' },
-    { id: 'mod', name: 'Circuitos por modulação', type: 'bars', file: 'ModulationUtilization', metric: 'Percentage of cicuits per modulation', itemsFrom: 'dim', dim: 'Modulation', xAxis: 'cases', y: 'Percentual de circuitos' },
-    { id: 'coreBars', name: 'Bloqueio por núcleo (barras)', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability per core \d+$/i, xAxis: 'items', y: 'Probabilidade de Bloqueio' },
-    { id: 'coreUtilBars', name: 'Utilização por núcleo (barras)', type: 'bars', file: 'SpectrumUtilization', metric: 'Utilization per Core', itemsFrom: 'dim', dim: 'Core', xAxis: 'items', y: 'Utilização do núcleo', x: 'Núcleo' },
-    { id: 'cores', name: 'Uso e bloqueio de cada núcleo (diagrama da fibra)', type: 'cores' },
-    { id: 'heat', name: 'Mapa de calor da utilização dos enlaces (topologia)', type: 'topo', file: 'SpectrumUtilization', metric: 'Utilization Per Link' },
-    { id: 'heatBlock', name: 'Utilização e bloqueio de cada enlace (topologia; clássico × QKD)', type: 'topo', file: 'SpectrumUtilization', metric: 'Utilization Per Link', topoBlock: true },
-    { id: 'qkdBp', name: 'QKD: bloqueio de requisições protegidas × carga', type: 'line', file: 'QKDMetrics', metric: 'QKD blocking probability', y: 'Probabilidade de bloqueio QKD', x: 'Carga (Erlangs)', xMode: 'erl' },
-    { id: 'qkdCauses', name: 'QKD: causas de bloqueio (empilhadas)', type: 'bars', file: 'QKDMetrics', itemsFrom: 'metrics', itemsRe: /^QKD blocking probability by /i, xAxis: 'cases', stacked: true, y: 'Probabilidade de bloqueio QKD' },
-    { id: 'qkdQtrx', name: 'QKD: pares Q-TRx ativos × carga', type: 'line', file: 'QKDMetrics', metric: 'Mean active Q-TRx pairs', y: 'Pares Q-TRx ativos (média)', x: 'Carga (Erlangs)', xMode: 'erl' },
-    { id: 'qkdSkr', name: 'QKD: SKR média na admissão × carga', type: 'line', file: 'QKDMetrics', metric: 'Mean admission SKR (Mbit/s)', y: 'SKR (Mbit/s)', x: 'Carga (Erlangs)', xMode: 'erl' },
-    { id: 'qkdQtnd', name: 'QKD: métrica × QTND (casos de uma varredura)', type: 'line', file: 'QKDMetrics', metric: 'QKD blocking probability', y: 'Probabilidade de bloqueio QKD', x: 'QTND (km)', xMode: 'param', paramPath: 'network:qkd.qtndKm' },
-    { id: 'qkdEquip', name: 'QKD: QTx/QRx em uso por nó (pico)', type: 'bars', file: 'QKDMetrics', metric: 'Peak QTx in use per node', itemsFrom: 'dim', dim: 'src', xAxis: 'items', y: 'QTx em uso (pico)', x: 'Nó', rotate: -60 },
-    { id: 'custom', name: 'Personalizado (qualquer CSV)', type: 'line', x: 'Carga (Erlangs)', xMode: 'erl' },
+    // ---- Bloqueio
+    { id: 'bp', group: 'Bloqueio', name: 'Bloqueio de circuitos × carga', type: 'line', file: 'BlockingProbability', metric: 'Blocking probability', y: 'Probabilidade de Bloqueio de Circuito', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'bbp', group: 'Bloqueio', name: 'Bloqueio de banda × carga', type: 'line', file: 'BitRateBlockingProbability', metric: 'BitRate blocking probability', y: 'Probabilidade de Bloqueio de Banda', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'bpAll', group: 'Bloqueio', name: 'Bloqueio total, das clássicas e das protegidas por QKD × carga', type: 'line', file: 'BlockingDetails', metric: 'Blocking probability', seriesBy: 'dim:Class', y: 'Probabilidade de Bloqueio', x: 'Carga (Erlangs)', xMode: 'erl' },
+    // ---- Causas de bloqueio
+    { id: 'causes', group: 'Causas de bloqueio', name: 'Causas: barras empilhadas', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability by /i, xAxis: 'cases', stacked: true, y: 'Probabilidade de Bloqueio' },
+    { id: 'causes100', group: 'Causas de bloqueio', name: 'Causas: empilhadas em 100 %', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability by /i, xAxis: 'cases', stacked: true, normalize: true, y: '' },
+    { id: 'causesGroup', group: 'Causas de bloqueio', name: 'Causas: barras agrupadas (QoTO e XT)', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability by (qoto|crosstalk)/i, xAxis: 'cases', stacked: false, y: 'Probabilidade de Bloqueio' },
+    { id: 'causesAll', group: 'Causas de bloqueio', name: 'Todas as causas, com as QKD: empilhadas', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability by cause', itemsFrom: 'dim', dim: 'Cause', xAxis: 'cases', stacked: true, y: 'Probabilidade de Bloqueio' },
+    { id: 'causesAll100', group: 'Causas de bloqueio', name: 'Todas as causas, com as QKD: em 100 %', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability by cause', itemsFrom: 'dim', dim: 'Cause', xAxis: 'cases', stacked: true, normalize: true, y: '' },
+    { id: 'diagSpectrum', group: 'Causas de bloqueio', name: 'Diagnóstico do espectro: falta de slots × fragmentação × faixa livre', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability by spectrum diagnosis', itemsFrom: 'dim', dim: 'Cause', xAxis: 'cases', stacked: true, y: 'Probabilidade de Bloqueio',
+      desc: 'Para cada requisição bloqueada, olha o espectro livre da rota tentada: faltavam slots, os slots livres não estavam alinhados nos enlaces (continuidade) ou não eram vizinhos (contiguidade), ou havia uma faixa livre e o bloqueio veio da camada física/proteção QKD. Gravado pelo simulador da Parte 27.' },
+    { id: 'diagSpectrum100', group: 'Causas de bloqueio', name: 'Diagnóstico do espectro em 100 %', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability by spectrum diagnosis', itemsFrom: 'dim', dim: 'Cause', xAxis: 'cases', stacked: true, normalize: true, y: '' },
+    { id: 'diagSpectrumLoad', group: 'Causas de bloqueio', name: 'Diagnóstico do espectro × carga (uma linha por diagnóstico)', type: 'line', file: 'BlockingDetails', metric: 'Blocking probability by spectrum diagnosis', seriesBy: 'dim:Cause', y: 'Probabilidade de Bloqueio', x: 'Carga (Erlangs)', xMode: 'erl' },
+    // ---- Núcleos
+    { id: 'coreBars', group: 'Núcleos', name: 'Bloqueio por núcleo', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability per core \d+$/i, xAxis: 'items', y: 'Probabilidade de Bloqueio' },
+    { id: 'coreCauses', group: 'Núcleos', name: 'Bloqueio por núcleo, com as causas', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability per core by cause', itemsFrom: 'dim', dim: 'Core', seriesDim: 'Cause', xAxis: 'items', stacked: true, y: 'Probabilidade de Bloqueio do núcleo', x: 'Núcleo' },
+    { id: 'coreCausesShare', group: 'Núcleos', name: 'Parcela do bloqueio total em cada núcleo, por causa', type: 'bars', file: 'BlockingDetails', metric: 'Share of all requests blocked per core by cause', itemsFrom: 'dim', dim: 'Core', seriesDim: 'Cause', xAxis: 'items', stacked: true, y: 'Requisições bloqueadas / todas as requisições', x: 'Núcleo' },
+    { id: 'coreUtilBars', group: 'Núcleos', name: 'Utilização por núcleo', type: 'bars', file: 'SpectrumUtilization', metric: 'Utilization per Core', itemsFrom: 'dim', dim: 'Core', xAxis: 'items', y: 'Utilização do núcleo', x: 'Núcleo' },
+    { id: 'cores', group: 'Núcleos', name: 'Diagrama da fibra: uso e bloqueio de cada núcleo', type: 'cores' },
+    // ---- Espectro e utilização
+    { id: 'util', group: 'Espectro e utilização', name: 'Utilização do espectro × carga', type: 'line', file: 'SpectrumUtilization', metric: 'Utilization', y: 'Utilização do Espectro', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'links', group: 'Espectro e utilização', name: 'Utilização dos enlaces (ordenada, um painel por caso)', type: 'bars', file: 'SpectrumUtilization', metric: 'Utilization Per Link', itemsFrom: 'dim', dim: 'Link', xAxis: 'items', layout: 'panels', sort: 'asc', y: 'Taxa de Utilização dos Enlaces', x: 'Enlaces' },
+    { id: 'slotProfile', group: 'Espectro e utilização', name: 'Perfil de ocupação por slot (uma linha por núcleo)', type: 'slotline', file: 'SlotUtilization', y: 'Ocupação do slot', x: 'Slot',
+      desc: 'Ocupação média de cada slot nos enlaces escolhidos, uma linha por núcleo: mostra onde a política de alocação concentra os circuitos (ex.: first fit à esquerda). Usa o SlotUtilization.csv (Parte 27).' },
+    { id: 'mod', group: 'Espectro e utilização', name: 'Circuitos por modulação', type: 'bars', file: 'ModulationUtilization', metric: 'Percentage of cicuits per modulation', itemsFrom: 'dim', dim: 'Modulation', xAxis: 'cases', y: 'Percentual de circuitos' },
+    // ---- Fragmentação
+    { id: 'fragExt', group: 'Fragmentação', name: 'Fragmentação externa × carga (vertical e horizontal)', type: 'line', file: 'ExternalFragmentation', metric: 'External Fragmentation (Vertical)', metrics: ['External Fragmentation (Vertical)', 'External Fragmentation (Horizontal)'], seriesBy: 'metric', y: 'Fragmentação externa', x: 'Carga (Erlangs)', xMode: 'erl',
+      desc: 'Vertical: média, nos núcleos de cada enlace e em todos os enlaces, de 1 − (maior faixa livre ÷ total de slots livres), observada a cada chegada. Horizontal: a mesma medida na interseção do espectro livre ao longo da rota de cada requisição, no núcleo escolhido. Requer ExternalFragmentation ligada na aba Métricas.' },
+    { id: 'fragEntropy', group: 'Fragmentação', name: 'Entropia da fragmentação × carga', type: 'line', file: 'ExternalFragmentation', metric: 'Entropy External Fragmentation (Vertical)', y: 'Entropia da fragmentação', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'fragLinks', group: 'Fragmentação', name: 'Fragmentação externa por enlace (ordenada)', type: 'bars', file: 'ExternalFragmentation', metric: 'External Fragmentation Per Link', itemsFrom: 'dim', dim: 'link', xAxis: 'items', layout: 'panels', sort: 'asc', y: 'Fragmentação externa', x: 'Enlaces' },
+    { id: 'fragRel', group: 'Fragmentação', name: 'Fragmentação relativa por tamanho de requisição (slots)', type: 'bars', file: 'RelativeFragmentation', metric: 'Relative fragmentation per spectrum size (c)', itemsFrom: 'dim', dim: 'spectrum size (c)', xAxis: 'items', y: 'Fragmentação relativa', x: 'Tamanho da requisição (slots)',
+      desc: 'Para cada tamanho c (em slots), a fração dos slots livres que não pode receber uma requisição de c slots contíguos. Requer RelativeFragmentation ligada na aba Métricas.' },
+    // ---- Mapas de calor
+    { id: 'heat', group: 'Mapas de calor', name: 'Topologia: utilização dos enlaces', type: 'topo', file: 'SpectrumUtilization', metric: 'Utilization Per Link' },
+    { id: 'heatBlock', group: 'Mapas de calor', name: 'Topologia: utilização e bloqueio dos enlaces (clássico × QKD)', type: 'topo', file: 'SpectrumUtilization', metric: 'Utilization Per Link', topoBlock: true },
+    { id: 'heatFrag', group: 'Mapas de calor', name: 'Topologia: fragmentação externa dos enlaces', type: 'topo', file: 'ExternalFragmentation', metric: 'External Fragmentation Per Link' },
+    { id: 'slotHeat', group: 'Mapas de calor', name: 'Espectro: ocupação dos slots de cada núcleo em cada enlace', type: 'slots', file: 'SlotUtilization' },
+    // ---- Correlações
+    { id: 'scLinkUtilBlock', group: 'Correlações', name: 'Enlaces: utilização × bloqueio (um ponto por enlace)', type: 'scatter', by: 'Link', xFile: 'SpectrumUtilization', xMetric: 'Utilization Per Link', yFile: 'BlockingDetails', yMetric: 'Link blocking probability', x: 'Utilização do enlace', y: 'Bloqueio do enlace',
+      desc: 'Cada ponto é um enlace dirigido; r é o coeficiente de correlação de Pearson e a reta tracejada, o ajuste por mínimos quadrados.' },
+    { id: 'scLinkUtilFrag', group: 'Correlações', name: 'Enlaces: utilização × fragmentação externa', type: 'scatter', by: 'Link', xFile: 'SpectrumUtilization', xMetric: 'Utilization Per Link', yFile: 'ExternalFragmentation', yMetric: 'External Fragmentation Per Link', x: 'Utilização do enlace', y: 'Fragmentação externa' },
+    { id: 'scLinkFragBlock', group: 'Correlações', name: 'Enlaces: fragmentação externa × bloqueio', type: 'scatter', by: 'Link', xFile: 'ExternalFragmentation', xMetric: 'External Fragmentation Per Link', yFile: 'BlockingDetails', yMetric: 'Link blocking probability', x: 'Fragmentação externa', y: 'Bloqueio do enlace' },
+    { id: 'scCoreUtilBlock', group: 'Correlações', name: 'Núcleos: utilização × bloqueio (um ponto por núcleo)', type: 'scatter', by: 'Core', xFile: 'SpectrumUtilization', xMetric: 'Utilization per Core', yFile: 'BlockingDetails', yMetric: 'Blocking probability per core', x: 'Utilização do núcleo', y: 'Bloqueio do núcleo' },
+    { id: 'scLoadUtilBlock', group: 'Correlações', name: 'Cargas: utilização × bloqueio (um ponto por carga)', type: 'scatter', by: 'LoadPoint', xFile: 'SpectrumUtilization', xMetric: 'Utilization', yFile: 'BlockingProbability', yMetric: 'Blocking probability', x: 'Utilização do espectro', y: 'Probabilidade de bloqueio' },
+    { id: 'scLoadFragBlock', group: 'Correlações', name: 'Cargas: fragmentação externa × bloqueio', type: 'scatter', by: 'LoadPoint', xFile: 'ExternalFragmentation', xMetric: 'External Fragmentation (Vertical)', yFile: 'BlockingProbability', yMetric: 'Blocking probability', x: 'Fragmentação externa', y: 'Probabilidade de bloqueio' },
+    // ---- QKD
+    { id: 'qkdBp', group: 'QKD', name: 'Bloqueio das requisições protegidas × carga', type: 'line', file: 'QKDMetrics', metric: 'QKD blocking probability', y: 'Probabilidade de bloqueio QKD', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'qkdCauses', group: 'QKD', name: 'Causas do bloqueio QKD (empilhadas)', type: 'bars', file: 'QKDMetrics', itemsFrom: 'metrics', itemsRe: /^QKD blocking probability by /i, xAxis: 'cases', stacked: true, y: 'Probabilidade de bloqueio QKD' },
+    { id: 'qkdQtrx', group: 'QKD', name: 'Pares Q-TRx ativos × carga', type: 'line', file: 'QKDMetrics', metric: 'Mean active Q-TRx pairs', y: 'Pares Q-TRx ativos (média)', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'qkdSkr', group: 'QKD', name: 'SKR média na admissão × carga', type: 'line', file: 'QKDMetrics', metric: 'Mean admission SKR (Mbit/s)', y: 'SKR (Mbit/s)', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'qkdQtnd', group: 'QKD', name: 'Métrica × QTND (casos de uma varredura)', type: 'line', file: 'QKDMetrics', metric: 'QKD blocking probability', y: 'Probabilidade de bloqueio QKD', x: 'QTND (km)', xMode: 'param', paramPath: 'network:qkd.qtndKm' },
+    { id: 'qkdEquip', group: 'QKD', name: 'QTx/QRx em uso por nó (pico)', type: 'bars', file: 'QKDMetrics', metric: 'Peak QTx in use per node', itemsFrom: 'dim', dim: 'src', xAxis: 'items', y: 'QTx em uso (pico)', x: 'Nó', rotate: -60 },
+    // ---- Outros
+    { id: 'custom', group: 'Outros', name: 'Personalizado (qualquer CSV)', type: 'line', x: 'Carga (Erlangs)', xMode: 'erl' },
   ];
+
+  /** The models as <optgroup>s of <option>s (Parte 27). */
+  function templateOptions() {
+    return TEMPLATE_GROUPS.map((g) => el('optgroup', { label: g }, TEMPLATES.filter((t) => t.group === g).map((t) => el('option', { value: t.id }, t.name))));
+  }
 
   function newSpec(templateId, cases) {
     const t = TEMPLATES.find((x) => x.id === templateId) || TEMPLATES[0];
@@ -223,11 +328,14 @@
     if (t.type === 'cores') { style.height = 640; style.width = 900; }
     if (t.topoBlock) { style.topoLabels = 'block'; style.topoCols = 2; }
     if (t.type === 'topo') { style.width = 1200; style.title = ''; style.fontSize = 14; style.topoNodeR = 13; }
+    if (t.type === 'slots') { style.width = 1400; style.title = ''; style.fontSize = 12; }
+    if (t.type === 'scatter') { style.errorBars = 'none'; style.grid = 'both'; style.xAsCategories = false; }
+    if (t.type === 'slotline') { style.width = 1000; style.errorBars = 'none'; style.xAsCategories = false; style.lineWidth = 1.5; }
     if (t.layout === 'panels') { style.panelHeight = 300; style.barGap = 0.3; style.legend = 'none'; style.fontSize = 10; style.errorBars = 'none'; style.titleSize = 13; }
     return {
       version: 1, template: t.id, type: t.type,
       cases: (cases || []).map((p) => ({ path: p, label: App.caseNameOf(p) })),
-      file: t.file || '', metric: t.metric || '', metrics: [], filters: {},
+      file: t.file || '', metric: t.metric || '', metrics: (t.metrics || []).slice(), filters: {},
       line: { seriesBy: t.seriesBy || 'case', xMode: t.xMode || 'lp', paramPath: t.paramPath || '', paramLp: -1 },
       bars: {
         lp: -1, itemsFrom: t.itemsFrom || 'metrics', itemsRe: t.itemsRe ? t.itemsRe.source : '', dim: t.dim || '', items: [],
@@ -235,6 +343,9 @@
       },
       cores: { lp: -1, utilFile: 'SpectrumUtilization', utilMetric: 'Utilization per Core', blockFile: 'BlockingProbability', blockPrefix: 'Blocking probability per core', normBlock: false },
       topo: { lps: [], range: 'shared', block: !!t.topoBlock, blockFile: 'BlockingDetails', blockMetric: 'Link blocking probability', blockClasses: 'split' },
+      slots: { lp: -1, links: [], cores: [], from: 1, to: 0, order: 'name', caseLayout: 'stack' },
+      scatter: { xFile: t.xFile || 'SpectrumUtilization', xMetric: t.xMetric || 'Utilization Per Link', yFile: t.yFile || 'BlockingDetails', yMetric: t.yMetric || 'Link blocking probability',
+        by: t.by || 'Link', lp: -1, fx: {}, fy: {}, trend: true, pooled: false },
       labels: {}, seriesStyle: {}, style,
     };
   }
@@ -273,6 +384,20 @@
     const o = spec.seriesStyle[key] || {};
     const defColor = (item && kind === 'bar' && causeColor(item)) || pal[idx % pal.length];
     const cycle = Math.floor(idx / pal.length);
+    if (kind === 'scatter' || kind === 'trend' || kind === 'slotline') {
+      // Parte 27: scatter points (no line), fitted lines (dashed, no marker), slot profiles (no marker)
+      const base = R().MARKERS[idx % (R().MARKERS.length - 1)];
+      return {
+        color: o.color || pal[idx % pal.length],
+        dash: o.dash || (kind === 'trend' ? 'dashed' : 'solid'),
+        width: o.width !== undefined && o.width !== '' ? Number(o.width) : (kind === 'trend' ? 1.4 : st.lineWidth),
+        marker: o.marker || (kind === 'scatter' ? base : 'none'),
+        markerSize: o.markerSize !== undefined && o.markerSize !== '' ? Number(o.markerSize) : st.markerSize,
+        hollow: o.hollow !== undefined ? !!o.hollow : false,
+        visible: o.visible !== false,
+        line: o.line !== undefined ? o.line !== false : kind !== 'scatter',
+      };
+    }
     return {
       color: o.color || defColor,
       dash: o.dash || (kind === 'line' ? ['solid', 'dashed', 'dotted', 'dashdot'][cycle % 4] : 'solid'),
@@ -315,6 +440,9 @@
     if (!spec.cases.length) return { empty: 'Selecione um ou mais casos com resultados na seção 1.' };
     if (spec.type === 'cores') return buildCores(spec);
     if (spec.type === 'topo') return buildTopo(spec);
+    if (spec.type === 'slots') return buildSlots(spec);
+    if (spec.type === 'slotline') return buildSlotLine(spec);
+    if (spec.type === 'scatter') return buildScatter(spec);
     if (!spec.file) return { empty: 'Escolha o arquivo de resultados.' };
     const parsed = [];
     for (const c of spec.cases) {
@@ -323,7 +451,7 @@
       parsed.push({ c, p: p && p.ok ? p : null });
     }
     const avail = parsed.filter((x) => x.p);
-    if (!avail.length) return { empty: 'Nenhum dos casos selecionados tem o arquivo ' + spec.file + '.csv.' };
+    if (!avail.length) return { empty: 'Nenhum dos casos selecionados tem o arquivo ' + spec.file + '.csv.' + fileHint(spec.file) };
     const missing = parsed.filter((x) => !x.p).map((x) => caseLabel(x.c));
     const m = spec.type === 'line' ? await buildLine(spec, avail) : buildBars(spec, avail);
     m.missing = missing;
@@ -535,7 +663,8 @@
       const cd = await caseData(c.path);
       let p = null;
       try { p = await getCsv(c.path, spec.file); } catch (e) { p = null; }
-      const li = p && p.ok ? p.dims.indexOf('Link') : -1;
+      const li = p && p.ok ? dimIndex(p, 'Link') : -1;
+      const linkDim = li >= 0 ? p.dims[li] : 'Link';
       if (!(p && p.ok) || !p.byMetric.has(spec.metric) || li < 0) { missing.push(caseLabel(c)); continue; }
       const linkVals = dimValues(p, spec.metric)[li].filter((v) => /^<[^<>]+-[^<>]+>$/.test(v));
       let net = cd.files.network;
@@ -565,7 +694,7 @@
         const val = {};
         for (const lv of linkVals) {
           const m = /^<([^<>]+?)-([^<>]+)>$/.exec(lv);
-          val[m[1] + '>' + m[2]] = stats(repsAt(p, spec.metric, lp, spec.filters, 'Link', lv));
+          val[m[1] + '>' + m[2]] = stats(repsAt(p, spec.metric, lp, spec.filters, linkDim, lv));
         }
         const links = base.links.map((l) => {
           const ab = val[l.a + '>' + l.b], ba = val[l.b + '>' + l.a];
@@ -574,7 +703,7 @@
         });
         for (const l of links) for (const v of [l.ab, l.ba]) if (Number.isFinite(v)) { min = Math.min(min, v); max = Math.max(max, v); }
         const note = bp ? (bClasses.includes('qkd') && T.blockClasses !== 'all' ? ' — cor: utilização · C: bloqueio clássico · Q: bloqueio QKD' : ' — cor: utilização · B: bloqueio') : '';
-        panels.push({ title: (multi ? caseLabel(c) + ' · ' : '') + lpLabel(cd, lp) + note, nodes: base.nodes, links, path: c.path, lp });
+        panels.push({ title: (multi ? caseLabel(c) + ' · ' : '') + lpLabel(cd, lp) + note, nodes: base.nodes, links, path: c.path, lp, qtnd: base.qtnd });
       }
     }
     if (!panels.length) return { empty: 'Nenhum caso selecionado tem "' + spec.metric + '" por enlace em ' + spec.file + '.csv.' };
@@ -587,6 +716,175 @@
     const block = T.block ? { qkd: blockQkd && T.blockClasses !== 'all', missing: blockMissing } : null;
     if (block && blockMissing.length) missing.push(...blockMissing.map((x) => x + ' (sem BlockingDetails.csv: rode de novo com o simulador da Parte 25)'));
     return { kind: 'topo', panels, missing, range: { min, max }, legendTitle, block };
+  }
+
+  async function buildSlots(spec) {
+    const T = spec.slots || (spec.slots = newSpec('slotHeat', []).slots);
+    const panels = [];
+    const missing = [];
+    let nSlotsAll = 0;
+    for (const c of spec.cases) {
+      const cd = await caseData(c.path);
+      let p = null;
+      try { p = await getCsv(c.path, 'SlotUtilization'); } catch (e) { p = null; }
+      if (!(p && p.ok && p.slot)) { missing.push(caseLabel(c) + ' (sem SlotUtilization.csv: rode de novo com o simulador da Parte 27)'); continue; }
+      const lp = lpResolve(T.lp, p.lps);
+      let links = p.links.slice();
+      if (T.order === 'name') links.sort(linkCompare);
+      if (T.links && T.links.length) links = links.filter((l) => T.links.includes(l));
+      let cores = p.cores.slice();
+      if (T.cores && T.cores.length) cores = cores.filter((k) => T.cores.includes(k));
+      const from = Math.max(1, Math.min(p.nSlots, Math.round(Number(T.from) || 1)));
+      const to = Number(T.to) > 0 ? Math.max(from, Math.min(p.nSlots, Math.round(Number(T.to)))) : p.nSlots;
+      const rows = [];
+      for (const link of links) for (const core of cores) {
+        const v = p.means.get(lp + '|' + link + '|' + core);
+        if (v) rows.push({ link, core, values: v.subarray(from - 1, to) });
+      }
+      nSlotsAll = Math.max(nSlotsAll, to - from + 1);
+      panels.push({ title: (spec.cases.length > 1 ? caseLabel(c) + ' · ' : '') + lpLabel(cd, lp) + (p.nReps > 1 ? ' · média de ' + p.nReps + ' replicações' : ''), rows, from, to, path: c.path, lp });
+    }
+    if (!panels.length) return { empty: 'Nenhum caso selecionado tem o arquivo SlotUtilization.csv. Ele é gravado pelo simulador da Parte 27 (métrica SlotUtilization, ligada por padrão, junto com SpectrumUtilization).', missing };
+    if (!panels.some((x) => x.rows.length)) return { empty: 'Nenhum enlace/núcleo selecionado.', missing };
+    const st = spec.style;
+    let min = 0, max = 1;
+    if (st.slotRange === 'auto') {
+      min = Infinity; max = -Infinity;
+      for (const pn of panels) for (const r of pn.rows) for (const v of r.values) { if (v < min) min = v; if (v > max) max = v; }
+      if (!Number.isFinite(min)) { min = 0; max = 1; }
+    }
+    if (st.slotMin !== '' && st.slotMin !== undefined && Number.isFinite(Number(st.slotMin))) min = Number(st.slotMin);
+    if (st.slotMax !== '' && st.slotMax !== undefined && Number.isFinite(Number(st.slotMax))) max = Number(st.slotMax);
+    if (max <= min) max = min + 1e-9;
+    const legendTitle = itemLabel(spec, '__slot') === '__slot' ? 'Ocupação do slot' : itemLabel(spec, '__slot');
+    return { kind: 'slots', panels, missing, range: { min, max }, legendTitle, nSlots: nSlotsAll };
+  }
+
+  /** Mean occupancy of each slot over the chosen links, one line per core (Parte 27). */
+  async function buildSlotLine(spec) {
+    const T = spec.slots || (spec.slots = newSpec('slotProfile', []).slots);
+    const series = [];
+    const missing = [];
+    let idx = 0;
+    for (const c of spec.cases) {
+      let p = null;
+      try { p = await getCsv(c.path, 'SlotUtilization'); } catch (e) { p = null; }
+      if (!(p && p.ok && p.slot)) { missing.push(caseLabel(c) + ' (sem SlotUtilization.csv)'); continue; }
+      const lp = lpResolve(T.lp, p.lps);
+      let links = p.links.slice();
+      if (T.links && T.links.length) links = links.filter((l) => T.links.includes(l));
+      let cores = p.cores.slice();
+      if (T.cores && T.cores.length) cores = cores.filter((k) => T.cores.includes(k));
+      const from = Math.max(1, Math.min(p.nSlots, Math.round(Number(T.from) || 1)));
+      const to = Number(T.to) > 0 ? Math.max(from, Math.min(p.nSlots, Math.round(Number(T.to)))) : p.nSlots;
+      for (const core of cores) {
+        const acc = new Float64Array(to - from + 1);
+        let n = 0;
+        for (const link of links) {
+          const v = p.means.get(lp + '|' + link + '|' + core);
+          if (!v) continue;
+          for (let k = from - 1; k < to; k++) acc[k - from + 1] += v[k];
+          n++;
+        }
+        if (!n) continue;
+        const points = Array.from(acc, (v, k) => ({ x: from + k, mean: v / n, ci: NaN, n: p.nReps, label: 'slot ' + (from + k) }));
+        const key = c.path + '|core=' + core;
+        series.push({ key, name: (spec.cases.length > 1 ? caseLabel(c) + ' · ' : '') + 'Núcleo ' + core, points, style: styleFor(spec, key, idx++, 'slotline') });
+      }
+    }
+    if (!series.length) return { empty: 'Nenhum caso selecionado tem SlotUtilization.csv com os enlaces/núcleos escolhidos.' + fileHint('SlotUtilization'), missing };
+    return { kind: 'line', series, missing, xNumericOnly: true, styleKind: 'slotline' };
+  }
+
+  /** Filters of the other dimensions of a metric: the user's choice, else "all", else the first value. */
+  function autoFilters(p, metric, freeDim, user) {
+    const f = {};
+    const vals = dimValues(p, metric);
+    p.dims.forEach((d, i) => {
+      if (freeDim && d.toLowerCase() === String(freeDim).toLowerCase()) return;
+      const vs = vals[i] || [];
+      if (user && user[d] !== undefined && vs.includes(user[d])) f[d] = user[d];
+      else f[d] = vs.includes('all') ? 'all' : vs[0];
+    });
+    return f;
+  }
+
+  /** Pearson correlation and least-squares line of the points. */
+  function fitLine(pts) {
+    const n = pts.length;
+    if (n < 3) return null;
+    let sx = 0, sy = 0;
+    for (const q of pts) { sx += q.x; sy += q.mean; }
+    const mx = sx / n, my = sy / n;
+    let sxx = 0, syy = 0, sxy = 0;
+    for (const q of pts) { const dx = q.x - mx, dy = q.mean - my; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; }
+    if (!(sxx > 0)) return null;
+    const b = sxy / sxx, a = my - b * mx;
+    const r = syy > 0 ? sxy / Math.sqrt(sxx * syy) : NaN;
+    return { a, b, r, n };
+  }
+
+  /** x × y of two metrics, one point per link, core or load point (Parte 27). */
+  async function buildScatter(spec) {
+    const X = spec.scatter;
+    if (!X.xFile || !X.xMetric || !X.yFile || !X.yMetric) return { empty: 'Escolha a métrica do eixo x e a do eixo y.' };
+    const series = [];
+    const missing = [];
+    const all = [];
+    let idx = 0;
+    const by = X.by || 'Link';
+    for (const c of spec.cases) {
+      const cd = await caseData(c.path);
+      let px = null, py = null;
+      try { px = await getCsv(c.path, X.xFile); } catch (e) { px = null; }
+      try { py = await getCsv(c.path, X.yFile); } catch (e) { py = null; }
+      if (!(px && px.ok && px.byMetric.has(X.xMetric))) { missing.push(caseLabel(c) + ' (sem "' + X.xMetric + '" em ' + X.xFile + '.csv)'); continue; }
+      if (!(py && py.ok && py.byMetric.has(X.yMetric))) { missing.push(caseLabel(c) + ' (sem "' + X.yMetric + '" em ' + X.yFile + '.csv)'); continue; }
+      const pts = [];
+      if (by === 'LoadPoint') {
+        const fx = autoFilters(px, X.xMetric, null, X.fx), fy = autoFilters(py, X.yMetric, null, X.fy);
+        for (const lp of px.lps.filter((l) => py.lps.includes(l))) {
+          const sx = stats(repsAt(px, X.xMetric, lp, fx)), sy = stats(repsAt(py, X.yMetric, lp, fy));
+          if (!Number.isFinite(sx.mean) || !Number.isFinite(sy.mean)) continue;
+          const erl = cd.loads ? cd.loads.base + lp * cd.loads.inc : null;
+          pts.push(Object.assign({}, sy, { x: sx.mean, label: (erl !== null ? App.fmtNum(erl, 0) + ' E' : 'ponto ' + (lp + 1)) + ' · x = ' + R().fmtNumber(sx.mean, 'auto', 4, spec.style.decimal) }));
+        }
+      } else {
+        const ix = dimIndex(px, by), iy = dimIndex(py, by);
+        if (ix < 0 || iy < 0) { missing.push(caseLabel(c) + ' (as métricas não têm a dimensão ' + by + ')'); continue; }
+        const dx = px.dims[ix], dy = py.dims[iy];
+        const lpx = lpResolve(X.lp, px.lps), lpy = lpResolve(X.lp, py.lps);
+        const fx = autoFilters(px, X.xMetric, dx, X.fx), fy = autoFilters(py, X.yMetric, dy, X.fy);
+        const itemsY = new Set(dimValues(py, X.yMetric)[iy] || []);
+        for (const it of (dimValues(px, X.xMetric)[ix] || []).filter((v) => v !== 'all' && v !== '' && itemsY.has(v))) {
+          const sx = stats(repsAt(px, X.xMetric, lpx, fx, dx, it)), sy = stats(repsAt(py, X.yMetric, lpy, fy, dy, it));
+          if (!Number.isFinite(sx.mean) || !Number.isFinite(sy.mean)) continue;
+          const lab = by === 'Core' && /^\d+$/.test(it) ? 'Núcleo ' + it : 'Enlace ' + it;
+          pts.push(Object.assign({}, sy, { x: sx.mean, label: lab + ' · x = ' + R().fmtNumber(sx.mean, 'auto', 4, spec.style.decimal) }));
+        }
+      }
+      if (!pts.length) { missing.push(caseLabel(c) + ' (nenhum ponto com os dois valores)'); continue; }
+      const key = c.path;
+      const fit = fitLine(pts);
+      const s0 = { key, name: caseLabel(c), points: pts, fit, style: styleFor(spec, key, idx, 'scatter') };
+      series.push(s0);
+      all.push(...pts);
+      if (X.trend && !X.pooled && fit) {
+        const xs = pts.map((q) => q.x), x0 = Math.min(...xs), x1 = Math.max(...xs);
+        series.push({ key: 'trend|' + key, trendOf: key, name: 'Ajuste · ' + caseLabel(c), points: [{ x: x0, mean: fit.a + fit.b * x0, n: 0 }, { x: x1, mean: fit.a + fit.b * x1, n: 0 }], style: styleFor(spec, 'trend|' + key, idx, 'trend') });
+      }
+      idx++;
+    }
+    if (!series.length) return { empty: 'Nenhum caso tem as duas métricas.' + fileHint(X.xFile) + (X.yFile !== X.xFile ? fileHint(X.yFile) : ''), missing };
+    let pooledFit = null;
+    if (X.trend && X.pooled) {
+      pooledFit = fitLine(all);
+      if (pooledFit) {
+        const xs = all.map((q) => q.x), x0 = Math.min(...xs), x1 = Math.max(...xs);
+        series.push({ key: 'trend|all', name: 'Ajuste (todos os casos)', points: [{ x: x0, mean: pooledFit.a + pooledFit.b * x0, n: 0 }, { x: x1, mean: pooledFit.a + pooledFit.b * x1, n: 0 }], style: styleFor(spec, 'trend|all', 0, 'trend') });
+      }
+    }
+    return { kind: 'line', scatter: true, series, missing, xNumericOnly: true, pooledFit, lpUsed: [] };
   }
 
   async function buildCores(spec) {
@@ -671,6 +969,14 @@
       }
       return { head, rows };
     }
+    if (model.kind === 'slots') {
+      const n = Math.max(...model.panels.map((p) => p.to - p.from + 1));
+      const first = model.panels[0].from;
+      const head = ['painel', 'enlace', 'núcleo'].concat(Array.from({ length: n }, (_, k) => 'slot ' + (first + k)));
+      const rows = [];
+      for (const p of model.panels) for (const r of p.rows) rows.push([p.title, r.link, Number(r.core)].concat(Array.from(r.values)));
+      return { head, rows };
+    }
     if (model.kind === 'cores') {
       const head = ['caso', 'núcleo', 'uso', 'bloqueio'];
       const rows = [];
@@ -693,6 +999,8 @@
   function metricsShown(m, spec) {
     if (spec.type === 'cores') return [spec.cores.utilMetric, spec.cores.blockPrefix + ' N'];
     if (spec.type === 'topo') return [spec.metric];
+    if (spec.type === 'slots' || spec.type === 'slotline') return ['Slot utilization'];
+    if (spec.type === 'scatter') return [spec.scatter.xMetric, spec.scatter.yMetric];
     if (spec.type === 'line') return spec.line.seriesBy === 'metric' ? (spec.metrics.length ? spec.metrics : [spec.metric]) : [spec.metric];
     if (spec.bars.itemsFrom === 'metrics') return m.items && m.items.length ? m.items : [];
     return [spec.metric];
@@ -716,7 +1024,8 @@
       const f = spec.filters && spec.filters[d];
       dims.push(el('div.small', el('b', d), ': ', t, f !== undefined && !(spec.type === 'line' && spec.line.seriesBy === 'dim:' + d) && !(spec.type === 'bars' && spec.bars.dim === d) ? ' — filtro atual: ' + f : ''));
     }
-    const file = spec.type === 'cores' ? spec.cores.utilFile + '.csv + ' + spec.cores.blockFile + '.csv' : spec.file + '.csv';
+    const file = spec.type === 'cores' ? spec.cores.utilFile + '.csv + ' + spec.cores.blockFile + '.csv' : spec.type === 'slots' || spec.type === 'slotline' ? 'SlotUtilization.csv'
+      : spec.type === 'scatter' ? [...new Set([spec.scatter.xFile, spec.scatter.yFile])].map((f) => f + '.csv').join(' + ') : spec.file + '.csv';
     return el('div.metric-about',
       el('div.about-title', 'Sobre ' + (names.length > 1 ? 'as métricas' : 'a métrica'), el('span.about-file', ' · arquivo ' + file)),
       rows, dims.length ? el('div.about-dims', dims) : null);
@@ -753,6 +1062,10 @@
       add('enlace', 'enlace direcional origem→destino; cada enlace da topologia aparece nos dois sentidos.');
       stat();
       add('cores do mapa', 'escala contínua verde (menor valor) → amarelo → laranja → vermelho (maior valor), de ' + App.fmtNum(m.range.min, 4) + ' a ' + App.fmtNum(m.range.max, 4) + ', comum a todos os painéis.');
+    } else if (m.kind === 'slots') {
+      add('painel', 'caso e ponto de carga (um mapa por caso).');
+      add('enlace / núcleo', 'uma linha do mapa por núcleo de cada enlace direcional escolhido.');
+      add('slot N', 'fração das observações (uma a cada chegada de requisição) em que o slot N estava ocupado, média das replicações. Bandas de guarda contam como ocupadas; no núcleo QKD, os QChs e PIChs.');
     } else if (m.kind === 'cores') {
       add('caso', 'caso simulado (um diagrama por caso).');
       add('núcleo', 'índice do núcleo na MCF (posições lidas de network.cores).');
@@ -771,6 +1084,10 @@
 
   function field(label, input, help) {
     return el('label.field', el('div.flabel', label), input, help ? el('div.help', help) : null);
+  }
+  /** Like field(), but a div: for groups with several buttons/checkboxes (a label would forward clicks to the first one). */
+  function groupField(label, content, help) {
+    return el('div.field', el('div.flabel', label), content, help ? el('div.help', help) : null);
   }
   function numInput(obj, key, onChange, attrs) {
     const i = el('input.input.num', Object.assign({ type: 'number', value: obj[key] === undefined ? '' : obj[key] }, attrs || {}));
@@ -921,6 +1238,8 @@
     out.bars = Object.assign(base.bars, spec.bars || {});
     out.cores = Object.assign(base.cores, spec.cores || {});
     out.topo = Object.assign(base.topo, spec.topo || {});
+    out.slots = Object.assign(base.slots, spec.slots || {});
+    out.scatter = Object.assign(base.scatter, spec.scatter || {});
     out.labels = spec.labels || {}; out.seriesStyle = spec.seriesStyle || {}; out.filters = spec.filters || {};
     return out;
   }
@@ -931,7 +1250,7 @@
   }
 
   function newDialog() {
-    const sel = el('select.input', TEMPLATES.map((t) => el('option', { value: t.id }, t.name)));
+    const sel = el('select.input', templateOptions());
     const keep = el('input', { type: 'checkbox', checked: true });
     App.modal('Nova figura', el('div.form-grid',
       field('Modelo', sel),
@@ -998,7 +1317,8 @@
 
   function casesPanel() {
     const spec = S.spec;
-    const all = App.allCases().filter((c) => c.csvCount > 0);
+    const withVerif = S.caseVerif || spec.cases.some((c) => App.isVerificationPath(c.path));
+    const all = App.allCases(withVerif).filter((c) => c.csvCount > 0);
     const box = el('div.stack-s');
     const selList = el('div.fig-caselist');
     spec.cases.forEach((c, i) => {
@@ -1030,6 +1350,7 @@
         list.append(el('label.fig-pick-row', cb, el('span.ell', { title: c.path }, c.path), el('span.small.muted', c.csvCount + ' csv')));
       }
       if (!shown.length) list.append(el('p.small.muted', all.length ? 'Nenhum caso corresponde ao filtro.' : 'Nenhum caso com resultados (CSV) encontrado em simulations/.'));
+      if (shown.length > 400) list.append(el('p.small.muted', 'Mostrando 400 de ' + shown.length + ' casos; use o filtro.'));
     };
     filter.addEventListener('input', App.debounce(() => { S.caseFilter = filter.value; fill(); }, 120));
     fill();
@@ -1044,14 +1365,21 @@
     box.append(selList,
       el('div.toolbar', { style: { margin: '6px 0' } }, fsel,
         spec.cases.length ? el('button.btn.small', { type: 'button', on: { click: () => { spec.cases = []; changedData(); } } }, 'Limpar') : null),
-      filter, list);
+      filter,
+      App.state.tree && App.state.tree.verification ? el('label.check.small', (() => {
+        const cb = el('input', { type: 'checkbox' });
+        cb.checked = withVerif;
+        cb.addEventListener('change', () => { S.caseVerif = cb.checked; drawControls(); });
+        return cb;
+      })(), ' Incluir os casos da pasta verificacao (plano de verificação)') : null,
+      list);
     return box;
   }
 
   function dataPanel() {
     const spec = S.spec;
     const box = el('div.stack-s');
-    const tmplSel = el('select.input', TEMPLATES.map((t) => el('option', { value: t.id }, t.name)));
+    const tmplSel = el('select.input', templateOptions());
     tmplSel.value = spec.template;
     tmplSel.addEventListener('change', () => {
       const keepCases = spec.cases;
@@ -1062,20 +1390,26 @@
       if (S.spec.template === 'cores') { S.spec.style.width = Math.max(S.spec.style.width, 900); }
       changedData();
     });
-    box.append(field('Modelo de gráfico', tmplSel, 'Preenche tipo, arquivo, métrica e títulos; tudo pode ser ajustado abaixo.'));
+    const tdesc = (TEMPLATES.find((t) => t.id === spec.template) || {}).desc;
+    box.append(field('Modelo de gráfico', tmplSel, tdesc || 'Preenche tipo, arquivo, métrica e títulos; tudo pode ser ajustado abaixo.'));
 
-    const typeSel = selectInput(spec, 'type', [['line', 'Linhas (métrica × carga ou parâmetro)'], ['bars', 'Barras (agrupadas / empilhadas)'], ['cores', 'Diagrama da fibra (núcleos)'], ['topo', 'Mapa de calor na topologia (enlaces)']], () => {
+    const typeSel = selectInput(spec, 'type', [['line', 'Linhas (métrica × carga ou parâmetro)'], ['bars', 'Barras (agrupadas / empilhadas)'], ['cores', 'Diagrama da fibra (núcleos)'], ['topo', 'Mapa de calor na topologia (enlaces)'], ['slots', 'Mapa de calor do espectro (slots × núcleos × enlaces)'], ['slotline', 'Perfil de ocupação por slot (linhas)'], ['scatter', 'Dispersão: métrica × métrica (correlação)']], () => {
       if (spec.type === 'topo' && !spec.file) { spec.file = 'SpectrumUtilization'; spec.metric = 'Utilization Per Link'; }
+      if (spec.type === 'slots') { spec.file = 'SlotUtilization'; if (!spec.slots) spec.slots = newSpec('slotHeat', []).slots; if (spec.style.width < 1000) spec.style.width = 1400; }
+      if (spec.type === 'slotline') { spec.file = 'SlotUtilization'; if (!spec.slots) spec.slots = newSpec('slotProfile', []).slots; spec.style.xAsCategories = false; }
+      if (spec.type === 'scatter') { if (!spec.scatter) spec.scatter = newSpec('scLinkUtilBlock', []).scatter; spec.style.xAsCategories = false; spec.style.errorBars = 'none'; }
       changedData();
     });
     box.append(field('Tipo', typeSel));
 
     if (spec.type === 'cores') { box.append(coresDataFields()); return box; }
+    if (spec.type === 'slots' || spec.type === 'slotline') { box.append(slotsDataFields()); return box; }
+    if (spec.type === 'scatter') { box.append(scatterDataFields()); return box; }
     if (spec.type === 'topo') {
       const fileSel = el('select.input', S.fileOptions.length ? S.fileOptions.map((f) => el('option', { value: f.suffix }, f.suffix)) : el('option', { value: spec.file }, spec.file || '—'));
       fileSel.value = spec.file;
       fileSel.addEventListener('change', () => { spec.file = fileSel.value; spec.metric = ''; spec.filters = {}; changedData(); });
-      const linkMetrics = S.metricOptions.filter((m) => (S.dimOptions[m] || []).some((d) => d.name === 'Link' && d.values.some((v) => v !== 'all')));
+      const linkMetrics = S.metricOptions.filter((m) => (S.dimOptions[m] || []).some((d) => d.name.toLowerCase() === 'link' && d.values.some((v) => v !== 'all')));
       const mSel = el('select.input', linkMetrics.length ? linkMetrics.map((m) => el('option', { value: m }, m)) : el('option', { value: spec.metric }, spec.metric || '—'));
       mSel.value = spec.metric;
       mSel.addEventListener('change', () => { spec.metric = mSel.value; spec.filters = {}; changedData(); });
@@ -1089,7 +1423,7 @@
         T.lps = chosen.length === lps.length ? [] : chosen;
         changedData();
       }, true)));
-      box.append(filterFields(spec, 'Link'));
+      box.append(filterFields(spec, ['Link', 'link']));
       box.append(el('div.checks', checkInput(T, 'block', 'Mostrar também o bloqueio de cada enlace (BlockingDetails.csv)', () => { if (T.block && spec.style.topoLabels !== 'block') spec.style.topoLabels = 'block'; changedData(); })));
       if (T.block) box.append(field('Bloqueio exibido', selectInput(T, 'blockClasses', [['split', 'Clássicas e QKD separadas (quando houver QKD)'], ['all', 'Todas as requisições juntas']], () => changedData()),
         'Bloqueio do enlace = requisições bloqueadas cuja rota tentada passa pelo enlace ÷ requisições cuja rota passa por ele. Cada sentido é um enlace.'));
@@ -1174,6 +1508,76 @@
     return box;
   }
 
+  function scatterDataFields() {
+    const X = S.spec.scatter;
+    const o = S.scatterOptions || { files: [], metrics: {}, dims: {} };
+    const box = el('div.stack-s');
+    const fileSel = (key, mkey) => {
+      const s2 = el('select.input', (o.files.length ? o.files : [X[key]]).map((f) => el('option', { value: f }, f)));
+      s2.value = X[key];
+      s2.addEventListener('change', () => { X[key] = s2.value; X[mkey] = ''; changedData(); });
+      return s2;
+    };
+    const metricSel = (fkey, mkey) => {
+      const ms = o.metrics[X[fkey]] || (X[mkey] ? [X[mkey]] : []);
+      const s2 = el('select.input', ms.map((m) => el('option', { value: m }, m + (autoLabel(m) !== m ? ' — ' + autoLabel(m) : ''))));
+      if (!ms.includes(X[mkey]) && ms.length) X[mkey] = ms[0];
+      s2.value = X[mkey];
+      s2.addEventListener('change', () => { X[mkey] = s2.value; changedData(); });
+      return s2;
+    };
+    const dimFilters = (fkey, mkey, fobj) => {
+      const ds = ((o.dims[X[fkey]] || {})[X[mkey]] || []).filter((d) => d.values.length > 1 && d.name.toLowerCase() !== String(X.by).toLowerCase());
+      return ds.map((d) => {
+        const cur = fobj[d.name] !== undefined && d.values.includes(fobj[d.name]) ? fobj[d.name] : (d.values.includes('all') ? 'all' : d.values[0]);
+        const s2 = el('select.input', d.values.slice(0, 500).map((v) => el('option', { value: v }, autoLabel(v) !== v ? autoLabel(v) : v)));
+        s2.value = cur;
+        s2.addEventListener('change', () => { fobj[d.name] = s2.value; changedData(); });
+        return field('Filtro: ' + d.name, s2);
+      });
+    };
+    box.append(field('Um ponto por', selectInput(X, 'by', [['Link', 'Enlace (cada sentido)'], ['Core', 'Núcleo'], ['LoadPoint', 'Ponto de carga']], () => changedData()),
+      'Enlaces e núcleos: os dois valores no mesmo ponto de carga. Pontos de carga: um ponto por carga, as duas métricas gerais.'));
+    box.append(el('div.fsub', 'Eixo x'), field('Arquivo', fileSel('xFile', 'xMetric')), field('Métrica', metricSel('xFile', 'xMetric')), ...dimFilters('xFile', 'xMetric', X.fx));
+    box.append(el('div.fsub', 'Eixo y'), field('Arquivo', fileSel('yFile', 'yMetric')), field('Métrica', metricSel('yFile', 'yMetric')), ...dimFilters('yFile', 'yMetric', X.fy));
+    if (X.by !== 'LoadPoint') box.append(field('Ponto de carga', lpSelect(X, 'lp')));
+    box.append(el('div.checks', checkInput(X, 'trend', 'Reta de ajuste e r de Pearson', () => changedData()),
+      checkInput(X, 'pooled', 'Um ajuste só, com os pontos de todos os casos', () => changedData())));
+    box.append(el('p.small.muted', 'r perto de 1 (ou −1): as duas métricas crescem juntas (ou em sentidos opostos); perto de 0, sem relação linear. Correlação não é causa: use para levantar hipóteses e conferir com os casos.'));
+    return box;
+  }
+
+  function slotsDataFields() {
+    const T = S.spec.slots;
+    const o = S.slotOptions || { links: [], cores: [], nSlots: 0 };
+    const box = el('div.stack-s');
+    if (!o.links.length) {
+      box.append(el('p.small.muted', 'Nenhum caso selecionado tem SlotUtilization.csv. O arquivo é gravado pelo simulador da Parte 27 (métrica SlotUtilization, ligada por padrão junto com SpectrumUtilization).'));
+      return box;
+    }
+    box.append(field('Ponto de carga', lpSelect(T, 'lp')));
+    const links = o.links.slice();
+    if (T.order === 'name') links.sort(linkCompare);
+    const quick = (label, fn) => el('button.btn.small', { type: 'button', on: { click: fn } }, label);
+    const linkBox = metricChecklist(links, T.links.length ? links.filter((l) => T.links.includes(l)) : links, (arr) => { T.links = arr.length === links.length ? [] : arr; changedData(); }, true);
+    box.append(groupField('Enlaces (' + (T.links.length || links.length) + ' de ' + links.length + ')', el('div.stack-s',
+      el('div.toolbar', { style: { margin: 0 } },
+        quick('Todos', () => { T.links = []; changedData(); }),
+        quick('Só um sentido (a < b)', () => { T.links = links.filter((l) => { const m = /^<([^<>]+?)-([^<>]+)>$/.exec(l); return m && linkCompare('<' + m[1] + '-' + m[2] + '>', '<' + m[2] + '-' + m[1] + '>') < 0; }); changedData(); }),
+        quick('Primeiro', () => { T.links = [links[0]]; changedData(); })),
+      linkBox)));
+    const cores = o.cores;
+    box.append(groupField('Núcleos', el('div.stack-s',
+      el('div.toolbar', { style: { margin: 0 } }, quick('Todos', () => { T.cores = []; changedData(); })),
+      metricChecklist(cores, T.cores.length ? cores.filter((c) => T.cores.includes(c)) : cores, (arr) => { T.cores = arr.length === cores.length ? [] : arr; changedData(); }, true))));
+    box.append(el('div.fields.two',
+      field('Do slot', numInput(T, 'from', () => changedStyleData(), { min: 1, max: o.nSlots, step: 1 })),
+      field('Até o slot', numInput(T, 'to', () => changedStyleData(), { min: 0, max: o.nSlots, step: 1, placeholder: '0 = último (' + o.nSlots + ')' }))));
+    box.append(field('Ordem dos enlaces', selectInput(T, 'order', [['name', 'Por origem e destino (1-2, 1-3, 2-1…)'], ['file', 'Ordem do arquivo (lista de enlaces da rede)']], () => changedData())));
+    box.append(el('p.small.muted', 'Cada célula é a fração do tempo (amostrada a cada chegada) em que o slot estava ocupado, média das replicações. Bandas de guarda contam como ocupadas; no núcleo reservado à QKD aparecem os QChs e PIChs.'));
+    return box;
+  }
+
   function lpSelect(obj, key) {
     const lps = S.lpOptions || [];
     const opts = [[-1, 'Último ponto']].concat(lps.map((l) => [l, 'Ponto ' + (l + 1) + (S.lpErl && S.lpErl[l] !== undefined ? ' · ' + App.fmtNum(S.lpErl[l], 0) + ' E' : '')]));
@@ -1210,8 +1614,40 @@
     return box;
   }
 
+  /** Current style of the entry e (index i) of the series panel; panels with a series dimension are looked up by key. */
+  function seriesStyleOf(m, e, i) {
+    if (m.kind === 'line' || m.kind === 'bars') return m.series[i] ? m.series[i].style : null;
+    if (m.kind === 'panels') {
+      for (const p of m.panels) { const x = p.model.series.find((s) => s.key === e.key); if (x && x.style) return x.style; }
+      const p = m.panels[i];
+      return p && p.model.series[0] ? p.model.series[0].style : null;
+    }
+    return null;
+  }
+
+  /** Remembers which text field of the panel has the focus, so a redraw does not take it away while the user types. */
+  function focusKeyIn(box) {
+    const a = document.activeElement;
+    if (!a || !box.contains(a) || !a.dataset || !a.dataset.fk) return null;
+    let sel = null;
+    try { sel = [a.selectionStart, a.selectionEnd]; } catch (err) { sel = null; }
+    return { fk: a.dataset.fk, sel };
+  }
+  function restoreFocus(box, f) {
+    if (!f) return;
+    const i = [...box.querySelectorAll('[data-fk]')].find((x) => x.dataset.fk === f.fk);
+    if (!i) return;
+    i.focus();
+    if (f.sel && f.sel[0] !== null) { try { i.setSelectionRange(f.sel[0], f.sel[1]); } catch (err) { /* not a text field */ } }
+  }
+
   function drawSeriesPanel() {
     if (!seriesBox) return;
+    const keepFocus = focusKeyIn(seriesBox);
+    try { drawSeriesPanelInner(); } finally { restoreFocus(seriesBox, keepFocus); }
+  }
+
+  function drawSeriesPanelInner() {
     clear(seriesBox);
     const spec = S.spec;
     const m = S.model;
@@ -1248,8 +1684,35 @@
         field('Preenchimento dos nós', colorInput(st, 'topoNodeFill', changedStyle)),
         field('Enlace sem dado', colorInput(st, 'topoNoData', changedStyle))),
         el('div.checks', checkInput(st, 'topoAutoHeight', 'Altura automática (proporção da topologia)', changedStyle),
-          checkInput(st, 'topoPanelBorder', 'Moldura em cada imagem', changedStyle)),
+          checkInput(st, 'topoPanelBorder', 'Moldura em cada imagem', changedStyle),
+          checkInput(st, 'topoTrusted', 'Nós confiáveis (pontos a cada QTND km, casos com QKD)', changedStyle)),
+        el('div.fields.two', field('Cor dos nós confiáveis', colorInput(st, 'topoTrustedFill', changedStyle)),
+          field('Raio dos nós confiáveis (px)', numInput(st, 'topoTrustedR', changedStyle, { min: 0, max: 20, step: 0.5, placeholder: 'auto' }))),
         el('p.small.muted', 'Com "os dois", cada sentido é uma faixa: a faixa de a→b fica à direita de quem segue de a para b. Passe o mouse sobre um enlace para ver o valor.'));
+      seriesBox.append(section('3. Cores e rótulos', true, body));
+      return;
+    }
+    if (m.kind === 'slots') {
+      const st = spec.style;
+      clear(body);
+      body.append(el('div.fields.two',
+        field('Escala de cores', selectInput(st, 'slotScale', R().SLOT_SCALES.map((x) => [x.id, x.name]), changedStyle)),
+        field('Faixa da escala', selectInput(st, 'slotRange', [['fixed', '0 a 100 % (fixa)'], ['auto', 'Menor a maior valor dos dados']], changedStyleData)),
+        field('Mínimo da escala', numInput(st, 'slotMin', changedStyleData, { step: 'any', placeholder: 'auto' })),
+        field('Máximo da escala', numInput(st, 'slotMax', changedStyleData, { step: 'any', placeholder: 'auto' })),
+        field('Altura de cada linha (px)', numInput(st, 'slotRowH', changedStyle, { min: 2, max: 60 })),
+        field('Rótulos de slot a cada', numInput(st, 'slotTickStep', changedStyle, { min: 0, step: 1, placeholder: 'auto' })),
+        field('Legenda de cores', selectInput(st, 'slotLegend', [['right', 'À direita'], ['bottom', 'Embaixo'], ['none', 'Sem legenda']], changedStyle)),
+        field('Título da legenda', labelInput('__slot', 'Ocupação do slot')),
+        field('Formato dos valores', selectInput(st, 'slotFormat', [['percent', 'Porcentagem'], ['fixed', 'Decimal']], changedStyle)),
+        field('Casas decimais', numInput(st, 'slotDigits', changedStyle, { min: 0, max: 6 })),
+        field('Cor das divisões', colorInput(st, 'slotGridColor', changedStyle)),
+        field('Slot nunca ocupado', selectInput(st, 'slotZero', [['scale', 'Cor da escala'], ['white', 'Branco'], ['gray', 'Cinza claro']], changedStyle))),
+        el('div.checks',
+          checkInput(st, 'slotCellGrid', 'Contorno em cada slot (quando couber)', changedStyle),
+          checkInput(st, 'slotLinkSep', 'Linha grossa entre enlaces', changedStyle),
+          checkInput(st, 'slotPanelTitle', 'Título de cada mapa (caso · carga)', changedStyle)),
+        el('p.small.muted', 'Passe o mouse sobre o mapa para ver enlace, núcleo, slots e ocupação. Com muitos slots as células vizinhas de mesma cor viram um só retângulo, o que deixa o SVG leve.'));
       seriesBox.append(section('3. Cores e rótulos', true, body));
       return;
     }
@@ -1276,7 +1739,8 @@
     }
     entries.forEach((e, i) => {
       const o = spec.seriesStyle[e.key] || (spec.seriesStyle[e.key] = {});
-      const cur = (m.kind === 'line' ? m.series : m.kind === 'bars' ? m.series : m.panels.map((p) => p.model.series[0]))[i].style;
+      const cur = seriesStyleOf(m, e, i);
+      if (!cur) return;
       const color = el('input.input.color', { type: 'color', value: toHex(cur.color) });
       color.addEventListener('input', () => { o.color = color.value; changedStyle(); });
       const vis = el('input', { type: 'checkbox', title: 'Mostrar' });
@@ -1322,7 +1786,7 @@
     if (e.key.startsWith('i:')) return labelInput(e.key.slice(2), autoLabel(e.key.slice(2)));
     const c = spec.cases.find((x) => x.path === e.key);
     if (c) {
-      const i = el('input.input', { type: 'text', value: c.label });
+      const i = el('input.input', { type: 'text', value: c.label, 'data-fk': 'case:' + c.path });
       i.addEventListener('input', () => { c.label = i.value; changedStyle(); });
       return i;
     }
@@ -1333,7 +1797,7 @@
 
   function labelInput(key, fallback) {
     const spec = S.spec;
-    const i = el('input.input', { type: 'text', value: spec.labels[key] !== undefined ? spec.labels[key] : '', placeholder: fallback });
+    const i = el('input.input', { type: 'text', value: spec.labels[key] !== undefined ? spec.labels[key] : '', placeholder: fallback, 'data-fk': 'lbl:' + key });
     i.addEventListener('input', () => { spec.labels[key] = i.value; changedStyle(); });
     return i;
   }
@@ -1427,11 +1891,53 @@
       } catch (e) { /* ignore */ }
     }
     S.fileOptions = [...counts.entries()].map(([suffix, count]) => ({ suffix, count })).sort((a, b) => b.count - a.count || a.suffix.localeCompare(b.suffix));
-    if (spec.type !== 'cores' && S.fileOptions.length && !counts.has(spec.file)) {
+    if (spec.type !== 'cores' && spec.type !== 'slots' && S.fileOptions.length && !counts.has(spec.file)) {
       const want = spec.file;
       spec.file = (S.fileOptions.find((f) => f.suffix === want || f.suffix.endsWith('_' + want)) || S.fileOptions.find((f) => /BlockingProbability$/.test(f.suffix) && !/BitRate/.test(f.suffix)) || S.fileOptions[0]).suffix;
     }
     S.metricOptions = []; S.dimOptions = {}; S.lpOptions = []; S.lpErl = null;
+    if (spec.type === 'scatter') {
+      const X = spec.scatter;
+      S.scatterOptions = { files: S.fileOptions.map((f) => f.suffix).filter((f) => f !== 'SlotUtilization'), metrics: {}, dims: {} };
+      for (const f of [...new Set([X.xFile, X.yFile])]) {
+        const first = spec.cases.find((c) => firstWith.get(f) === c.path);
+        if (!first) continue;
+        try {
+          const p = await getCsv(first.path, f);
+          if (!(p && p.ok)) continue;
+          S.scatterOptions.metrics[f] = p.metrics;
+          S.scatterOptions.dims[f] = {};
+          for (const m of p.metrics) S.scatterOptions.dims[f][m] = p.dims.map((d, i) => ({ name: d, values: dimValues(p, m)[i] }));
+          if (!S.lpOptions.length) {
+            S.lpOptions = p.lps;
+            const cd = await caseData(first.path);
+            if (cd.loads) S.lpErl = Object.fromEntries(p.lps.map((l) => [l, cd.loads.base + l * cd.loads.inc]));
+          }
+        } catch (e) { /* ignore */ }
+      }
+      S.paramOptions = [];
+      return;
+    }
+    if (spec.type === 'slots' || spec.type === 'slotline') {
+      S.slotOptions = { links: [], cores: [], nSlots: 0 };
+      for (const c of spec.cases) {
+        try {
+          const p = await getCsv(c.path, 'SlotUtilization');
+          if (!(p && p.ok && p.slot)) continue;
+          for (const l of p.links) if (!S.slotOptions.links.includes(l)) S.slotOptions.links.push(l);
+          for (const k of p.cores) if (!S.slotOptions.cores.includes(k)) S.slotOptions.cores.push(k);
+          S.slotOptions.nSlots = Math.max(S.slotOptions.nSlots, p.nSlots);
+          if (!S.lpOptions.length) {
+            S.lpOptions = p.lps;
+            const cd = await caseData(c.path);
+            if (cd.loads) S.lpErl = Object.fromEntries(p.lps.map((l) => [l, cd.loads.base + l * cd.loads.inc]));
+          }
+        } catch (e) { /* ignore */ }
+      }
+      S.slotOptions.cores.sort((a, b) => Number(a) - Number(b));
+      S.paramOptions = [];
+      return;
+    }
     const fileForOptions = spec.type === 'cores' ? spec.cores.utilFile : spec.file;
     const first = spec.cases.find((c) => firstWith.get(fileForOptions) === c.path) || spec.cases[0];
     if (first) {
@@ -1465,10 +1971,10 @@
     const seq = ++refreshSeq;
     try {
       if (!styleOnly) {
-        const before = JSON.stringify([S.fileOptions, S.metricOptions, S.lpOptions, S.paramOptions, S.spec.file, S.spec.metric, S.spec.line.paramPath]);
+        const before = JSON.stringify([S.fileOptions, S.metricOptions, S.lpOptions, S.paramOptions, S.spec.file, S.spec.metric, S.spec.line.paramPath, S.slotOptions, S.scatterOptions]);
         await loadOptions();
         if (seq !== refreshSeq) return;
-        if (before !== JSON.stringify([S.fileOptions, S.metricOptions, S.lpOptions, S.paramOptions, S.spec.file, S.spec.metric, S.spec.line.paramPath])) drawControls();
+        if (before !== JSON.stringify([S.fileOptions, S.metricOptions, S.lpOptions, S.paramOptions, S.spec.file, S.spec.metric, S.spec.line.paramPath, S.slotOptions, S.scatterOptions])) drawControls();
       }
       const model = await buildModel(S.spec);
       if (seq !== refreshSeq) return;
@@ -1483,9 +1989,11 @@
   }
 
   function seriesSignature(m) {
-    if (m.kind === 'line' || m.kind === 'bars') return m.series.map((s) => s.key + '|' + s.name).concat(m.categories ? m.categories.map((c) => c.key) : []);
-    if (m.kind === 'panels') return m.panels.map((p) => p.title).concat(m.items || []);
+    // keys only: the names follow the labels the user is typing, and a redraw would take the focus away
+    if (m.kind === 'line' || m.kind === 'bars') return m.series.map((s) => s.key).concat(m.categories ? m.categories.map((c) => c.key) : []);
+    if (m.kind === 'panels') return m.panels.map((p) => p.model.series.map((s) => s.key).join(',')).concat(m.items || []);
     if (m.kind === 'cores') return ['cores'];
+    if (m.kind === 'slots') return ['slots'];
     if (m.kind === 'topo') return ['topo'];
     return [];
   }
@@ -1532,7 +2040,42 @@
   function applyStyle(m) {
     const spec = S.spec;
     const restyle = (list, kind, itemOf) => list.forEach((s, i) => { s.style = styleFor(spec, s.key, i, kind, itemOf ? itemOf(s) : undefined); });
-    if (m.kind === 'line') {
+    if (m.kind === 'line' && m.scatter) {
+      const fmtR = (f) => (f && Number.isFinite(f.r) ? ' (r = ' + R().fmtNumber(f.r, 'fixed', 2, spec.style.decimal) + ')' : '');
+      let k = 0;
+      const colorOf = {};
+      for (const s of m.series) {
+        if (s.trendOf === undefined && s.key !== 'trend|all') {
+          s.style = styleFor(spec, s.key, k++, 'scatter');
+          colorOf[s.key] = s.style.color;
+          const c = spec.cases.find((x) => x.path === s.key);
+          s.name = (c ? caseLabel(c) : s.name) + (spec.scatter.trend && !spec.scatter.pooled ? fmtR(s.fit) : '');
+        }
+      }
+      k = 0;
+      for (const s of m.series) {
+        if (s.trendOf !== undefined) {
+          const o = spec.seriesStyle[s.key] || {};
+          s.style = styleFor(spec, s.key, k++, 'trend');
+          if (!o.color && colorOf[s.trendOf]) s.style.color = colorOf[s.trendOf];
+          const c = spec.cases.find((x) => x.path === s.trendOf);
+          s.name = 'Ajuste · ' + (c ? caseLabel(c) : '');
+        } else if (s.key === 'trend|all') {
+          s.style = styleFor(spec, s.key, 0, 'trend');
+          if (!(spec.seriesStyle[s.key] || {}).color) s.style.color = '#404040';
+          s.name = 'Ajuste (todos os casos)' + fmtR(m.pooledFit);
+        }
+      }
+    } else if (m.kind === 'line' && m.styleKind === 'slotline') {
+      restyle(m.series, 'slotline');
+      for (const s of m.series) {
+        const mm = /^(.*)\|core=(.*)$/.exec(s.key);
+        if (!mm) continue;
+        const cc = spec.cases.find((x) => x.path === mm[1]);
+        const lab = spec.labels[mm[2]] !== undefined && spec.labels[mm[2]] !== '' ? spec.labels[mm[2]] : 'Núcleo ' + mm[2];
+        s.name = (spec.cases.length > 1 && cc ? caseLabel(cc) + ' · ' : '') + lab;
+      }
+    } else if (m.kind === 'line') {
       restyle(m.series, 'line');
       // names may depend on labels
       const multiCase = spec.cases.length > 1;
@@ -1568,6 +2111,8 @@
       });
     } else if (m.kind === 'topo') {
       m.legendTitle = spec.labels.__heat || App.metricInfo.axisTitle(spec.metric) || spec.metric;
+    } else if (m.kind === 'slots') {
+      m.legendTitle = spec.labels.__slot || 'Ocupação do slot';
     } else if (m.kind === 'cores') {
       for (const d of m.diagrams) { const c = spec.cases.find((x) => x.path === d.path); if (c) d.title = caseLabel(c); }
       m.blockLabel = spec.labels.__block || 'Bloqueio do núcleo';

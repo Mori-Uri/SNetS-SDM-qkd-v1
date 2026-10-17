@@ -41,6 +41,7 @@ public class SimulationRequest {
         public final static String FILE_QKD_STATISTICS = "QKDStatistics.csv";
         public final static String FILE_QKD_METRICS = "QKDMetrics.csv";
         public final static String FILE_BLOCKING_DETAILS = "BlockingDetails.csv";
+        public final static String FILE_SLOT_UTILIZATION = "SlotUtilization.csv";
 
         public String blockingProbability;
         public String bitRateBlockingProbability;
@@ -57,6 +58,7 @@ public class SimulationRequest {
         public String qkdStatistics;
         public String qkdMetrics;
         public String blockingDetails;
+        public String slotUtilization;
     }
 
     /**

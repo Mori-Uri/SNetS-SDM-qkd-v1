@@ -25,12 +25,16 @@ import qkd.reference.ReferenceTopologySpec;
  * and symmetry).
  *
  * <p>Every step writes ordinary SNetS cases under
- * {@code simulations/QKD_ladder/<perfil>/<passo>/} (they can be opened in the
+ * {@code verificacao/QKD_ladder/<perfil>/<passo>/} (they can be opened in the
  * launcher) and a report with checks in the step folder (checks.csv,
  * data.csv, charts.csv, cases.txt, report.txt, status.txt).</p>
  *
  * <p>Usage: {@code java -cp SNetS-SDM-QKD.jar qkd.ladder.QKDLadderMain <passo|list>
- * <pasta simulations> [--profile rapido|completo] [--threads N] [--force]}</p>
+ * <pasta simulations> [--profile rapido|completo] [--threads N] [--force] [--out <pasta verificacao>]}</p>
+ *
+ * <p>Part 27: the outputs go to {@code <pasta verificacao>/QKD_ladder/<perfil>/<passo>/}, by default the folder
+ * {@code verificacao} next to the simulations folder; the article base is read from
+ * {@code verificacao/QKD_reference/Dibaj_MF} (or the old {@code simulations/QKD_reference/Dibaj_MF}).</p>
  *
  * <p>Refer\u00eancias: [DIBAJ24], [MORI26], [MOGH21], [AHMED26a], [JAIN91] R. Jain, "The Art of Computer Systems Performance Analysis", Wiley, 1991 (Erlang-B, lei de Little, intervalos de confian\u00e7a).</p>
  */
@@ -97,11 +101,33 @@ public final class QKDLadderMain {
     final LadderScenario sc;
     final LadderRunner runner;
 
+    /** Part 27: folder of the verification outputs (QKD_ladder, QKD_reference), separate from simulations. */
+    final File verif;
+
+    /** Default verification folder: "verificacao" next to the simulations folder. */
+    static File defaultVerificationDir(File sims) {
+        File parent = sims.getAbsoluteFile().getParentFile();
+        return new File(parent == null ? sims : parent, "verificacao");
+    }
+
+    /** The article-base reference: verificacao/QKD_reference/Dibaj_MF, or the old place under simulations. */
+    static File dibajDir(File sims, File verif) {
+        File n = new File(new File(verif, "QKD_reference"), "Dibaj_MF");
+        if (new File(n, "config.json").isFile()) return n;
+        File o = new File(new File(sims, "QKD_reference"), "Dibaj_MF");
+        return new File(o, "config.json").isFile() ? o : n;
+    }
+
     QKDLadderMain(File sims, Profile prof, boolean force) throws Exception {
+        this(sims, defaultVerificationDir(sims), prof, force);
+    }
+
+    QKDLadderMain(File sims, File verif, Profile prof, boolean force) throws Exception {
         this.sims = sims;
+        this.verif = verif.getAbsoluteFile();
         this.prof = prof;
-        this.dibaj = new File(new File(sims, "QKD_reference"), "Dibaj_MF");
-        this.root = new File(new File(sims, "QKD_ladder"), prof.name);
+        this.dibaj = dibajDir(sims, this.verif);
+        this.root = new File(new File(this.verif, "QKD_ladder"), prof.name);
         if (!new File(dibaj, "config.json").isFile()) throw new IllegalStateException("Pasta do artigo-base n\u00e3o encontrada: " + dibaj);
         this.sc = new LadderScenario(dibaj, root);
         this.runner = new LadderRunner();
@@ -117,13 +143,15 @@ public final class QKDLadderMain {
         File sims = new File(args.length > 1 && !args[1].startsWith("--") ? args[1] : "simulations").getAbsoluteFile();
         String profile = "rapido";
         boolean force = false;
+        File verif = null;
         for (int i = 1; i < args.length; i++) {
             if ("--profile".equals(args[i]) && i + 1 < args.length) profile = args[++i];
+            else if ("--out".equals(args[i]) && i + 1 < args.length) verif = new File(args[++i]).getAbsoluteFile();
             else if ("--threads".equals(args[i]) && i + 1 < args.length) System.setProperty("snets.threads", args[++i]);
             else if ("--force".equals(args[i])) force = true;
         }
         if (!Arrays.asList(STEPS).contains(step)) throw new IllegalArgumentException("Passo desconhecido: " + step);
-        QKDLadderMain m = new QKDLadderMain(sims, profile(profile), force);
+        QKDLadderMain m = new QKDLadderMain(sims, verif != null ? verif : defaultVerificationDir(sims), profile(profile), force);
         LadderReport rep = m.run(step);
         rep.write(m.prof.name, m.runner.ran, m.runner.reused);
         System.exit(LadderReport.FAIL.equals(rep.status()) ? 1 : 0);
@@ -169,7 +197,7 @@ public final class QKDLadderMain {
 
     LadderReport report(String step, String title) {
         System.out.println("=== Plano de verifica\u00e7\u00e3o QKD \u2014 " + step + ": " + title + " (perfil " + prof.name + ")");
-        return new LadderReport(step, title, new File(root, step), sims);
+        return new LadderReport(step, title, new File(root, step), verif);
     }
 
     static final class Case {

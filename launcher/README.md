@@ -152,3 +152,33 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
   - fase M (Moghaddam et al., 2021): M1–M3;
   - fase Q (QKD-Analytical, 2026): Q1–Q3.
 - **Varredura**: os parâmetros do receptor QKD agora apontam para o arquivo `qkdPhysicalLayer`.
+
+## Versão 1.7.0
+
+- **Gráficos › novo modelo "Ocupação dos slots de cada núcleo em cada enlace"** (tipo "Mapa de calor do espectro"):
+  - uma linha por núcleo de cada enlace e uma coluna por slot, colorida pela fração do tempo em que o slot estava
+    ocupado (média das replicações);
+  - escolha do ponto de carga, dos enlaces (todos, só um sentido, ou um a um), dos núcleos e da faixa de slots;
+  - escalas contínuas ou em 5 faixas, faixa fixa (0–100 %) ou automática, legenda, altura das linhas e divisões;
+  - passar o mouse mostra enlace, núcleo, slots e ocupação.
+  - Usa o novo `<caso>_SlotUtilization.csv`, gravado pelo simulador da Parte 27 (métrica `SlotUtilization`, ligada por
+    padrão junto com `SpectrumUtilization`).
+- **Correção:** editar o nome de uma série (seção "3. Séries e cores") não tira mais o cursor da caixa a cada letra.
+- **Correção:** o bloqueio por núcleo com as causas, com vários casos, não dá mais "Cannot read properties of undefined
+  (reading 'style')" quando há mais causas do que casos.
+- **Métricas:** uma métrica ausente do bloco `activeMetrics` aparece como ligada (é o padrão da classe `Metrics`).
+
+## Versão 1.8.0
+
+- **Verificação em pasta própria.** O plano de verificação grava em `<projeto>/verificacao` (QKD_ladder, QKD_reference).
+  Na árvore, essa pasta aparece numa seção "Verificação" separada, e no estúdio de gráficos os casos dela só entram com
+  a opção "Incluir os casos da pasta verificacao".
+- **Modelos de gráfico agrupados** por assunto: Bloqueio, Causas de bloqueio, Núcleos, Espectro e utilização,
+  Fragmentação, Mapas de calor, Correlações, QKD e Outros.
+- **Gráficos novos:**
+  - diagnóstico do espectro dos bloqueios: falta de slots, fragmentação de continuidade, fragmentação de contiguidade
+    ou faixa livre;
+  - fragmentação externa, relativa e por enlace, e o mapa de calor da fragmentação;
+  - perfil de ocupação por slot;
+  - dispersões de correlação (enlace, núcleo ou carga), com reta de ajuste e r de Pearson.
+- **Nós confiáveis** como pontos nas topologias da aba Rede e dos mapas de calor.

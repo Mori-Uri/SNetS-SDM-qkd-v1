@@ -354,9 +354,15 @@ public class SimulationConfig {
         public boolean PhysicalLayerStatistics;
         /** QKD addon (Part 23): QKDMetrics.csv, written only when network.qkd.enabled = true. */
         public boolean QKDMetrics;
+        /**
+         * Part 27: SlotUtilization.csv, the occupancy of every slot of every core of every link
+         * (needs SpectrumUtilization). Turn it off to save disk space in large topologies.
+         */
+        public boolean SlotUtilization;
 
         public Metrics() {
             QKDMetrics = true;
+            SlotUtilization = true;
             BlockingProbability = true;
             BitRateBlockingProbability = true;
             SpectrumUtilization = true;

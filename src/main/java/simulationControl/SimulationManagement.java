@@ -206,11 +206,41 @@ public class SimulationManagement {
         finalResult.qkdStatistics = buildQkdStatisticsCsv();
         finalResult.qkdMetrics = buildQkdMetricsCsv();
         finalResult.blockingDetails = buildBlockingDetailsCsv();
+        if (simulationRequest.getSimulationConfig().getActiveMetrics().SpectrumUtilization
+                && simulationRequest.getSimulationConfig().getActiveMetrics().SlotUtilization) {
+            finalResult.slotUtilization = buildSlotUtilizationCsv();
+        }
         simulationRequest.setResult(finalResult);
         simulationProgressListener.onSimulationFinished();
     }
 
     private interface QkdValue { double of(QKDMetricsSnapshot m); }
+
+    /**
+     * Part 27: SlotUtilization.csv. One row per load point, link, core and replication; the columns
+     * 1..S are the fraction of the observations in which that slot was occupied (data and guard bands,
+     * QChs and PIChs included), i.e. the time average sampled at each arrival, like SpectrumUtilization.
+     */
+    private String buildSlotUtilizationCsv() {
+        List<measurement.SpectrumUtilization> all = new ArrayList<measurement.SpectrumUtilization>();
+        for (List<Measurements> lp : mainMeasuremens) {
+            for (Measurements ms : lp) {
+                if (ms == null) continue;
+                for (measurement.Measurement m : ms.getMetrics()) {
+                    if (m instanceof measurement.SpectrumUtilization) all.add((measurement.SpectrumUtilization) m);
+                }
+            }
+        }
+        if (all.isEmpty()) return null;
+        int slots = 0;
+        for (measurement.SpectrumUtilization su : all) slots = Math.max(slots, su.getMaxSlotsByLinks());
+        StringBuilder sb = new StringBuilder();
+        sb.append("Metrics,LoadPoint,Link,Core,Replication");
+        for (int s = 1; s <= slots; s++) sb.append(',').append(s);
+        sb.append('\n');
+        for (measurement.SpectrumUtilization su : all) su.appendSlotUtilizationRows(sb, slots);
+        return sb.toString();
+    }
 
     /** Part 25: BlockingDetails.csv (observation-only counters of the control plane). */
     private String buildBlockingDetailsCsv() {

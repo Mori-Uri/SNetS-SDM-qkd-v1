@@ -53,9 +53,9 @@
     // ---------------------------------------------------------------- SpectrumSizeStatistics / fragmentation
     [/^requisitons per number of slots per link$/i, 'Distribuição do número de slots ocupados pelas requisições, por enlace.', 'fração'],
     [/^requisitons per number of slots$/i, 'Distribuição do número de slots ocupados pelas requisições.', 'fração'],
-    [/^external fragmentation \(vertical\)$/i, 'Fragmentação externa vertical: 1 − (maior bloco livre ÷ total de slots livres), média sobre os enlaces.', 'fração'],
-    [/^external fragmentation \(horizontal\)$/i, 'Fragmentação externa horizontal: descontinuidade dos slots livres ao longo das rotas.', 'fração'],
-    [/^external fragmentation per link$/i, 'Fragmentação externa de cada enlace.', 'fração'],
+    [/^external fragmentation \(vertical\)$/i, 'Fragmentação externa vertical: 1 − (maior bloco livre ÷ total de slots livres) de cada núcleo, média nos núcleos de cada enlace e em todos os enlaces, observada a cada chegada (o núcleo reservado à QKD entra na média).', 'fração'],
+    [/^external fragmentation \(horizontal\)$/i, 'Fragmentação externa horizontal: a mesma medida na interseção do espectro livre ao longo da rota de cada requisição, no núcleo escolhido para ela.', 'fração'],
+    [/^external fragmentation per link$/i, 'Fragmentação externa de cada enlace: 1 − (maior bloco livre ÷ slots livres), média nos núcleos do enlace e no tempo. 0 = todo o espaço livre é um bloco só.', 'fração'],
     [/^entropy external fragmentation/i, 'Fragmentação externa medida pela entropia da distribuição dos blocos livres.', 'adimensional'],
     [/^relative fragmentation/i, 'Fragmentação relativa para requisições de c slots: fração do espectro livre que não comporta um bloco de c slots.', 'fração'],
     // ---------------------------------------------------------------- Tx/Rx/Regenerators
@@ -91,6 +91,10 @@
     [/^average crosstalk per overlaps/i, 'Crosstalk médio dos circuitos agrupados pelo número de núcleos vizinhos com sobreposição espectral (coluna overlaps). −200 dB = sem amostras.', 'dB'],
     [/^maximum crosstalk per overlaps/i, 'Maior crosstalk observado para cada número de sobreposições.', 'dB'],
     [/^minimum crosstalk per overlaps/i, 'Menor crosstalk observado para cada número de sobreposições.', 'dB'],
+    // ---------------------------------------------------------------- spectrum diagnosis (Parte 27)
+    [/^blocking probability by spectrum diagnosis$/i, 'Bloqueio separado pelo estado do espectro da rota tentada no momento do bloqueio, independentemente da causa escolhida pelo algoritmo. Com o menor número de slots que alguma modulação de alcance suficiente exige: "faltavam slots livres" = em todos os núcleos clássicos algum enlace não tinha slots livres suficientes; "continuidade" = cada enlace tinha slots suficientes, mas não os mesmos; "contiguidade" = havia slots livres comuns à rota em número suficiente, mas não vizinhos; "havia faixa livre" = existia uma faixa contígua e contínua, então o bloqueio veio da camada física (QoT/XT) ou da proteção das sessões QKD. As parcelas somam o bloqueio total.', 'fração'],
+    // ---------------------------------------------------------------- SlotUtilization.csv (Parte 27)
+    [/^slot utilization$/i, 'Ocupação de cada slot de cada núcleo de cada enlace: fração das observações (uma a cada chegada de requisição) em que o slot estava ocupado. As bandas de guarda contam como ocupadas; no núcleo reservado à QKD aparecem os QChs e PIChs. Uma linha do CSV por ponto de carga, enlace, núcleo e replicação, com uma coluna por slot.', 'fração'],
     // ---------------------------------------------------------------- QKDMetrics.csv (Parte 23)
     [/^qkd blocking probability$/i, 'Probabilidade de bloqueio QKD: requisições protegidas por QKD recusadas ÷ requisições protegidas (após o warm-up). Uma requisição protegida só é aceita se o circuito clássico e a sessão QKD forem estabelecidos juntos.', 'fração'],
     [/^qkd blocking probability by classical resources$/i, 'Parcela do bloqueio QKD em que o lado clássico falhou (espectro, OSNR, XT ou proteção de sessões QKD ativas). As cinco causas somam o bloqueio QKD.', 'fração'],
@@ -177,6 +181,11 @@
     [/^blocking probability$/i, 'Probabilidade de Bloqueio de Circuito'],
     [/^blocking probability by /i, 'Probabilidade de Bloqueio'],
     [/^link blocking probability/i, 'Probabilidade de Bloqueio do Enlace'],
+    [/^external fragmentation per link/i, 'Fragmentação externa do enlace'],
+    [/^external fragmentation/i, 'Fragmentação externa'],
+    [/^entropy external fragmentation/i, 'Entropia da fragmentação'],
+    [/^relative fragmentation/i, 'Fragmentação relativa'],
+    [/^slot utilization/i, 'Ocupação do slot'],
     [/^blocking probability per /i, 'Probabilidade de Bloqueio'],
     [/^bitrate blocking probability/i, 'Probabilidade de Bloqueio de Banda'],
     [/^utilization/i, 'Utilização do Espectro'],

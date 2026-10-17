@@ -17,7 +17,8 @@ public final class QKDArticleBaseReferenceVerification {
 
     public static void main(String[] args) throws Exception {
         File root = new File(args.length > 0 ? args[0]
-                : "simulations/QKD_reference/Dibaj_MF");
+                : (new File("verificacao/QKD_reference/Dibaj_MF").isDirectory() ? "verificacao/QKD_reference/Dibaj_MF"
+                        : "simulations/QKD_reference/Dibaj_MF"));
         check(root.isDirectory(), "Reference scenario directory not found: " + root.getAbsolutePath());
 
         ReferenceMultifiberExperiment experiment =

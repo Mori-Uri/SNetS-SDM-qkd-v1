@@ -2,7 +2,7 @@
  * "Plano de verificação" (Verificação QKD page): the ladder of scenarios that
  * bridges the article-base reproduction to a complete SDM/QKD scenario, plus
  * extra verifications. Each step is run by qkd.ladder.QKDLadderMain (simulator
- * jar) and writes ordinary SNetS cases under simulations/QKD_ladder/<perfil>/<passo>
+ * jar) and writes ordinary SNetS cases under verificacao/QKD_ladder/<perfil>/<passo> (Parte 27; before: simulations/)
  * and checks.csv / data.csv / charts.csv / cases.txt / report.txt / status.txt.
  */
 (function (App) {
@@ -190,7 +190,7 @@
     box.append(
       el('h2', 'Plano de verificação: do artigo-base ao cenário completo'),
       el('p.lead', 'Cada passo muda um único fator em relação ao anterior e tem critérios de aprovação. Os passos podem ser executados separadamente: quando um passo depende de outro (por exemplo, o B2 compara com o B1), os casos que faltarem são simulados antes, e os que já existem são reaproveitados. ',
-        'Os casos ficam em ', el('code', 'simulations/' + (info.ladderRel || 'QKD_ladder') + '/<perfil>/<passo>'), ' e podem ser abertos na árvore para ver gráficos, mapas de calor e tabelas.'),
+        'Os casos e relatórios ficam em ', el('code', App.displayPath(info.ladderRel || 'QKD_ladder') + '/<perfil>/<passo>'), ' (fora da pasta simulations: aparecem na seção "Verificação" da árvore e podem ser abertos para ver gráficos, mapas de calor e tabelas).'),
       el('div.toolbar.ladder-controls',
         el('span.small.muted', 'Perfil'), seg,
         el('span.small.muted', { title: 'Total de threads de cada simulação (vazio = número de replicações)' }, 'Threads'), threads,
@@ -311,7 +311,9 @@
           T().chartBox(series, ch.title, ch.xlabel, ch.log === 'true', (p) => ch.xlabel + ': ' + fmtNum(p.x, 2), ch.ylabel)));
       }
     }
-    const cases = (casesTxt || '').split(/\r?\n/).filter(Boolean);
+    // cases.txt of older runs lists paths under simulations ("QKD_ladder/…"); after the move they are in "@verificacao/"
+    const cases = (casesTxt || '').split(/\r?\n/).filter(Boolean)
+      .map((c) => (/^QKD_(ladder|reference)\//.test(c) && App.isVerificationPath(base()) ? '@verificacao/' + c : c));
     const caseBox = el('div.ladder-cases');
     if (cases.length) {
       caseBox.append(el('div.small.muted', cases.length + ' caso(s) SNetS deste passo — abra para ver gráficos, mapa de calor dos enlaces e tabelas:'));

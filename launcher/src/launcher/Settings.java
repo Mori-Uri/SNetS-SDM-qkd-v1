@@ -100,6 +100,20 @@ final class Settings {
         return new File(projectRoot(), "simulations");
     }
 
+    /**
+     * Folder of the verification outputs (QKD_ladder, QKD_reference): "verificacao" next to the
+     * simulations folder, or the "verificationDir" setting. The browser sees it as "@verificacao".
+     */
+    File verificationDir() {
+        String p = get("verificationDir", null);
+        if (p != null && !p.trim().isEmpty()) {
+            return new File(p).getAbsoluteFile();
+        }
+        File sims = simulationsDir();
+        File parent = sims.getParentFile();
+        return new File(parent == null ? projectRoot() : parent, "verificacao");
+    }
+
     String javaCommand() {
         String def = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
         if (System.getProperty("os.name", "").toLowerCase().contains("win")) {
@@ -125,6 +139,7 @@ final class Settings {
         m.put("launcherDir", launcherDir.getAbsolutePath());
         m.put("projectRoot", projectRoot().getAbsolutePath());
         m.put("simulationsDir", simulationsDir().getAbsolutePath());
+        m.put("verificationDir", verificationDir().getAbsolutePath());
         m.put("javaCommand", javaCommand());
         m.put("defaultJar", get("defaultJar", ""));
         m.put("jvmArgs", get("jvmArgs", ""));

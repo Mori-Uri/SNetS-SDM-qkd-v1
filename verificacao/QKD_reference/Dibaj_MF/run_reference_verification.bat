@@ -2,7 +2,7 @@
 setlocal
 set "ROOT=%~dp0"
 set "JAR=%~1"
-if "%JAR%"=="" set "JAR=%ROOT%..\..\SNetS-SDM-QKD.jar"
+if "%JAR%"=="" set "JAR=%ROOT%..\..\..\simulations\SNetS-SDM-QKD.jar"
 if not exist "%JAR%" (
   echo ERRO: JAR QKD nao encontrado: %JAR%
   echo Gere/use simulations\SNetS-SDM-QKD.jar ou passe o caminho como primeiro argumento.

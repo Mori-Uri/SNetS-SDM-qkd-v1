@@ -83,12 +83,17 @@
     drawTree();
   };
 
-  App.allCases = function () {
+  /** Cases of the simulations folder; with includeVerification, also those of the verification folder (Parte 27). */
+  App.allCases = function (includeVerification) {
     const out = [];
     const walk = (n) => { if (n.isCase) out.push(n); (n.children || []).forEach(walk); };
     if (st.tree) walk(st.tree.root);
+    if (includeVerification && st.tree && st.tree.verification) walk(st.tree.verification);
     return out;
   };
+  App.isVerificationPath = (p) => typeof p === 'string' && (p === '@verificacao' || p.startsWith('@verificacao/'));
+  /** Path as shown to the user: "@verificacao/x" → "verificacao/x", other paths under simulations/. */
+  App.displayPath = (p) => (App.isVerificationPath(p) ? p.slice(1) : 'simulations/' + p);
 
   App.allFolders = function () {
     const out = [];
@@ -136,6 +141,13 @@
     const items = (root.children || []).map(nodeEl).filter(Boolean);
     if (!items.length) box.appendChild(el('div.tree-empty', q ? 'Nenhum caso corresponde ao filtro.' : 'Nenhum caso encontrado. Crie um com “+ Caso”.'));
     items.forEach((i) => box.appendChild(i));
+    // Parte 27: the verification outputs live in their own folder, shown apart and collapsed
+    const v = st.tree.verification;
+    if (v && countCases(v) > 0) {
+      const head = el('div.tree-section', { title: st.tree.verificationDir }, 'Verificação', el('span.small.muted', ' · pasta ' + v.name));
+      const vItems = (v.children || []).map(nodeEl).filter(Boolean);
+      if (vItems.length) { box.appendChild(head); vItems.forEach((i) => box.appendChild(i)); }
+    }
   }
 
   function countCases(n) { return n.isCase ? 1 : (n.children || []).reduce((s, c) => s + countCases(c), 0); }
@@ -185,7 +197,9 @@
     document.getElementById('caseView').hidden = false;
     const parts = path.split('/');
     document.getElementById('caseName').textContent = parts[parts.length - 1];
-    document.getElementById('caseCrumbs').textContent = 'simulations/' + parts.slice(0, -1).map((p) => p + '/').join('');
+    document.getElementById('caseCrumbs').textContent = App.isVerificationPath(path)
+      ? parts.slice(0, -1).map((p) => p + '/').join('').slice(1)
+      : 'simulations/' + parts.slice(0, -1).map((p) => p + '/').join('');
     if (tab) st.tab = tab;
     if (st.tab === 'qkd' && !App.qkdcase.isQkd()) st.tab = 'overview';
     drawTabs();
@@ -428,7 +442,7 @@
         el('td', { style: { padding: '6px 10px', width: '1%' } }, cb),
         el('td', { style: { padding: '6px 10px' } }, el('b', k),
           unknown ? el('div.fwarn.small', 'Não existe na classe Metrics do código atual — provavelmente será ignorada.') : null,
-          !inFile ? el('div.muted.small', 'Ausente no arquivo (o simulador assume desativada).') : null),
+          !inFile ? el('div.muted.small', 'Ausente no arquivo: o simulador usa o padrão da classe Metrics (ligada).') : null),
         el('td.mono', { style: { padding: '6px 10px', fontSize: '12px' } }, csv),
         el('td', { style: { padding: '6px 10px' } }, existing.has(csv) ? el('span.tag.info', 'já existe') : '')));
     }

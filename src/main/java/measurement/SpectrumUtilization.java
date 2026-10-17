@@ -1,6 +1,7 @@
 package measurement;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import network.ControlPlane;
@@ -31,6 +32,10 @@ public class SpectrumUtilization extends Measurement {
     private int maxCoresByLinks;
     private HashMap<Integer, Double> utilizationPerCore;
     private HashMap<String, HashMap<Integer, Double>> utilizationPerLinkCore;
+
+    /** Part 27: count of observations in which [link][core][slot] was free (link order of the mesh). */
+    private int[][][] freePerLinkCoreSlot;
+    private String[] linkNames;
 
     /**
      * Creates a new instance of SpectrumUtilization
@@ -91,8 +96,10 @@ public class SpectrumUtilization extends Measurement {
     private void newObsUtilization() {
         // General use and per link
         Double utGeral = 0.0;
+        int linkIndex = -1;
 
         for (Link link : mesh.getLinkList()) {
+        	linkIndex++;
         	String linkName = link.getSource().getName() + SEP + link.getDestination().getName();
         	Double utLinkAllCores = 0.0;
 
@@ -105,6 +112,15 @@ public class SpectrumUtilization extends Measurement {
 	            // Calculates the non-utilization of slots
 	            for (int[] faixa : core.getFreeSpectrumBands(0)) {
 	                incrementarDesUtFaixa(faixa);
+	            }
+	            // Part 27: real occupancy of each slot (a QKD-reserved core is read through its QKD view,
+	            // since the classical view shows it as fully occupied); guard bands count as occupied
+	            int[] freeSlot = freeSlotsOf(linkIndex, link, coreId);
+	            if (freeSlot != null) {
+	                List<int[]> bands = core.isQkdReserved() ? core.getFreeSpectrumBandsForQKD(0) : core.getFreeSpectrumBands(0);
+	                for (int[] faixa : bands) {
+	                    for (int i = faixa[0] - 1; i < faixa[1] && i < freeSlot.length; i++) freeSlot[i]++;
+	                }
 	            }
 
 	            // Increment the utilization per core
@@ -137,6 +153,61 @@ public class SpectrumUtilization extends Measurement {
 
         this.utilizationGen += utGeral;
         this.numberObservations++;
+    }
+
+    /** Part 27: the per-slot free counters of a link and core, created on the first observation. */
+    private int[] freeSlotsOf(int linkIndex, Link link, int coreId) {
+        if (freePerLinkCoreSlot == null) {
+            int n = mesh.getLinkList().size();
+            freePerLinkCoreSlot = new int[n][][];
+            linkNames = new String[n];
+        }
+        if (linkIndex < 0 || linkIndex >= freePerLinkCoreSlot.length || coreId < 0) return null;
+        if (freePerLinkCoreSlot[linkIndex] == null) {
+            int cores = 0;
+            for (Core c : link.getCores()) cores = Math.max(cores, c.getId() + 1);
+            freePerLinkCoreSlot[linkIndex] = new int[cores][];
+            linkNames[linkIndex] = link.getSource().getName() + SEP + link.getDestination().getName();
+        }
+        int[][] perCore = freePerLinkCoreSlot[linkIndex];
+        if (coreId >= perCore.length) return null;
+        if (perCore[coreId] == null) perCore[coreId] = new int[maxSlotsByLinks];
+        return perCore[coreId];
+    }
+
+    /**
+     * Part 27: appends the rows of SlotUtilization.csv of this load point and replication:
+     * metric, load point, &lt;link&gt;, core, replication and the occupancy (1 - free fraction) of each slot.
+     */
+    public void appendSlotUtilizationRows(StringBuilder sb, int slots) {
+        if (freePerLinkCoreSlot == null || numberObservations == 0) return;
+        for (int l = 0; l < freePerLinkCoreSlot.length; l++) {
+            int[][] perCore = freePerLinkCoreSlot[l];
+            if (perCore == null) continue;
+            for (int c = 0; c < perCore.length; c++) {
+                int[] free = perCore[c];
+                if (free == null) continue;
+                sb.append("Slot utilization").append(',').append(getLoadPoint()).append(",<").append(linkNames[l]).append(">,")
+                  .append(c).append(',').append(getReplication());
+                for (int s = 0; s < slots; s++) {
+                    sb.append(',');
+                    if (s >= free.length) { sb.append('0'); continue; }
+                    double u = 1.0 - (double) free[s] / (double) numberObservations;
+                    sb.append(compact(u));
+                }
+                sb.append('\n');
+            }
+        }
+    }
+
+    private static String compact(double v) {
+        if (v <= 0.0) return "0";
+        if (v >= 1.0) return "1";
+        String s = String.format(java.util.Locale.US, "%.4f", v);
+        int e = s.length();
+        while (e > 0 && s.charAt(e - 1) == '0') e--;
+        if (e > 0 && s.charAt(e - 1) == '.') e--;
+        return e == 0 ? "0" : s.substring(0, e);
     }
 
     /**

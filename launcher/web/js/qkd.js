@@ -30,7 +30,7 @@
     jarSel.value = Q.jar;
     jarSel.addEventListener('change', () => { Q.jar = jarSel.value; render(); });
     box.append(
-      el('div.case-head', el('div.case-title', el('div.crumbs', 'simulations/QKD_reference'),
+      el('div.case-head', el('div.case-title', el('div.crumbs', App.displayPath((Q.info && Q.info.dibajRel ? Q.info.dibajRel.split('/').slice(0, -1).join('/') : 'QKD_reference'))),
         el('h1', 'Verificação do QKD e do artigo-base')),
         el('div.case-actions', el('div', { style: { minWidth: '320px' } }, jarSel))),
       el('p.lead.muted', { style: { maxWidth: '80ch' } },
@@ -41,6 +41,8 @@
       return;
     }
     try { Q.info = await App.api.tools(Q.jar); } catch (e) { box.appendChild(el('div.notice.err', e.message)); return; }
+    if (Q.info && Q.info.verificationDir) box.append(el('p.small.muted', { style: { maxWidth: '90ch' } }, 'Os resultados do plano de verificação e do artigo-base ficam na pasta ', el('code', Q.info.verificationDir),
+      ' (QKD_ladder/<perfil>/<passo> e QKD_reference), separada de simulations; na árvore, aparecem na seção "Verificação". Os verificadores da lista só escrevem no console da execução (painel Execuções).'));
     if (!Q.info.dibajExists) {
       box.appendChild(el('div.notice.warn', { style: { marginBottom: '16px' } }, 'Pasta do artigo-base não encontrada: ' + Q.info.dibajRoot));
     }
@@ -290,7 +292,7 @@
     showNative(results);
     return el('section.panel',
       el('h2', 'Artigo-base — rede executada pelo motor do SNetS'),
-      el('p.lead', 'Gera 30 casos comuns do SNetS em ', el('code', 'simulations/' + Q.info.nativeRel),
+      el('p.lead', 'Gera 30 casos comuns do SNetS em ', el('code', App.displayPath(Q.info.nativeRel)),
         ' (3 topologias × QTND 5–50 km, 10 replicações cada). O próprio simulador gera as requisições, roteia (K = 2, menor índice de canal final), aloca o espectro clássico (10 fibras × 160 canais de 75 GHz), segmenta por QTND, compartilha os QChs por TDM (256 slots) e conta os pares Q-TRx. ',
         'O resultado é comparado com a reconstrução em Python e com os pontos digitalizados da Fig. 7 do artigo.'),
       el('div.toolbar', mk('ref-native-all', 'Gerar, executar e analisar', true), mk('ref-native-prepare', 'Só gerar os casos'),

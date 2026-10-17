@@ -32,12 +32,24 @@ final class Tools {
         this.settings = settings;
     }
 
+    /** Part 27: the reference lives in the verification folder; old projects still have it under simulations. */
+    private boolean refInSimulations() {
+        File n = new File(settings.verificationDir(), DIBAJ_REL.replace('/', File.separatorChar));
+        File o = new File(settings.simulationsDir(), DIBAJ_REL.replace('/', File.separatorChar));
+        return !new File(n, "config.json").isFile() && new File(o, "config.json").isFile();
+    }
+
     File dibajRoot() {
-        return new File(settings.simulationsDir(), DIBAJ_REL.replace('/', File.separatorChar));
+        return new File(refInSimulations() ? settings.simulationsDir() : settings.verificationDir(), DIBAJ_REL.replace('/', File.separatorChar));
     }
 
     File nativeRoot() {
-        return new File(settings.simulationsDir(), NATIVE_REL.replace('/', File.separatorChar));
+        return new File(refInSimulations() ? settings.simulationsDir() : settings.verificationDir(), NATIVE_REL.replace('/', File.separatorChar));
+    }
+
+    /** Paths as the browser sees them ("@verificacao/..." inside the verification folder). */
+    private String relOf(String rel) {
+        return refInSimulations() ? rel : Workspace.VERIF + "/" + rel;
     }
 
     /** Verification classes contained in the jar, in natural order. */
@@ -81,11 +93,12 @@ final class Tools {
         m.put("hasNative", hasClass(jar, "qkd.reference.QKDNativeReferenceMain"));
         m.put("dibajRoot", dibajRoot().getAbsolutePath());
         m.put("dibajExists", new File(dibajRoot(), "config.json").isFile());
-        m.put("dibajRel", DIBAJ_REL);
-        m.put("nativeRel", NATIVE_REL);
+        m.put("dibajRel", relOf(DIBAJ_REL));
+        m.put("nativeRel", relOf(NATIVE_REL));
+        m.put("verificationDir", settings.verificationDir().getAbsolutePath());
         m.put("nativeExists", nativeRoot().isDirectory());
         m.put("hasLadder", hasClass(jar, "qkd.ladder.QKDLadderMain"));
-        m.put("ladderRel", LADDER_REL);
+        m.put("ladderRel", Workspace.VERIF + "/" + LADDER_REL);
         return m;
     }
 
@@ -117,7 +130,8 @@ final class Tools {
             if (!"rapido".equals(profile) && !"completo".equals(profile)) throw new IllegalArgumentException("Perfil desconhecido: " + profile);
             if (!hasClass(jar, "qkd.ladder.QKDLadderMain")) throw new IllegalArgumentException("Este JAR não contém o plano de verificação (qkd.ladder.QKDLadderMain)");
             List<String> l = new ArrayList<String>(Arrays.asList("Plano de verificação " + step + " (" + profile + ")",
-                    "qkd.ladder.QKDLadderMain", step, settings.simulationsDir().getAbsolutePath(), "--profile", profile));
+                    "qkd.ladder.QKDLadderMain", step, settings.simulationsDir().getAbsolutePath(), "--profile", profile,
+                    "--out", settings.verificationDir().getAbsolutePath()));
             for (int i = 3; i < p.length; i++) {
                 if ("force".equals(p[i])) l.add("--force");
                 else if (p[i].matches("\\d{1,3}") && Integer.parseInt(p[i]) > 0) { l.add("--threads"); l.add(p[i]); }

@@ -244,6 +244,10 @@ public class SimulationFileManager {
         if(sr.getResult().blockingDetails != null && sr.getSimulationConfig().getActiveMetrics().BlockingProbability){
             saveResult(path, SimulationRequest.Result.FILE_BLOCKING_DETAILS,sr.getResult().blockingDetails);
         }
+        if(sr.getResult().slotUtilization != null && sr.getSimulationConfig().getActiveMetrics().SpectrumUtilization
+                && sr.getSimulationConfig().getActiveMetrics().SlotUtilization){
+            saveResult(path, SimulationRequest.Result.FILE_SLOT_UTILIZATION,sr.getResult().slotUtilization);
+        }
     }
 
     /**

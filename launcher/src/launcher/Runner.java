@@ -156,7 +156,8 @@ final class Runner {
         cmd.add("-jar");
         cmd.add(jar.getAbsolutePath());
         // relative path, like the .bat scripts (Main splits it into parent folder + name)
-        cmd.add(casePath.replace('/', File.separatorChar));
+        // a case of the verification folder ("@verificacao/...") goes as an absolute path
+        cmd.add(Workspace.isVerification(casePath) ? caseDir.getAbsolutePath() : casePath.replace('/', File.separatorChar));
         Run run = new Run("r" + ids.incrementAndGet(), "case", casePath, casePath, jar.getName(), cmd,
                 workspace.simulationsDir(), queued);
         run.threads = Math.max(0, threads);

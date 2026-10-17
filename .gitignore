@@ -171,6 +171,7 @@ docs/artigos/
 *.docx
 # Saídas grandes geradas pelo plano de verificação e backups do launcher
 simulations/QKD_ladder/
+verificacao/QKD_ladder/
 simulations/backup_jar/
 launcher/.work/
 launcher/build/

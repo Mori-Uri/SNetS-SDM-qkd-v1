@@ -28,7 +28,7 @@
   function topoPreview(net, preset) {
     const R = App.figRender;
     const panel = preset
-      ? { title: '', nodes: preset.nodes, links: preset.links.map(([a, b, km]) => ({ a, b, km })) }
+      ? { title: '', nodes: preset.nodes, links: preset.links.map(([a, b, km]) => ({ a, b, km })), qtnd: P().topoPanel(net).qtnd }
       : P().topoPanel(net);
     if (!panel.nodes.length) return el('div.muted.small', 'A rede não tem nós.');
     const st = Object.assign(R.defaultStyle(), {
@@ -71,6 +71,8 @@
     const caption = el('div.small.muted');
     const draw = () => {
       App.clear(topoBox).append(topoPreview(net, preset));
+      const q = P().topoPanel(net).qtnd;
+      if (q > 0) topoBox.append(el('div.small.muted', { style: { marginTop: '4px' } }, 'Pontos roxos: nós confiáveis a cada ' + App.fmtNum(q, 1) + ' km (QTND), contados a partir do nó de origem do enlace. Passe o mouse para ver a posição.'));
       const u = P().undirectedLinks(net);
       if (preset) caption.textContent = 'Pré-visualização de ' + preset.name + ' (' + preset.desc + '). Ainda não aplicada: clique em "Aplicar topologia".';
       else {

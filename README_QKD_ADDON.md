@@ -37,7 +37,7 @@ java -jar SNetS-SDM-QKD.jar NSFNet_C3_QKD_XT
 
 Os dados, traces e scripts estao em:
 
-`simulations/QKD_reference/Dibaj_MF/`
+`verificacao/QKD_reference/Dibaj_MF/`
 
 Eles geram as curvas de SKR, SKR/Q-TRx e Q-TRx x QTND para Small Core, Butterfly e Metro.
 
@@ -86,7 +86,7 @@ O JAR classico original foi mantido. O JAR `SNetS-SDM-QKD.jar` foi criado como e
 ### Verificacao do artigo-base dentro do SNetS
 
 ```bat
-simulations\QKD_reference\Dibaj_MF\run_native_reference.bat
+verificacao\QKD_reference\Dibaj_MF\run_native_reference.bat
 ```
 
 ### Interface
@@ -133,7 +133,7 @@ Estúdio de gráficos.
   - X8: simetria.
 - Pode ser executado pelo launcher ("Verificação QKD" › "Plano de verificação") ou pela linha de
   comando.
-- Detalhes em `CHANGELOG_QKD_PARTE24.md` e `simulations/QKD_ladder/README.md`.
+- Detalhes em `CHANGELOG_QKD_PARTE24.md` e `verificacao/QKD_ladder/README.md`.
 
 Também nesta parte:
 

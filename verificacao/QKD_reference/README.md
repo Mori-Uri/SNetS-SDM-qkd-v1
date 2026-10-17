@@ -6,7 +6,7 @@ Use o JAR do addon em `simulations/SNetS-SDM-QKD.jar`.
 
 ## Verificacao de rede / Q-TRx
 
-Entre em `simulations/QKD_reference/Dibaj_MF` e execute:
+Entre em `verificacao/QKD_reference/Dibaj_MF` e execute:
 
 ```bat
 run_reference_verification.bat
