@@ -508,9 +508,13 @@ public class PhysicalLayer implements Serializable {
 				Iase = Iase + (boosterAmpNoiseAse + lineAmpNoiseAse + preAmpNoiseAse);
 			}
 
-			if(activeXT && XTModel == XT_TOGETHER){
-				Pxt = crosstalk.calculateCrosstalk2(circuit, testCircuit, addTestCircuit);
-
+			if (activeXT && XTModel == XT_TOGETHER) {
+				Pxt = crosstalk.calculateCrosstalkPowerInLink(circuit, link, core, spectrumAssigned, testCircuit, addTestCircuit);
+				
+				if (physicalLayerModel == MODEL_JOHANNISSON) {
+					Pxt = Pxt / polarizationModes;
+				}
+				
 				Ixt = Ixt + (Pxt / Bsi); // Convert to power spectral density
 			}
 		}
@@ -679,10 +683,14 @@ public class PhysicalLayer implements Serializable {
 				Iase = Iase + (boosterAmpNoiseAse + lineAmpNoiseAse + preAmpNoiseAse);
 			}
 
-			if(activeXT && XTModel == XT_TOGETHER){
-				Pxt = crosstalk.calculateCrosstalk2(circuit, testCircuit, addTestCircuit);
-
-				Ixt = Ixt + (Pxt / Bsi);
+			if (activeXT && XTModel == XT_TOGETHER) {
+				Pxt = crosstalk.calculateCrosstalkPowerInLink(circuit, link, core, spectrumAssigned, testCircuit, addTestCircuit);
+				
+				if (physicalLayerModel == MODEL_JOHANNISSON) {
+					Pxt = Pxt / polarizationModes;
+				}
+				
+				Ixt = Ixt + (Pxt / Bsi); // Convert to power spectral density
 			}
 		}
 
@@ -1193,9 +1201,9 @@ public class PhysicalLayer implements Serializable {
 	 * @param frequency double
 	 * @return double
 	 */
-	public static double computeBeta2(double D, double frequencia){
+	public static double computeBeta2(double D, double frequency){
 		double c = 299792458.0; // speed of light, m/s
-		double lambda = c / frequencia;
+		double lambda = c / frequency;
 		double beta2 = -1.0 * D * (lambda * lambda) / (2.0 * Math.PI * c);
 		return beta2;
 	}
