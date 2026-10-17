@@ -167,7 +167,7 @@ final class Runner {
 
     private static File checkJar(String jarPath) {
         File jar = new File(jarPath == null ? "" : jarPath);
-        if (!jar.isFile()) {
+        if (!jar.isFile() && !jar.isDirectory()) {
             throw new IllegalArgumentException("JAR não encontrado: " + jarPath);
         }
         return jar;
@@ -350,7 +350,7 @@ final class Runner {
 
     private static void pump(Run run, Process p) {
         try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(p.getInputStream(), run.command.contains("qkd.ladder.QKDLadderMain")
+                new InputStreamReader(p.getInputStream(), (run.command.contains("qkd.ladder.QKDLadderMain") || run.command.contains("launcher.JarBuilder"))
                         ? java.nio.charset.StandardCharsets.UTF_8 : Charset.defaultCharset()))) {
             String line;
             while ((line = br.readLine()) != null) {

@@ -141,6 +141,7 @@ final class Settings {
         m.put("simulationsDir", simulationsDir().getAbsolutePath());
         m.put("verificationDir", verificationDir().getAbsolutePath());
         m.put("javaCommand", javaCommand());
+        m.put("javacCommandSetting", get("javacCommand", ""));
         m.put("defaultJar", get("defaultJar", ""));
         m.put("jvmArgs", get("jvmArgs", ""));
         m.put("runConsole", runConsole());

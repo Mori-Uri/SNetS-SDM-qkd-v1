@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  */
 public final class LauncherServer {
 
-    static final String VERSION = "1.8.0";
+    static final String VERSION = "1.9.0";
 
     private final Settings settings;
     private final Workspace workspace;
@@ -193,7 +193,7 @@ public final class LauncherServer {
                 requirePost(post);
                 Map<String, String> body = query(readBody(ex));
                 for (String key : new String[] {"projectRoot", "simulationsDir", "javaCommand", "defaultJar",
-                    "jvmArgs", "runConsole"}) {
+                    "jvmArgs", "runConsole", "javacCommand"}) {
                     if (body.containsKey(key)) {
                         String v = body.get(key);
                         if (("projectRoot".equals(key) || "simulationsDir".equals(key)) && v != null
@@ -307,6 +307,48 @@ public final class LauncherServer {
             }
             case "/api/tools": {
                 return tools.describe(new File(required(q, "jar")));
+            }
+            case "/api/jar/info": {
+                // Parte 28: build the simulator jar from the sources (launcher.JarBuilder)
+                Map<String, Object> m = new LinkedHashMap<String, Object>();
+                File src = new File(settings.projectRoot(), "src" + File.separator + "main" + File.separator + "java");
+                m.put("src", src.getAbsolutePath());
+                m.put("srcExists", src.isDirectory());
+                String jc = settings.get("javacCommand", "");
+                boolean inJvm = javax.tools.ToolProvider.getSystemJavaCompiler() != null;
+                String found = jc != null && !jc.trim().isEmpty() ? jc.trim() : JarBuilder.findJavac();
+                m.put("javac", found);
+                m.put("compilerInLauncher", inJvm);
+                m.put("javaVersion", System.getProperty("java.version"));
+                m.put("simulationsDir", settings.simulationsDir().getAbsolutePath());
+                m.put("defaultOut", "SNetS-SDM-QKD.jar");
+                m.put("jars", workspace.listJars());
+                return m;
+            }
+            case "/api/jar/build": {
+                requirePost(post);
+                File src = new File(settings.projectRoot(), "src" + File.separator + "main" + File.separator + "java");
+                File base = new File(required(q, "base"));
+                String outName = required(q, "out").trim();
+                if (!outName.matches("[A-Za-z0-9_.+\\-]+\\.jar")) throw new IllegalArgumentException("Nome de JAR inválido: " + outName);
+                if (outName.equalsIgnoreCase("SNetS-SDM-SBRC26.jar")) {
+                    throw new IllegalArgumentException("O SNetS-SDM-SBRC26.jar é o JAR clássico de referência (CLASSICAL_BASE_SHA256.txt) e não deve ser substituído. Escolha outro nome.");
+                }
+                File out = new File(settings.simulationsDir(), outName);
+                List<String> args = new ArrayList<String>(java.util.Arrays.asList("--src", src.getAbsolutePath(),
+                        "--base", base.getAbsolutePath(), "--out", out.getAbsolutePath(),
+                        "--backup", new File(settings.simulationsDir(), "backup_jar").getAbsolutePath()));
+                String jc = settings.get("javacCommand", "");
+                if (jc != null && !jc.trim().isEmpty()) { args.add("--javac"); args.add(jc.trim()); }
+                if ("true".equals(q.get("verify"))) args.add("--verify");
+                File self;
+                try {
+                    self = new File(LauncherServer.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                } catch (Exception e) {
+                    throw new IllegalStateException("Não foi possível localizar o snets-launcher.jar: " + e.getMessage());
+                }
+                Runner.Run r = runner.startTool("Gerar JAR: " + outName, self.getAbsolutePath(), "launcher.JarBuilder", args, "", false);
+                return r.summary();
             }
             case "/api/tool/run": {
                 requirePost(post);

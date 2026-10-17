@@ -45,6 +45,8 @@
     queue: (cases, jar, jvmArgs) => call('POST', 'queue', { jar, jvmArgs }, cases.join('\n')),
     clearQueue: () => call('POST', 'queue/clear'),
     tools: (jar) => call('GET', 'tools', { jar }),
+    jarInfo: () => call('GET', 'jar/info'),
+    buildJar: (base, out, verify) => call('POST', 'jar/build', { base, out, verify: verify ? 'true' : null }),
     runTool: (id, jar, queued, jvmArgs) => call('POST', 'tool/run', { id, jar, queued: queued ? 'true' : null, jvmArgs }),
     text: (path, optional) => call('GET', 'text', { path, optional: optional ? 'true' : null }),
     files: (path) => call('GET', 'files', { path }),

@@ -182,3 +182,16 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
   - perfil de ocupação por slot;
   - dispersões de correlação (enlace, núcleo ou carga), com reta de ajuste e r de Pearson.
 - **Nós confiáveis** como pontos nas topologias da aba Rede e dos mapas de calor.
+
+## Versão 1.9.0
+
+- **Botão "Gerar JAR"** (barra de cima). Compila `src/main/java` e gera o JAR do simulador em `simulations`, sem Maven.
+  - **O que o JAR base fornece:** um JAR existente do simulador entra como base, com as bibliotecas (Gson, OpenCSV,
+    Firebase) e a classe `simulationControl.Main`, que só compila com o Maven. Todas as outras classes do projeto são
+    recompiladas a partir do código (Java 8, ISO-8859-1, como no `pom.xml`).
+  - **Backup:** o JAR anterior é guardado em `simulations/backup_jar/<nome>_<data>.jar`. O `SNetS-SDM-SBRC26.jar` não
+    pode ser substituído.
+  - **Verificações:** opcionalmente, as verificações QKD rodam com o JAR novo.
+  - **Andamento:** o progresso e os erros de compilação aparecem em Execuções.
+  - **Compilador:** precisa de um JDK. O launcher procura o `javac` no Java que o roda, no `JAVA_HOME`, no `PATH`, em
+    `~/.jdks` e em `Arquivos de Programas`. Também dá para informar o caminho em Configurações › Comando javac.

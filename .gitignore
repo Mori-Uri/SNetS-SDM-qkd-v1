@@ -182,3 +182,4 @@ physicalLayer.before_p26
 # Marcadores internos do plano de verificação
 .ladder_key
 .ladder_incomplete
+/simulations/QKD_Test2

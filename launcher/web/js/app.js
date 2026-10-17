@@ -548,11 +548,41 @@
     }, 'Criar pasta');
   }
 
+  /** Parte 28: compiles src/main/java into the simulator jar (launcher.JarBuilder), shown in Execuções. */
+  async function jarDialog() {
+    const info = await App.api.jarInfo();
+    const jars = (info.jars || []).filter((j) => !/SBRC26/i.test(j.name));
+    const base = el('select.input', jars.map((j) => el('option', { value: j.path }, j.name + ' · ' + j.location)));
+    const pref = jars.find((j) => j.name === 'SNetS-SDM-QKD.jar' && j.location === 'simulations') || jars[0];
+    if (pref) base.value = pref.path;
+    const out = el('input.input.mono', { type: 'text', value: info.defaultOut || 'SNetS-SDM-QKD.jar' });
+    const verify = el('input', { type: 'checkbox', checked: true });
+    const comp = info.compilerInLauncher ? 'o compilador do Java que roda o launcher (' + info.javaVersion + ')'
+      : info.javac ? info.javac : null;
+    App.modal('Gerar o JAR do simulador', el('div.form-grid',
+      el('p.small', { style: { margin: 0 } }, 'Compila o código de ', el('code', info.src), ' e gera um JAR novo na pasta simulations, como o "Maven build > package" do Eclipse, mas sem precisar do Maven.'),
+      !info.srcExists ? el('div.notice.err', 'Pasta do código não encontrada. Ajuste a pasta do projeto em Configurações.') : null,
+      comp ? el('div.small.muted', 'Compilador: ' + comp + '.')
+        : el('div.notice.warn', 'Não achei um compilador Java (javac). Instale um JDK (8 ou mais novo) ou informe o caminho do javac.exe em Configurações › Comando javac. A geração vai falhar sem ele.'),
+      el('div.field', el('div.flabel', 'JAR base (bibliotecas e classe Main)'), base,
+        el('div.help', 'Fornece o Gson, o OpenCSV, o Firebase e a classe simulationControl.Main, que só compila com o Maven. Use o JAR atual do simulador; as classes do projeto são todas recompiladas a partir do código.')),
+      el('div.field', el('div.flabel', 'Nome do JAR gerado (em simulations)'), out,
+        el('div.help', 'Se já existir, o anterior é guardado em simulations/backup_jar/<nome>_<data>.jar antes de ser substituído. O SNetS-SDM-SBRC26.jar não pode ser substituído.')),
+      el('label.check', verify, ' Rodar as verificações QKD com o JAR novo (cerca de 5 min)'),
+      el('p.small.muted', { style: { margin: 0 } }, 'O andamento e os erros de compilação aparecem em Execuções. Não gere o JAR enquanto uma simulação estiver usando o mesmo arquivo.')), async () => {
+      if (!base.value) throw new Error('Escolha o JAR base.');
+      const r = await App.api.buildJar(base.value, out.value.trim(), verify.checked);
+      App.toast('Gerando o JAR (' + r.id + '): acompanhe em Execuções', 'ok', 6000);
+      if (App.run && App.run.openDrawer) App.run.openDrawer();
+    }, 'Gerar JAR');
+  }
+
   function settingsDialog() {
     const s = st.info.settings;
     const proj = el('input.input.mono', { type: 'text', value: s.projectRootSetting, placeholder: s.projectRoot });
     const sims = el('input.input.mono', { type: 'text', value: s.simulationsDirSetting, placeholder: s.simulationsDir });
     const java = el('input.input.mono', { type: 'text', value: s.javaCommandSetting, placeholder: s.javaCommand });
+    const javac = el('input.input.mono', { type: 'text', value: s.javacCommandSetting || '', placeholder: 'automático (JDK do launcher, JAVA_HOME ou PATH)' });
     const jvm = el('input.input.mono', { type: 'text', value: s.jvmArgs, placeholder: 'ex.: -Xmx8g' });
     const jar = el('select.input', el('option', { value: '' }, '(automático: SNetS-SDM-QKD.jar, se existir)'),
       (st.info.jars || []).map((j) => el('option', { value: j.path }, j.name + ' · ' + j.location)));
@@ -564,10 +594,11 @@
       el('div.field', el('div.flabel', 'JAR padrão'), jar),
       el('div.field', el('div.flabel', 'Comando java'), java, el('div.help', 'Vazio = o mesmo Java que está rodando o launcher (' + st.info.javaVersion + ').')),
       el('div.field', el('div.flabel', 'Argumentos da JVM padrão'), jvm),
+      el('div.field', el('div.flabel', 'Comando javac (para Gerar JAR)'), javac, el('div.help', 'Ex.: C:\\Program Files\\Eclipse Adoptium\\jdk-21\\bin\\javac.exe. Vazio = procurar sozinho.')),
       el('label.check', consoleCb, ' Abrir uma janela de console para cada execução (fechar a janela cancela a execução)'),
       !s.consoleSupported ? el('div.help', 'Janelas de console por execução só existem no Windows.') : null,
       el('p.muted.small', { style: { margin: 0 } }, 'Salvo em ', el('code', s.launcherDir + (s.launcherDir.includes('\\') ? '\\' : '/') + 'launcher-settings.properties'))), async () => {
-      await App.api.saveSettings({ projectRoot: proj.value, simulationsDir: sims.value, javaCommand: java.value, jvmArgs: jvm.value, defaultJar: jar.value, runConsole: consoleCb.checked ? 'true' : 'false' });
+      await App.api.saveSettings({ projectRoot: proj.value, simulationsDir: sims.value, javaCommand: java.value, jvmArgs: jvm.value, defaultJar: jar.value, runConsole: consoleCb.checked ? 'true' : 'false', javacCommand: javac.value });
       await init(true);
       App.toast('Configurações salvas', 'ok');
     }, 'Salvar');
@@ -647,6 +678,7 @@
   document.getElementById('btnRefreshTree').addEventListener('click', () => App.loadTree());
   document.getElementById('treeFilter').addEventListener('input', App.debounce(drawTree, 120));
   document.getElementById('btnSettings').addEventListener('click', settingsDialog);
+  document.getElementById('btnJar').addEventListener('click', () => jarDialog().catch((e) => App.toast(e.message, 'err')));
   document.getElementById('btnRuns').addEventListener('click', App.run.openDrawer);
   function leaveCase() {
     if (st.casePath && App.dirtyFiles().length && !window.confirm('Há alterações não salvas em ' + st.casePath + '. Sair do caso mesmo assim?')) return false;
