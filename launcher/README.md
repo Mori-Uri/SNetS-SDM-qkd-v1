@@ -195,3 +195,18 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
   - **Andamento:** o progresso e os erros de compilação aparecem em Execuções.
   - **Compilador:** precisa de um JDK. O launcher procura o `javac` no Java que o roda, no `JAVA_HOME`, no `PATH`, em
     `~/.jdks` e em `Arquivos de Programas`. Também dá para informar o caminho em Configurações › Comando javac.
+
+## Versão 1.10.0
+
+- **Mapas de calor do bloqueio no espectro** (Gráficos › Mapas de calor). Usam o `<caso>_SlotBlocking.csv`, gravado pelo
+  simulador da Parte 29. Três modelos:
+  - **bloqueadas ÷ tentativas em cada slot:** escala de cores; vazio quando não houve tentativa;
+  - **causa do bloqueio em cada slot:** cada slot recebe a cor da causa com mais bloqueios ali; cinza quando houve
+    tentativas sem bloqueio;
+  - **só os bloqueios por QoTO.**
+- **Opções.** Na seção 2 dá para trocar o que cada slot mostra (fração, número de bloqueios ou causa), escolher uma
+  causa, mostrar só os núcleos com bloqueio e ligar ou desligar as colunas da direita.
+- **Colunas da direita.** Cada linha (núcleo de um enlace) traz "requisições bloqueadas/requisições feitas" e a
+  porcentagem.
+- **O que fica fora do mapa.** Bloqueios sem faixa (sem slots livres, sem rota) não têm lugar no espectro. O título de
+  cada mapa diz quantos foram.

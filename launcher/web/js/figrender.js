@@ -61,7 +61,7 @@
       topoTrusted: true, topoTrustedFill: '#7030a0', topoTrustedR: 0,
       // spectrum (slot) heat map
       slotScale: 'traffic', slotRange: 'fixed', slotMin: '', slotMax: '', slotRowH: 12, slotTickStep: '', slotLegend: 'right',
-      slotFormat: 'percent', slotDigits: 1, slotGridColor: '#000000', slotZero: 'scale', slotCellGrid: true, slotLinkSep: true, slotPanelTitle: true,
+      slotFormat: 'percent', slotDigits: 1, slotGridColor: '#000000', slotZero: 'scale', slotNoData: '#FFFFFF', slotCellGrid: true, slotLinkSep: true, slotPanelTitle: true,
     };
   }
 
@@ -929,11 +929,34 @@
     };
   }
 
+  /** Value format of the spectrum maps: occupancy/ratio in % or decimal, counts as integers (Parte 29). */
+  function slotFmt(model, st) {
+    if (model.valueFormat === 'count') return (v) => fmtNumber(v, 'fixed', Math.abs(v - Math.round(v)) > 1e-9 ? 1 : 0, st.decimal);
+    return (v) => fmtNumber(v, st.slotFormat === 'fixed' ? 'fixed' : 'percent', Number(st.slotDigits) || 0, st.decimal);
+  }
+
   function slotGeometry(model, st, W) {
     const fs = Math.max(7, Number(st.fontSize) || 12);
     const rowH = Math.max(2, Number(st.slotRowH) || 12);
-    const legendW = st.slotLegend === 'right' ? 110 : 0;
-    const legendH = st.slotLegend === 'bottom' ? fs * 4 + 12 : 0;
+    const lfs = Math.max(8, fs - 1);
+    const items = model.legendItems || null;
+    let legendW = st.slotLegend === 'right' ? Math.max(110, textWidth(model.legendTitle || '', lfs, st.font, 600) + 14) : 0;
+    if (items && legendW) legendW = Math.min(360, Math.max(textWidth(model.legendTitle || '', lfs, st.font, 600), ...items.map(([, t]) => 19 + textWidth(t, lfs, st.font))) + 16);
+    let legendH = st.slotLegend === 'bottom' ? fs * 4 + 12 : 0;
+    if (items && legendH) {
+      const iw = Math.max(...items.map(([, t]) => 19 + textWidth(t, lfs, st.font) + 18));
+      const per = Math.max(1, Math.floor(W / iw));
+      legendH = lfs * 2.2 + Math.ceil(items.length / per) * lfs * 1.6 + 8;
+    }
+    // Parte 29: summary columns at the right of the map (e.g. blocked/attempts and %)
+    const sumW = [];
+    if (model.summaryHeads) {
+      model.summaryHeads.forEach((h, i) => {
+        let w = textWidth(h, fs, st.font, 700);
+        for (const p of model.panels) for (const r of p.rows) if (r.summary) w = Math.max(w, textWidth(String(r.summary[i]), fs, st.font));
+        sumW.push(w + 14);
+      });
+    }
     const titleH = st.showTitle && st.title ? st.titleSize * 1.7 : 4;
     const ptH = st.slotPanelTitle !== false ? fs * 1.9 : 0;
     const headH = fs * 2.4;
@@ -943,18 +966,30 @@
     const coreColW = textWidth('Núcleo', fs, st.font, 700) + 16;
     const panelH = model.panels.map((p) => ptH + headH + p.rows.length * rowH + 14);
     const H = Math.round(titleH + panelH.reduce((a, b) => a + b, 0) + legendH + 6);
-    return { fs, rowH, legendW, legendH, titleH, ptH, headH, linkColW, coreColW, panelH, H };
+    return { fs, rowH, legendW, legendH, titleH, ptH, headH, linkColW, coreColW, panelH, H, sumW, sumTot: sumW.reduce((a, b) => a + b, 0) };
   }
 
   function slotLegend(root, model, st, color, x, y, w, h, vertical) {
     const sc = SLOT_SCALES.find((q) => q.id === st.slotScale) || SLOT_SCALES[0];
     const fs = Math.max(8, (Number(st.fontSize) || 12) - 1);
     const { min, max } = model.range;
-    const fmt = (v) => fmtNumber(v, st.slotFormat === 'fixed' ? 'fixed' : 'percent', Number(st.slotDigits) || 0, st.decimal);
+    const fmt = slotFmt(model, st);
     const title = model.legendTitle || '';
-    if (sc.bins) {
-      const n = sc.bins.length;
-      const items = sc.bins.map((c, i) => [c, fmt(min + (max - min) * i / n) + ' – ' + fmt(min + (max - min) * (i + 1) / n)]).reverse();
+    if (sc.bins || model.legendItems) {
+      const n = sc.bins ? sc.bins.length : 0;
+      const items = model.legendItems || sc.bins.map((c, i) => [c, fmt(min + (max - min) * i / n) + ' – ' + fmt(min + (max - min) * (i + 1) / n)]).reverse();
+      if (model.legendItems && !vertical) {
+        root.appendChild(textEl(x + w / 2, y + fs, title, { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 600 }));
+        const iw = Math.max(...items.map(([, t]) => 19 + textWidth(t, fs, st.font) + 18));
+        const per = Math.max(1, Math.floor(w / iw));
+        const x0 = x + (w - iw * Math.min(per, items.length)) / 2;
+        items.forEach(([c, t], i) => {
+          const xx = x0 + (i % per) * iw, yy = y + fs * 1.6 + Math.floor(i / per) * fs * 1.6;
+          root.appendChild(S('rect', { x: xx, y: yy, width: 14, height: fs * 1.1, fill: c, stroke: st.axisColor, 'stroke-width': 0.6 }));
+          root.appendChild(textEl(xx + 19, yy + fs * 0.9, t, { size: fs, font: st.font, color: st.textColor }));
+        });
+        return;
+      }
       if (vertical) {
         root.appendChild(textEl(x, y + fs, title, { size: fs, font: st.font, color: st.textColor, weight: 600 }));
         items.forEach(([c, t], i) => {
@@ -1005,13 +1040,16 @@
     const G = slotGeometry(model, st, box.w);
     const { fs, rowH } = G;
     const color = slotColorFn(st, model.range);
-    const fmt = (v) => fmtNumber(v, st.slotFormat === 'fixed' ? 'fixed' : 'percent', Number(st.slotDigits) || 0, st.decimal);
+    const fmt = slotFmt(model, st);
     const gridC = st.slotGridColor || '#000000';
+    const noData = model.noDataColor || null;
+    const colorAt = (r, k) => r.colors ? (r.colors[k] || noData || '#FFFFFF') : (noData && !Number.isFinite(r.values[k]) ? noData : color(r.values[k]));
     if (st.showTitle && st.title) root.appendChild(textEl(box.x + (box.w - G.legendW) / 2, box.y + st.titleSize * 1.15, st.title, { size: st.titleSize, font: st.font, color: st.titleColor, anchor: 'middle', weight: 700 }));
     let y = box.y + G.titleH;
     const x0 = box.x + 6;
     const gx = x0 + G.linkColW + G.coreColW;
-    const gw = Math.max(40, box.w - 6 - G.linkColW - G.coreColW - G.legendW - 10);
+    const gw = Math.max(40, box.w - 6 - G.linkColW - G.coreColW - G.sumTot - G.legendW - 10);
+    const sx = gx + gw; // left edge of the summary columns
     model.panels.forEach((p, pi) => {
       const n = p.to - p.from + 1;
       const cw = gw / n;
@@ -1022,6 +1060,8 @@
       const hb = yy + G.headH;
       g.appendChild(textEl(x0 + G.linkColW / 2, hb - fs * 0.55, 'Enlace', { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
       g.appendChild(textEl(x0 + G.linkColW + G.coreColW / 2, hb - fs * 0.55, 'Núcleo', { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
+      let hx = sx;
+      G.sumW.forEach((w, i) => { g.appendChild(textEl(hx + w / 2, hb - fs * 0.55, model.summaryHeads[i], { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 700 })); hx += w; });
       let step = Number(st.slotTickStep) || 0;
       if (!(step > 0)) {
         const need = (textWidth(String(p.to), fs - 1, st.font) + 8) / cw;
@@ -1047,22 +1087,27 @@
         // runs of equal colour
         let k = 0;
         while (k < n) {
-          const c = color(r.values[k]);
+          const c = colorAt(r, k);
           let e = k + 1, lo = r.values[k], hi = r.values[k];
-          while (e < n && color(r.values[e]) === c) { const v = r.values[e]; if (v < lo) lo = v; if (v > hi) hi = v; e++; }
+          while (e < n && colorAt(r, e) === c) { const v = r.values[e]; if (v < lo) lo = v; if (v > hi) hi = v; e++; }
           const rect = S('rect', { x: (gx + k * cw).toFixed(2), y: ry.toFixed(2), width: ((e - k) * cw + 0.35).toFixed(2), height: (rowH + 0.35).toFixed(2), fill: c });
           const sl = e - k > 1 ? 'slots ' + (p.from + k) + '–' + (p.from + e - 1) : 'slot ' + (p.from + k);
-          rect.appendChild(S('title', null, 'Enlace ' + r.link + ' · núcleo ' + r.core + ' · ' + sl + ': ' + (Math.abs(hi - lo) > 1e-9 ? fmt(lo) + ' a ' + fmt(hi) : fmt(lo))));
+          rect.appendChild(S('title', null, r.tip ? r.tip(k, e) : 'Enlace ' + r.link + ' · núcleo ' + r.core + ' · ' + sl + ': ' + (Math.abs(hi - lo) > 1e-9 ? fmt(lo) + ' a ' + fmt(hi) : fmt(lo))));
           cells.appendChild(rect);
           k = e;
         }
         g.appendChild(textEl(x0 + G.linkColW + G.coreColW / 2, ry + rowH / 2 + Math.min(fs, rowH) * 0.36, rowH >= 7 ? String(r.core) : '', { size: Math.min(fs, Math.max(6, rowH - 1)), font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
-        lines.appendChild(S('line', { x1: x0 + G.linkColW, x2: gx + gw, y1: (ry + rowH).toFixed(2), y2: (ry + rowH).toFixed(2), stroke: gridC, 'stroke-width': rowH >= 6 ? 0.5 : 0, 'stroke-opacity': 0.7 }));
+        if (r.summary && G.sumW.length) {
+          let cx = sx;
+          const sfs = Math.min(fs, Math.max(6, rowH - 1));
+          G.sumW.forEach((w, i) => { if (rowH >= 7) g.appendChild(textEl(cx + w / 2, ry + rowH / 2 + sfs * 0.36, String(r.summary[i]), { size: sfs, font: st.font, color: st.textColor, anchor: 'middle' })); cx += w; });
+        }
+        lines.appendChild(S('line', { x1: x0 + G.linkColW, x2: sx + G.sumTot, y1: (ry + rowH).toFixed(2), y2: (ry + rowH).toFixed(2), stroke: gridC, 'stroke-width': rowH >= 6 ? 0.5 : 0, 'stroke-opacity': 0.7 }));
         const last = ri === rows.length - 1 || rows[ri + 1].link !== r.link;
         if (last) {
           const gy0 = top + groupStart * rowH, gy1 = ry + rowH;
           g.appendChild(textEl(x0 + G.linkColW / 2, (gy0 + gy1) / 2 + fs * 0.36, r.link, { size: fs, font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
-          lines.appendChild(S('line', { x1: x0, x2: gx + gw, y1: gy1.toFixed(2), y2: gy1.toFixed(2), stroke: gridC, 'stroke-width': st.slotLinkSep !== false ? 1.6 : 0.6 }));
+          lines.appendChild(S('line', { x1: x0, x2: sx + G.sumTot, y1: gy1.toFixed(2), y2: gy1.toFixed(2), stroke: gridC, 'stroke-width': st.slotLinkSep !== false ? 1.6 : 0.6 }));
           groupStart = ri + 1;
         }
       }
@@ -1071,8 +1116,11 @@
         for (let k = 1; k < n; k++) { const xx = (gx + k * cw).toFixed(2); lines.appendChild(S('line', { x1: xx, x2: xx, y1: top, y2: bottom, stroke: gridC, 'stroke-width': 0.5, 'stroke-opacity': 0.8 })); }
       }
       // frame and column separators
-      lines.appendChild(S('rect', { x: x0, y: top, width: (gx + gw - x0).toFixed(2), height: (bottom - top).toFixed(2), fill: 'none', stroke: gridC, 'stroke-width': 1.2 }));
-      for (const xx of [x0 + G.linkColW, gx]) lines.appendChild(S('line', { x1: xx, x2: xx, y1: top, y2: bottom, stroke: gridC, 'stroke-width': 1 }));
+      lines.appendChild(S('rect', { x: x0, y: top, width: (sx + G.sumTot - x0).toFixed(2), height: (bottom - top).toFixed(2), fill: 'none', stroke: gridC, 'stroke-width': 1.2 }));
+      const seps = [x0 + G.linkColW, gx];
+      let acc = sx;
+      for (const w of G.sumW) { seps.push(acc); acc += w; }
+      for (const xx of seps) lines.appendChild(S('line', { x1: xx, x2: xx, y1: top, y2: bottom, stroke: gridC, 'stroke-width': 1 }));
       g.appendChild(cells);
       g.appendChild(lines);
       root.appendChild(g);

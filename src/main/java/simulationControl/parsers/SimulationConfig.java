@@ -359,10 +359,16 @@ public class SimulationConfig {
          * (needs SpectrumUtilization). Turn it off to save disk space in large topologies.
          */
         public boolean SlotUtilization;
+        /**
+         * Part 29: SlotBlocking.csv, attempts and blocks (by cause) of each slot of each core of each link
+         * (needs BlockingProbability).
+         */
+        public boolean SlotBlocking;
 
         public Metrics() {
             QKDMetrics = true;
             SlotUtilization = true;
+            SlotBlocking = true;
             BlockingProbability = true;
             BitRateBlockingProbability = true;
             SpectrumUtilization = true;

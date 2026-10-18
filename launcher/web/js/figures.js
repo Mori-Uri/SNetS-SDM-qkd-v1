@@ -47,6 +47,7 @@
   function parseCsv(text) {
     const lines = text.split(/\r?\n/);
     const header = (lines[0] || '').split(',');
+    if (isSlotHeader(header) && (header[5] || '').trim() === 'Cause') return parseSlotBlockCsv(lines, header);
     if (isSlotHeader(header)) return parseSlotCsv(lines, header);
     if ((header[0] || '').trim().toLowerCase() === 'loadpoint') {
       const w = App.results.parseCsv(text);
@@ -85,6 +86,7 @@
   function fileHint(file) {
     const f = String(file || '');
     if (/Fragmentation$/.test(f)) return ' Ligue a métrica ' + f + ' na aba Métricas do caso e rode a simulação de novo.';
+    if (f === 'SlotBlocking') return ' Ele é gravado pelo simulador da Parte 29 (métrica SlotBlocking, ligada por padrão, junto com BlockingProbability).';
     if (f === 'SlotUtilization') return ' Ele é gravado pelo simulador da Parte 27 (métrica SlotUtilization, ligada por padrão, junto com SpectrumUtilization).';
     if (f === 'BlockingDetails') return ' Ele é gravado pelo simulador da Parte 25 em diante (o diagnóstico do espectro, pelo da Parte 27).';
     return '';
@@ -251,6 +253,50 @@
     return null;
   }
 
+
+  // ---------------------------------------------------------------- SlotBlocking.csv (Parte 29)
+
+  /**
+   * SlotBlocking.csv: Metrics,LoadPoint,Link,Core,Replication,Cause,1..S, integer counts. Slot rows ("Slot attempts",
+   * "Slot blocked", "Slot blocked by cause") have S values; request rows ("Requests on link and core", "Blocked
+   * requests on link and core" [by cause], "Blocked requests without spectrum band") have one. The replications are
+   * summed, so ratios are pooled over them.
+   */
+  function parseSlotBlockCsv(lines, header) {
+    const nSlots = header.length - 6;
+    const att = new Map(), blkAll = new Map(), blk = new Map();
+    const reqAtt = new Map(), reqBlkAll = new Map(), reqBlk = new Map(), noBand = new Map();
+    const links = [], linkSet = new Set(), cores = new Set(), lps = new Set(), reps = new Set(), causes = [];
+    const addArr = (m, key, c) => { let a = m.get(key); if (!a) { a = new Float64Array(nSlots); m.set(key, a); } for (let k = 0; k < nSlots; k++) { const v = Number(c[6 + k]); if (v) a[k] += v; } };
+    const addNum = (m, key, v) => m.set(key, (m.get(key) || 0) + (Number(v) || 0));
+    const sub = (m, cause) => { let x = m.get(cause); if (!x) { x = new Map(); m.set(cause, x); if (!causes.includes(cause)) causes.push(cause); } return x; };
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line) continue;
+      const c = line.split(',');
+      if (c.length < 7) continue;
+      const lp = Number(c[1]);
+      if (!Number.isFinite(lp)) continue;
+      const metric = c[0].trim(), link = c[2].trim(), core = c[3].trim(), cause = c[5].trim();
+      lps.add(lp); reps.add(c[4].trim());
+      if (metric === 'Blocked requests without spectrum band') { addNum(noBand, lp, c[6]); continue; }
+      const key = lp + '|' + link + '|' + core;
+      if (!linkSet.has(link)) { linkSet.add(link); links.push(link); }
+      cores.add(core);
+      if (metric === 'Slot attempts') addArr(att, key, c);
+      else if (metric === 'Slot blocked') addArr(blkAll, key, c);
+      else if (metric === 'Slot blocked by cause') addArr(sub(blk, cause), key, c);
+      else if (metric === 'Requests on link and core') addNum(reqAtt, key, c[6]);
+      else if (metric === 'Blocked requests on link and core') addNum(reqBlkAll, key, c[6]);
+      else if (metric === 'Blocked requests on link and core by cause') addNum(sub(reqBlk, cause), key, c[6]);
+    }
+    const p = { ok: true, slotblock: true, dims: [], rows: [], nSlots, links, cores: [...cores].sort((a, b) => Number(a) - Number(b)),
+      att, blkAll, blk, reqAtt, reqBlkAll, reqBlk, noBand, causes, nReps: reps.size };
+    finishParsed(p);
+    p.lps = [...lps].sort((a, b) => a - b);
+    return p;
+  }
+
   // ================================================================ templates
 
   // Parte 27: models grouped by subject (optgroups of the "Modelo de gráfico" box); ids are kept, so saved figures still open
@@ -294,6 +340,12 @@
     { id: 'heatBlock', group: 'Mapas de calor', name: 'Topologia: utilização e bloqueio dos enlaces (clássico × QKD)', type: 'topo', file: 'SpectrumUtilization', metric: 'Utilization Per Link', topoBlock: true },
     { id: 'heatFrag', group: 'Mapas de calor', name: 'Topologia: fragmentação externa dos enlaces', type: 'topo', file: 'ExternalFragmentation', metric: 'External Fragmentation Per Link' },
     { id: 'slotHeat', group: 'Mapas de calor', name: 'Espectro: ocupação dos slots de cada núcleo em cada enlace', type: 'slots', file: 'SlotUtilization' },
+    { id: 'slotBlock', group: 'Mapas de calor', name: 'Espectro: bloqueio em cada slot (bloqueadas ÷ tentativas)', type: 'slotblock', file: 'SlotBlocking', blockMode: 'ratio',
+      desc: 'Para cada slot de cada núcleo de cada enlace, a fração das tentativas que terminaram bloqueadas. Uma tentativa é a faixa do candidato da requisição (o circuito aceito, ou o candidato que foi bloqueado) em cada enlace da rota. À direita: requisições bloqueadas ÷ requisições que usaram aquele núcleo do enlace, e a porcentagem. Usa o SlotBlocking.csv (Parte 29).' },
+    { id: 'slotBlockCauses', group: 'Mapas de calor', name: 'Espectro: causa do bloqueio em cada slot (todas as causas, uma cor cada)', type: 'slotblock', file: 'SlotBlocking', blockMode: 'causes',
+      desc: 'Cada slot recebe a cor da causa com mais bloqueios ali (passe o mouse para ver todas). Cinza: houve tentativas e nenhum bloqueio; branco: nenhuma tentativa. Escolha uma causa em "Causa" para ver só ela. Usa o SlotBlocking.csv (Parte 29).' },
+    { id: 'slotBlockQoTO', group: 'Mapas de calor', name: 'Espectro: onde ocorreram os bloqueios por QoTO', type: 'slotblock', file: 'SlotBlocking', blockMode: 'causes', blockCause: 'QoTO',
+      desc: 'Só os bloqueios por QoTO (o novo circuito degradaria a QoT de circuitos ativos), na cor da causa. Troque a causa na seção 2 para ver as outras.' },
     // ---- Correlações
     { id: 'scLinkUtilBlock', group: 'Correlações', name: 'Enlaces: utilização × bloqueio (um ponto por enlace)', type: 'scatter', by: 'Link', xFile: 'SpectrumUtilization', xMetric: 'Utilization Per Link', yFile: 'BlockingDetails', yMetric: 'Link blocking probability', x: 'Utilização do enlace', y: 'Bloqueio do enlace',
       desc: 'Cada ponto é um enlace dirigido; r é o coeficiente de correlação de Pearson e a reta tracejada, o ajuste por mínimos quadrados.' },
@@ -328,7 +380,8 @@
     if (t.type === 'cores') { style.height = 640; style.width = 900; }
     if (t.topoBlock) { style.topoLabels = 'block'; style.topoCols = 2; }
     if (t.type === 'topo') { style.width = 1200; style.title = ''; style.fontSize = 14; style.topoNodeR = 13; }
-    if (t.type === 'slots') { style.width = 1400; style.title = ''; style.fontSize = 12; }
+    if (t.type === 'slots' || t.type === 'slotblock') { style.width = 1400; style.title = ''; style.fontSize = 12; }
+    if (t.type === 'slotblock') { style.slotScale = 'blues'; style.slotZero = 'gray'; style.slotRange = t.blockMode === 'count' ? 'auto' : 'fixed'; }
     if (t.type === 'scatter') { style.errorBars = 'none'; style.grid = 'both'; style.xAsCategories = false; }
     if (t.type === 'slotline') { style.width = 1000; style.errorBars = 'none'; style.xAsCategories = false; style.lineWidth = 1.5; }
     if (t.layout === 'panels') { style.panelHeight = 300; style.barGap = 0.3; style.legend = 'none'; style.fontSize = 10; style.errorBars = 'none'; style.titleSize = 13; }
@@ -343,7 +396,7 @@
       },
       cores: { lp: -1, utilFile: 'SpectrumUtilization', utilMetric: 'Utilization per Core', blockFile: 'BlockingProbability', blockPrefix: 'Blocking probability per core', normBlock: false },
       topo: { lps: [], range: 'shared', block: !!t.topoBlock, blockFile: 'BlockingDetails', blockMetric: 'Link blocking probability', blockClasses: 'split' },
-      slots: { lp: -1, links: [], cores: [], from: 1, to: 0, order: 'name', caseLayout: 'stack' },
+      slots: { lp: -1, links: [], cores: [], from: 1, to: 0, order: 'name', caseLayout: 'stack', blockMode: t.blockMode || 'ratio', blockCause: t.blockCause || 'all', onlyBlocked: false, summary: true },
       scatter: { xFile: t.xFile || 'SpectrumUtilization', xMetric: t.xMetric || 'Utilization Per Link', yFile: t.yFile || 'BlockingDetails', yMetric: t.yMetric || 'Link blocking probability',
         by: t.by || 'Link', lp: -1, fx: {}, fy: {}, trend: true, pooled: false },
       labels: {}, seriesStyle: {}, style,
@@ -441,6 +494,7 @@
     if (spec.type === 'cores') return buildCores(spec);
     if (spec.type === 'topo') return buildTopo(spec);
     if (spec.type === 'slots') return buildSlots(spec);
+    if (spec.type === 'slotblock') return buildSlotBlock(spec);
     if (spec.type === 'slotline') return buildSlotLine(spec);
     if (spec.type === 'scatter') return buildScatter(spec);
     if (!spec.file) return { empty: 'Escolha o arquivo de resultados.' };
@@ -760,6 +814,121 @@
     return { kind: 'slots', panels, missing, range: { min, max }, legendTitle, nSlots: nSlotsAll };
   }
 
+  /** Colours of the blocking causes in the "causes" mode (Parte 29). */
+  const SLOT_NOBLOCK_COLOR = '#D9D9D9';
+  function slotCauseColor(cause, i) {
+    return causeColor(cause) || ['#C00000', '#7030A0', '#00B050', '#0070C0', '#ED7D31', '#FFC000', '#5B9BD5', '#A5A5A5'][i % 8];
+  }
+
+  /** Spectrum blocking heat map: blocked ÷ attempts, counts or the cause of each slot (Parte 29). */
+  async function buildSlotBlock(spec) {
+    const T = spec.slots || (spec.slots = newSpec('slotBlock', []).slots);
+    const st = spec.style;
+    const mode = T.blockMode || 'ratio';
+    const want = T.blockCause || 'all';
+    const panels = [];
+    const missing = [];
+    const allCauses = [];
+    let nSlotsAll = 0;
+    const pct = (a, b) => b > 0 ? App.fmtNum(100 * a / b, 1) + ' %' : '–';
+    for (const c of spec.cases) {
+      const cd = await caseData(c.path);
+      let p = null;
+      try { p = await getCsv(c.path, 'SlotBlocking'); } catch (e) { p = null; }
+      if (!(p && p.ok && p.slotblock)) { missing.push(caseLabel(c) + ' (sem SlotBlocking.csv: rode de novo com o simulador da Parte 29)'); continue; }
+      for (const k of p.causes) if (!allCauses.includes(k)) allCauses.push(k);
+      const lp = lpResolve(T.lp, p.lps);
+      let links = p.links.slice();
+      if (T.order === 'name') links.sort(linkCompare);
+      if (T.links && T.links.length) links = links.filter((l) => T.links.includes(l));
+      let cores = p.cores.slice();
+      if (T.cores && T.cores.length) cores = cores.filter((k) => T.cores.includes(k));
+      const from = Math.max(1, Math.min(p.nSlots, Math.round(Number(T.from) || 1)));
+      const to = Number(T.to) > 0 ? Math.max(from, Math.min(p.nSlots, Math.round(Number(T.to)))) : p.nSlots;
+      const n = to - from + 1;
+      const causes = want === 'all' ? p.causes : p.causes.filter((k) => k === want);
+      const rows = [];
+      let totReq = 0, totBlk = 0;
+      for (const link of links) for (const core of cores) {
+        const key = lp + '|' + link + '|' + core;
+        const att = p.att.get(key);
+        if (!att) continue;
+        const blkArr = want === 'all' ? p.blkAll.get(key) : (p.blk.get(want) || new Map()).get(key);
+        const reqA = p.reqAtt.get(key) || 0;
+        const reqB = want === 'all' ? (p.reqBlkAll.get(key) || 0) : ((p.reqBlk.get(want) || new Map()).get(key) || 0);
+        totReq += reqA; totBlk += reqB;
+        if (T.onlyBlocked && !reqB) continue;
+        const values = new Float64Array(n);
+        const byCause = causes.map((k) => (p.blk.get(k) || new Map()).get(key) || null);
+        for (let i = 0; i < n; i++) {
+          const a = att[from - 1 + i], b = blkArr ? blkArr[from - 1 + i] : 0;
+          values[i] = mode === 'count' ? b : (a > 0 ? b / a : NaN);
+        }
+        const row = { link, core, values, summary: [App.fmtNum(reqB, 0) + '/' + App.fmtNum(reqA, 0), pct(reqB, reqA)] };
+        if (mode === 'causes') {
+          row.colors = new Array(n);
+          for (let i = 0; i < n; i++) {
+            const s = from - 1 + i;
+            if (!(att[s] > 0)) { row.colors[i] = null; continue; }
+            let best = -1, bv = 0;
+            byCause.forEach((arr, j) => { if (arr && arr[s] > bv) { bv = arr[s]; best = j; } });
+            row.colors[i] = best < 0 ? SLOT_NOBLOCK_COLOR : slotCauseColor(causes[best], allCauses.indexOf(causes[best]));
+          }
+        }
+        row.tip = (k, e) => {
+          let a = 0, b = 0;
+          const per = causes.map(() => 0);
+          for (let i = k; i < e; i++) {
+            const s = from - 1 + i;
+            a += att[s]; b += blkArr ? blkArr[s] : 0;
+            byCause.forEach((arr, j) => { if (arr) per[j] += arr[s]; });
+          }
+          const sl = e - k > 1 ? 'slots ' + (from + k) + '–' + (from + e - 1) : 'slot ' + (from + k);
+          let t = 'Enlace ' + link + ' · núcleo ' + core + ' · ' + sl + ': ';
+          if (!(a > 0)) return t + 'nenhuma tentativa';
+          t += App.fmtNum(b, 0) + ' bloqueios em ' + App.fmtNum(a, 0) + ' tentativas (' + pct(b, a) + ')';
+          const parts = causes.map((kk, j) => [kk, per[j]]).filter((x) => x[1] > 0).sort((x, y) => y[1] - x[1]);
+          if (parts.length && (want === 'all' || mode === 'causes')) t += '\n' + parts.map(([kk, v]) => '  ' + autoLabel(kk) + ': ' + App.fmtNum(v, 0)).join('\n');
+          return t;
+        };
+        rows.push(row);
+      }
+      nSlotsAll = Math.max(nSlotsAll, n);
+      const nb = p.noBand.get(lp) || 0;
+      const sub = [lpLabel(cd, lp), p.nReps > 1 ? 'soma de ' + p.nReps + ' replicações' : '', want !== 'all' ? autoLabel(want) : '',
+        nb > 0 && want === 'all' ? nb + ' bloqueio' + (nb > 1 ? 's' : '') + ' sem faixa no espectro (fora do mapa)' : ''].filter(Boolean);
+      panels.push({ title: (spec.cases.length > 1 ? caseLabel(c) + ' · ' : '') + sub.join(' · '), rows, from, to, path: c.path, lp, noBand: nb, totReq, totBlk });
+    }
+    S.slotCauses = allCauses;
+    if (!panels.length) return { empty: 'Nenhum caso selecionado tem o arquivo SlotBlocking.csv.' + fileHint('SlotBlocking'), missing };
+    if (!panels.some((x) => x.rows.length)) return { empty: T.onlyBlocked ? 'Nenhum núcleo de enlace selecionado teve bloqueio' + (want !== 'all' ? ' por ' + autoLabel(want) : '') + ' neste ponto de carga.' : 'Nenhum enlace/núcleo selecionado teve tentativas.', missing };
+    let min = 0, max = 1;
+    if (mode === 'count' || st.slotRange === 'auto') {
+      min = mode === 'count' ? 0 : Infinity; max = -Infinity;
+      for (const pn of panels) for (const r of pn.rows) for (const v of r.values) { if (!Number.isFinite(v)) continue; if (v < min) min = v; if (v > max) max = v; }
+      if (!Number.isFinite(min) || !Number.isFinite(max)) { min = 0; max = 1; }
+    }
+    if (st.slotMin !== '' && st.slotMin !== undefined && Number.isFinite(Number(st.slotMin))) min = Number(st.slotMin);
+    if (st.slotMax !== '' && st.slotMax !== undefined && Number.isFinite(Number(st.slotMax))) max = Number(st.slotMax);
+    if (max <= min) max = min + 1e-9;
+    const model = { kind: 'slots', block: mode, panels, missing, range: { min, max }, nSlots: nSlotsAll, noDataColor: st.slotNoData || '#FFFFFF',
+      valueFormat: mode === 'count' ? 'count' : 'percent' };
+    if (T.summary !== false) model.summaryHeads = [spec.labels.__sumA || 'Bloq./req.', spec.labels.__sumB || '%'];
+    if (mode === 'causes') {
+      const used = new Set();
+      for (const pn of panels) for (const r of pn.rows) for (const c of r.colors) if (c) used.add(c);
+      model.legendItems = allCauses.filter((k) => want === 'all' || k === want).map((k) => [slotCauseColor(k, allCauses.indexOf(k)), autoLabel(k)]).filter(([c]) => used.has(c));
+      model.legendItems.push([SLOT_NOBLOCK_COLOR, 'Tentado, sem bloqueio' + (want !== 'all' ? ' por esta causa' : '')], [model.noDataColor, 'Nenhuma tentativa']);
+    }
+    model.legendTitle = slotBlockLegendTitle(spec, mode);
+    return model;
+  }
+
+  function slotBlockLegendTitle(spec, mode) {
+    if (spec.labels.__slot) return spec.labels.__slot;
+    return mode === 'causes' ? 'Causa do bloqueio' : mode === 'count' ? 'Bloqueios no slot' : 'Bloqueadas ÷ tentativas';
+  }
+
   /** Mean occupancy of each slot over the chosen links, one line per core (Parte 27). */
   async function buildSlotLine(spec) {
     const T = spec.slots || (spec.slots = newSpec('slotProfile', []).slots);
@@ -972,9 +1141,10 @@
     if (model.kind === 'slots') {
       const n = Math.max(...model.panels.map((p) => p.to - p.from + 1));
       const first = model.panels[0].from;
-      const head = ['painel', 'enlace', 'núcleo'].concat(Array.from({ length: n }, (_, k) => 'slot ' + (first + k)));
+      const sum = model.summaryHeads ? ['requisições bloqueadas/feitas', '%'] : [];
+      const head = ['painel', 'enlace', 'núcleo'].concat(sum, Array.from({ length: n }, (_, k) => 'slot ' + (first + k)));
       const rows = [];
-      for (const p of model.panels) for (const r of p.rows) rows.push([p.title, r.link, Number(r.core)].concat(Array.from(r.values)));
+      for (const p of model.panels) for (const r of p.rows) rows.push([p.title, r.link, Number(r.core)].concat(sum.length ? r.summary : [], Array.from(r.values, (v) => Number.isFinite(v) ? v : '')));
       return { head, rows };
     }
     if (model.kind === 'cores') {
@@ -1000,6 +1170,7 @@
     if (spec.type === 'cores') return [spec.cores.utilMetric, spec.cores.blockPrefix + ' N'];
     if (spec.type === 'topo') return [spec.metric];
     if (spec.type === 'slots' || spec.type === 'slotline') return ['Slot utilization'];
+    if (spec.type === 'slotblock') return ['Slot blocked'];
     if (spec.type === 'scatter') return [spec.scatter.xMetric, spec.scatter.yMetric];
     if (spec.type === 'line') return spec.line.seriesBy === 'metric' ? (spec.metrics.length ? spec.metrics : [spec.metric]) : [spec.metric];
     if (spec.bars.itemsFrom === 'metrics') return m.items && m.items.length ? m.items : [];
@@ -1024,7 +1195,7 @@
       const f = spec.filters && spec.filters[d];
       dims.push(el('div.small', el('b', d), ': ', t, f !== undefined && !(spec.type === 'line' && spec.line.seriesBy === 'dim:' + d) && !(spec.type === 'bars' && spec.bars.dim === d) ? ' — filtro atual: ' + f : ''));
     }
-    const file = spec.type === 'cores' ? spec.cores.utilFile + '.csv + ' + spec.cores.blockFile + '.csv' : spec.type === 'slots' || spec.type === 'slotline' ? 'SlotUtilization.csv'
+    const file = spec.type === 'cores' ? spec.cores.utilFile + '.csv + ' + spec.cores.blockFile + '.csv' : spec.type === 'slots' || spec.type === 'slotline' ? 'SlotUtilization.csv' : spec.type === 'slotblock' ? 'SlotBlocking.csv'
       : spec.type === 'scatter' ? [...new Set([spec.scatter.xFile, spec.scatter.yFile])].map((f) => f + '.csv').join(' + ') : spec.file + '.csv';
     return el('div.metric-about',
       el('div.about-title', 'Sobre ' + (names.length > 1 ? 'as métricas' : 'a métrica'), el('span.about-file', ' · arquivo ' + file)),
@@ -1062,6 +1233,11 @@
       add('enlace', 'enlace direcional origem→destino; cada enlace da topologia aparece nos dois sentidos.');
       stat();
       add('cores do mapa', 'escala contínua verde (menor valor) → amarelo → laranja → vermelho (maior valor), de ' + App.fmtNum(m.range.min, 4) + ' a ' + App.fmtNum(m.range.max, 4) + ', comum a todos os painéis.');
+    } else if (m.kind === 'slots' && m.block) {
+      add('painel', 'caso e ponto de carga (um mapa por caso); soma das replicações. Bloqueios sem faixa (sem candidato) não têm lugar no espectro e são contados à parte no título.');
+      add('enlace / núcleo', 'uma linha do mapa por núcleo de cada enlace direcional escolhido.');
+      add('requisições bloqueadas/feitas', 'quantas requisições tiveram o candidato naquele núcleo daquele enlace (cada requisição conta uma vez por enlace da rota) e quantas delas foram bloqueadas' + (spec.slots.blockCause !== 'all' ? ' pela causa escolhida' : '') + '; ao lado, a porcentagem.');
+      add('slot N', m.block === 'count' ? 'número de bloqueios cuja faixa incluía o slot N.' : m.block === 'causes' ? 'cor da causa com mais bloqueios no slot N (vazio = sem tentativas). Na tabela: bloqueadas ÷ tentativas.' : 'bloqueios ÷ tentativas cuja faixa incluía o slot N (vazio = sem tentativas). Requisições grandes ocupam mais slots, por isso a média dos slots fica acima da porcentagem por requisição.');
     } else if (m.kind === 'slots') {
       add('painel', 'caso e ponto de carga (um mapa por caso).');
       add('enlace / núcleo', 'uma linha do mapa por núcleo de cada enlace direcional escolhido.');
@@ -1393,9 +1569,10 @@
     const tdesc = (TEMPLATES.find((t) => t.id === spec.template) || {}).desc;
     box.append(field('Modelo de gráfico', tmplSel, tdesc || 'Preenche tipo, arquivo, métrica e títulos; tudo pode ser ajustado abaixo.'));
 
-    const typeSel = selectInput(spec, 'type', [['line', 'Linhas (métrica × carga ou parâmetro)'], ['bars', 'Barras (agrupadas / empilhadas)'], ['cores', 'Diagrama da fibra (núcleos)'], ['topo', 'Mapa de calor na topologia (enlaces)'], ['slots', 'Mapa de calor do espectro (slots × núcleos × enlaces)'], ['slotline', 'Perfil de ocupação por slot (linhas)'], ['scatter', 'Dispersão: métrica × métrica (correlação)']], () => {
+    const typeSel = selectInput(spec, 'type', [['line', 'Linhas (métrica × carga ou parâmetro)'], ['bars', 'Barras (agrupadas / empilhadas)'], ['cores', 'Diagrama da fibra (núcleos)'], ['topo', 'Mapa de calor na topologia (enlaces)'], ['slots', 'Mapa de calor do espectro (slots × núcleos × enlaces)'], ['slotblock', 'Mapa de calor do bloqueio no espectro (slots)'], ['slotline', 'Perfil de ocupação por slot (linhas)'], ['scatter', 'Dispersão: métrica × métrica (correlação)']], () => {
       if (spec.type === 'topo' && !spec.file) { spec.file = 'SpectrumUtilization'; spec.metric = 'Utilization Per Link'; }
       if (spec.type === 'slots') { spec.file = 'SlotUtilization'; if (!spec.slots) spec.slots = newSpec('slotHeat', []).slots; if (spec.style.width < 1000) spec.style.width = 1400; }
+      if (spec.type === 'slotblock') { spec.file = 'SlotBlocking'; if (!spec.slots) spec.slots = newSpec('slotBlock', []).slots; if (spec.style.width < 1000) spec.style.width = 1400; }
       if (spec.type === 'slotline') { spec.file = 'SlotUtilization'; if (!spec.slots) spec.slots = newSpec('slotProfile', []).slots; spec.style.xAsCategories = false; }
       if (spec.type === 'scatter') { if (!spec.scatter) spec.scatter = newSpec('scLinkUtilBlock', []).scatter; spec.style.xAsCategories = false; spec.style.errorBars = 'none'; }
       changedData();
@@ -1403,7 +1580,7 @@
     box.append(field('Tipo', typeSel));
 
     if (spec.type === 'cores') { box.append(coresDataFields()); return box; }
-    if (spec.type === 'slots' || spec.type === 'slotline') { box.append(slotsDataFields()); return box; }
+    if (spec.type === 'slots' || spec.type === 'slotline' || spec.type === 'slotblock') { box.append(slotsDataFields()); return box; }
     if (spec.type === 'scatter') { box.append(scatterDataFields()); return box; }
     if (spec.type === 'topo') {
       const fileSel = el('select.input', S.fileOptions.length ? S.fileOptions.map((f) => el('option', { value: f.suffix }, f.suffix)) : el('option', { value: spec.file }, spec.file || '—'));
@@ -1551,11 +1728,25 @@
     const T = S.spec.slots;
     const o = S.slotOptions || { links: [], cores: [], nSlots: 0 };
     const box = el('div.stack-s');
+    const isBlock = S.spec.type === 'slotblock';
     if (!o.links.length) {
-      box.append(el('p.small.muted', 'Nenhum caso selecionado tem SlotUtilization.csv. O arquivo é gravado pelo simulador da Parte 27 (métrica SlotUtilization, ligada por padrão junto com SpectrumUtilization).'));
+      box.append(el('p.small.muted', isBlock ? 'Nenhum caso selecionado tem SlotBlocking.csv.' + fileHint('SlotBlocking') : 'Nenhum caso selecionado tem SlotUtilization.csv. O arquivo é gravado pelo simulador da Parte 27 (métrica SlotUtilization, ligada por padrão junto com SpectrumUtilization).'));
       return box;
     }
     box.append(field('Ponto de carga', lpSelect(T, 'lp')));
+    if (isBlock) {
+      const causes = (o.causes || []).slice();
+      if (T.blockCause && T.blockCause !== 'all' && !causes.includes(T.blockCause)) causes.push(T.blockCause);
+      box.append(el('div.fields.two',
+        field('O que cada slot mostra', selectInput(T, 'blockMode', [['ratio', 'Bloqueadas ÷ tentativas (escala de cores)'], ['count', 'Número de bloqueios (escala de cores)'], ['causes', 'Causa do bloqueio (uma cor por causa)']], () => {
+          if (T.blockMode === 'count') S.spec.style.slotRange = 'auto';
+          changedData();
+        })),
+        field('Causa', selectInput(T, 'blockCause', [['all', 'Todas as causas']].concat(causes.map((k) => [k, autoLabel(k) + (autoLabel(k) !== k ? ' (' + k + ')' : '')])), () => changedData()))));
+      box.append(el('div.checks',
+        checkInput(T, 'onlyBlocked', 'Só os núcleos de enlace com bloqueio', () => changedData()),
+        checkInput(T, 'summary', 'Colunas à direita: bloqueadas/feitas e %', () => changedData())));
+    }
     const links = o.links.slice();
     if (T.order === 'name') links.sort(linkCompare);
     const quick = (label, fn) => el('button.btn.small', { type: 'button', on: { click: fn } }, label);
@@ -1574,7 +1765,9 @@
       field('Do slot', numInput(T, 'from', () => changedStyleData(), { min: 1, max: o.nSlots, step: 1 })),
       field('Até o slot', numInput(T, 'to', () => changedStyleData(), { min: 0, max: o.nSlots, step: 1, placeholder: '0 = último (' + o.nSlots + ')' }))));
     box.append(field('Ordem dos enlaces', selectInput(T, 'order', [['name', 'Por origem e destino (1-2, 1-3, 2-1…)'], ['file', 'Ordem do arquivo (lista de enlaces da rede)']], () => changedData())));
-    box.append(el('p.small.muted', 'Cada célula é a fração do tempo (amostrada a cada chegada) em que o slot estava ocupado, média das replicações. Bandas de guarda contam como ocupadas; no núcleo reservado à QKD aparecem os QChs e PIChs.'));
+    box.append(el('p.small.muted', isBlock
+      ? 'Uma tentativa é a faixa (sem bandas de guarda) do candidato de cada requisição — o circuito aceito, ou o candidato bloqueado — em cada enlace da rota, no núcleo dele. As contagens somam as replicações. Bloqueios sem candidato (sem faixa livre, sem rota) não têm lugar no espectro: aparecem só no título do mapa.'
+      : 'Cada célula é a fração do tempo (amostrada a cada chegada) em que o slot estava ocupado, média das replicações. Bandas de guarda contam como ocupadas; no núcleo reservado à QKD aparecem os QChs e PIChs.'));
     return box;
   }
 
@@ -1689,6 +1882,32 @@
         el('div.fields.two', field('Cor dos nós confiáveis', colorInput(st, 'topoTrustedFill', changedStyle)),
           field('Raio dos nós confiáveis (px)', numInput(st, 'topoTrustedR', changedStyle, { min: 0, max: 20, step: 0.5, placeholder: 'auto' }))),
         el('p.small.muted', 'Com "os dois", cada sentido é uma faixa: a faixa de a→b fica à direita de quem segue de a para b. Passe o mouse sobre um enlace para ver o valor.'));
+      seriesBox.append(section('3. Cores e rótulos', true, body));
+      return;
+    }
+    if (m.kind === 'slots' && m.block) {
+      const st = spec.style;
+      clear(body);
+      const scale = m.block !== 'causes';
+      body.append(el('div.fields.two',
+        scale ? field('Escala de cores', selectInput(st, 'slotScale', R().SLOT_SCALES.map((x) => [x.id, x.name]), changedStyle)) : null,
+        scale && m.block === 'ratio' ? field('Faixa da escala', selectInput(st, 'slotRange', [['fixed', '0 a 100 % (fixa)'], ['auto', 'Menor a maior valor dos dados']], changedStyleData)) : null,
+        scale ? field('Mínimo da escala', numInput(st, 'slotMin', changedStyleData, { step: 'any', placeholder: 'auto' })) : null,
+        scale ? field('Máximo da escala', numInput(st, 'slotMax', changedStyleData, { step: 'any', placeholder: 'auto' })) : null,
+        field('Cor dos slots sem tentativa', colorInput(st, 'slotNoData', changedStyleData)),
+        field('Altura de cada linha (px)', numInput(st, 'slotRowH', changedStyle, { min: 2, max: 60 })),
+        field('Rótulos de slot a cada', numInput(st, 'slotTickStep', changedStyle, { min: 0, step: 1, placeholder: 'auto' })),
+        field('Legenda de cores', selectInput(st, 'slotLegend', [['right', 'À direita'], ['bottom', 'Embaixo'], ['none', 'Sem legenda']], changedStyle)),
+        field('Título da legenda', labelInput('__slot', slotBlockLegendTitle({ labels: {} }, m.block))),
+        m.summaryHeads ? field('Título da coluna bloqueadas/feitas', labelInput('__sumA', 'Bloq./req.')) : null,
+        m.summaryHeads ? field('Título da coluna da porcentagem', labelInput('__sumB', '%')) : null,
+        scale && m.block === 'ratio' ? field('Casas decimais da escala', numInput(st, 'slotDigits', changedStyle, { min: 0, max: 6 })) : null,
+        field('Cor das divisões', colorInput(st, 'slotGridColor', changedStyle))),
+        el('div.checks',
+          checkInput(st, 'slotCellGrid', 'Contorno em cada slot (quando couber)', changedStyle),
+          checkInput(st, 'slotLinkSep', 'Linha grossa entre enlaces', changedStyle),
+          checkInput(st, 'slotPanelTitle', 'Título de cada mapa (caso · carga)', changedStyle)),
+        el('p.small.muted', 'Passe o mouse sobre um slot para ver tentativas, bloqueios e as causas. A coluna "bloqueadas/feitas" conta requisições (uma vez por núcleo de enlace); as cores contam slots.'));
       seriesBox.append(section('3. Cores e rótulos', true, body));
       return;
     }
@@ -1891,14 +2110,14 @@
       } catch (e) { /* ignore */ }
     }
     S.fileOptions = [...counts.entries()].map(([suffix, count]) => ({ suffix, count })).sort((a, b) => b.count - a.count || a.suffix.localeCompare(b.suffix));
-    if (spec.type !== 'cores' && spec.type !== 'slots' && S.fileOptions.length && !counts.has(spec.file)) {
+    if (spec.type !== 'cores' && spec.type !== 'slots' && spec.type !== 'slotblock' && S.fileOptions.length && !counts.has(spec.file)) {
       const want = spec.file;
       spec.file = (S.fileOptions.find((f) => f.suffix === want || f.suffix.endsWith('_' + want)) || S.fileOptions.find((f) => /BlockingProbability$/.test(f.suffix) && !/BitRate/.test(f.suffix)) || S.fileOptions[0]).suffix;
     }
     S.metricOptions = []; S.dimOptions = {}; S.lpOptions = []; S.lpErl = null;
     if (spec.type === 'scatter') {
       const X = spec.scatter;
-      S.scatterOptions = { files: S.fileOptions.map((f) => f.suffix).filter((f) => f !== 'SlotUtilization'), metrics: {}, dims: {} };
+      S.scatterOptions = { files: S.fileOptions.map((f) => f.suffix).filter((f) => f !== 'SlotUtilization' && f !== 'SlotBlocking'), metrics: {}, dims: {} };
       for (const f of [...new Set([X.xFile, X.yFile])]) {
         const first = spec.cases.find((c) => firstWith.get(f) === c.path);
         if (!first) continue;
@@ -1918,12 +2137,14 @@
       S.paramOptions = [];
       return;
     }
-    if (spec.type === 'slots' || spec.type === 'slotline') {
-      S.slotOptions = { links: [], cores: [], nSlots: 0 };
+    if (spec.type === 'slots' || spec.type === 'slotline' || spec.type === 'slotblock') {
+      const isBlock = spec.type === 'slotblock';
+      S.slotOptions = { links: [], cores: [], nSlots: 0, causes: [] };
       for (const c of spec.cases) {
         try {
-          const p = await getCsv(c.path, 'SlotUtilization');
-          if (!(p && p.ok && p.slot)) continue;
+          const p = await getCsv(c.path, isBlock ? 'SlotBlocking' : 'SlotUtilization');
+          if (!(p && p.ok && (isBlock ? p.slotblock : p.slot))) continue;
+          if (isBlock) for (const k of p.causes) if (!S.slotOptions.causes.includes(k)) S.slotOptions.causes.push(k);
           for (const l of p.links) if (!S.slotOptions.links.includes(l)) S.slotOptions.links.push(l);
           for (const k of p.cores) if (!S.slotOptions.cores.includes(k)) S.slotOptions.cores.push(k);
           S.slotOptions.nSlots = Math.max(S.slotOptions.nSlots, p.nSlots);
@@ -2112,7 +2333,8 @@
     } else if (m.kind === 'topo') {
       m.legendTitle = spec.labels.__heat || App.metricInfo.axisTitle(spec.metric) || spec.metric;
     } else if (m.kind === 'slots') {
-      m.legendTitle = spec.labels.__slot || 'Ocupação do slot';
+      m.legendTitle = m.block ? slotBlockLegendTitle(spec, m.block) : spec.labels.__slot || 'Ocupação do slot';
+      if (m.summaryHeads) m.summaryHeads = [spec.labels.__sumA || 'Bloq./req.', spec.labels.__sumB || '%'];
     } else if (m.kind === 'cores') {
       for (const d of m.diagrams) { const c = spec.cases.find((x) => x.path === d.path); if (c) d.title = caseLabel(c); }
       m.blockLabel = spec.labels.__block || 'Bloqueio do núcleo';

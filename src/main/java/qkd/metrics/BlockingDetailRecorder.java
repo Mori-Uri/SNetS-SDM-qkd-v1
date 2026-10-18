@@ -87,6 +87,21 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
     private final Map<String, long[]> perLink = new TreeMap<String, long[]>();
     private final List<String> linkNames = new ArrayList<String>();
 
+    /*
+     * Part 29: where in the spectrum the requests were tried and blocked. For each link of the route of the
+     * request's candidate (the accepted circuit, or the candidate of a blocked request), the slots of its band
+     * (guard bands excluded) in its core count one attempt; when blocked, they also count one block of its cause.
+     * Blocked requests without a band (no candidate) are counted apart.
+     */
+    private final Map<String, Integer> linkIndex = new java.util.HashMap<String, Integer>();
+    private int slotCores, slotSlots;
+    private int[][][] slotAttempts;
+    private final Map<String, int[][][]> slotBlocked = new LinkedHashMap<String, int[][][]>();
+    private final long[] blockedNoBand = new long[2];
+    /* Part 29: the same, counted once per request on each link and core it used (not per slot). */
+    private long[][] rowAttempts;
+    private final Map<String, long[][]> rowBlocked = new LinkedHashMap<String, long[][]>();
+
     public BlockingDetailRecorder(double warmupArrivals, ControlPlane cp) {
         this.warmupArrivals = Math.max(0, warmupArrivals);
         this.warmupDone = this.warmupArrivals <= 0;
@@ -95,8 +110,20 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         if (cp != null && cp.getMesh() != null) {
             for (Link l : cp.getMesh().getLinkList()) {
                 String n = linkName(l);
+                linkIndex.put(n, linkNames.size());
                 linkNames.add(n);
                 perLink.put(n, new long[5]);
+            }
+            try {
+                slotCores = cp.getMesh().maximumCoresByLinks();
+                slotSlots = cp.getMesh().maximumSlotsByLinks();
+            } catch (RuntimeException e) {
+                slotCores = 0;
+                slotSlots = 0;
+            }
+            if (slotCores > 0 && slotSlots > 0) {
+                slotAttempts = new int[linkNames.size()][slotCores][slotSlots];
+                rowAttempts = new long[linkNames.size()][slotCores];
             }
         }
     }
@@ -112,6 +139,58 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         genPerCore.clear();
         blockedPerCore.clear();
         for (long[] v : perLink.values()) java.util.Arrays.fill(v, 0);
+        if (slotAttempts != null) for (int[][] a : slotAttempts) for (int[] b : a) java.util.Arrays.fill(b, 0);
+        slotBlocked.clear();
+        blockedNoBand[0] = blockedNoBand[1] = 0;
+        if (rowAttempts != null) for (long[] a : rowAttempts) java.util.Arrays.fill(a, 0);
+        rowBlocked.clear();
+    }
+
+    /** Part 29: adds one attempt (and one block of the cause, when not null) on the band of the candidate. */
+    private boolean markSlots(Circuit c, String blockedCause) {
+        if (slotAttempts == null || c == null || c.getRoute() == null) return false;
+        int core = rawCore(c);
+        int[] band;
+        try {
+            band = c.getSpectrumAssigned();
+        } catch (RuntimeException e) {
+            band = null;
+        }
+        if (core < 0 || core >= slotCores || band == null || band.length < 2 || band[0] < 1 || band[1] < band[0]) return false;
+        int[][][] blk = null;
+        long[][] rblk = null;
+        if (blockedCause != null) {
+            rblk = rowBlocked.get(blockedCause);
+            if (rblk == null) {
+                rblk = new long[linkNames.size()][slotCores];
+                rowBlocked.put(blockedCause, rblk);
+            }
+            blk = slotBlocked.get(blockedCause);
+            if (blk == null) {
+                blk = new int[linkNames.size()][][];
+                slotBlocked.put(blockedCause, blk);
+            }
+        }
+        boolean any = false;
+        for (Link l : c.getRoute().getLinkList()) {
+            Integer li = linkIndex.get(linkName(l));
+            if (li == null) continue;
+            int[] at = slotAttempts[li][core];
+            int[] bl = null;
+            if (blk != null) {
+                if (blk[li] == null) blk[li] = new int[slotCores][];
+                if (blk[li][core] == null) blk[li][core] = new int[slotSlots];
+                bl = blk[li][core];
+            }
+            for (int s = band[0] - 1; s < band[1] && s < slotSlots; s++) {
+                at[s]++;
+                if (bl != null) bl[s]++;
+            }
+            rowAttempts[li][core]++;
+            if (rblk != null) rblk[li][core]++;
+            any = true;
+        }
+        return any;
     }
 
     /** Called at each arrival, before the request is handled (mirrors the classical transient rule). */
@@ -168,6 +247,13 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
                 if (m == null) { m = new LinkedHashMap<String, Long>(); blockedPerCore.put(core, m); }
                 m.put(cause, m.containsKey(cause) ? m.get(cause) + 1 : 1L);
             }
+        }
+
+        // Part 29: position of the request in the spectrum
+        if (success) {
+            if (request.getCircuits() != null) for (Circuit c : request.getCircuits()) markSlots(c, null);
+        } else if (!markSlots(blockedCircuit != null ? blockedCircuit : any, cause)) {
+            blockedNoBand[cls]++;
         }
 
         if (ref != null && ref.getRoute() != null) {
@@ -271,7 +357,32 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         for (Map.Entry<Integer, Map<String, Long>> e : blockedPerCore.entrySet())
             s.blockedPerCore.put(e.getKey(), new LinkedHashMap<String, Long>(e.getValue()));
         for (Map.Entry<String, long[]> e : perLink.entrySet()) s.perLink.put(e.getKey(), e.getValue().clone());
+        s.linkNames = new ArrayList<String>(linkNames);
+        s.slotSlots = slotSlots;
+        s.slotAttempts = deepCopy(slotAttempts);
+        for (Map.Entry<String, int[][][]> e : slotBlocked.entrySet()) s.slotBlocked.put(e.getKey(), deepCopy(e.getValue()));
+        s.blockedNoBand = blockedNoBand.clone();
+        if (rowAttempts != null) {
+            s.rowAttempts = new long[rowAttempts.length][];
+            for (int i = 0; i < rowAttempts.length; i++) s.rowAttempts[i] = rowAttempts[i].clone();
+        }
+        for (Map.Entry<String, long[][]> e : rowBlocked.entrySet()) {
+            long[][] v = new long[e.getValue().length][];
+            for (int i = 0; i < v.length; i++) v[i] = e.getValue()[i].clone();
+            s.rowBlocked.put(e.getKey(), v);
+        }
         return s;
+    }
+
+    private static int[][][] deepCopy(int[][][] a) {
+        if (a == null) return null;
+        int[][][] o = new int[a.length][][];
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] == null) continue;
+            o[i] = new int[a[i].length][];
+            for (int j = 0; j < a[i].length; j++) if (a[i][j] != null) o[i][j] = a[i][j].clone();
+        }
+        return o;
     }
 
     @SuppressWarnings("serial")
@@ -283,6 +394,81 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         public final Map<Integer, Long> genPerCore = new TreeMap<Integer, Long>();
         public final Map<Integer, Map<String, Long>> blockedPerCore = new TreeMap<Integer, Map<String, Long>>();
         public final Map<String, long[]> perLink = new TreeMap<String, long[]>();
+        public List<String> linkNames;
+        public int slotSlots;
+        public int[][][] slotAttempts;
+        public final Map<String, int[][][]> slotBlocked = new LinkedHashMap<String, int[][][]>();
+        public long[] blockedNoBand;
+        public long[][] rowAttempts;
+        public final Map<String, long[][]> rowBlocked = new LinkedHashMap<String, long[][]>();
+    }
+
+    /**
+     * Part 29: SlotBlocking.csv. {@code Metrics,LoadPoint,Link,Core,Replication,Cause,1..S}, counts:
+     * "Slot attempts" (Cause all), "Slot blocked" (all causes) and "Slot blocked by cause"; slot rows that are all
+     * zero are left out. "Requests on link and core", "Blocked requests on link and core" and "... by cause" count
+     * each request once per link and core of its candidate (one value). "Blocked requests without spectrum band" has one value (the count) per load point and
+     * replication. Returns null when nothing was recorded.
+     */
+    public static String toSlotCsv(List<List<Snapshot>> snaps) {
+        int slots = 0;
+        for (List<Snapshot> row : snaps) for (Snapshot s : row) if (s != null && s.slotAttempts != null) slots = Math.max(slots, s.slotSlots);
+        if (slots == 0) return null;
+        StringBuilder sb = new StringBuilder("Metrics,LoadPoint,Link,Core,Replication,Cause");
+        for (int k = 1; k <= slots; k++) sb.append(',').append(k);
+        sb.append('\n');
+        for (int lp = 0; lp < snaps.size(); lp++) {
+            List<Snapshot> row = snaps.get(lp);
+            for (int rep = 0; rep < row.size(); rep++) {
+                Snapshot s = row.get(rep);
+                if (s == null || s.slotAttempts == null) continue;
+                sb.append("Blocked requests without spectrum band,").append(lp).append(",all,all,").append(rep).append(",all,")
+                  .append(s.blockedNoBand[0] + s.blockedNoBand[1]).append('\n');
+                for (int li = 0; li < s.slotAttempts.length; li++) {
+                    String ln = "<" + s.linkNames.get(li) + ">";
+                    for (int c = 0; c < s.slotAttempts[li].length; c++) {
+                        if (s.rowAttempts != null && s.rowAttempts[li][c] > 0) {
+                            countRow(sb, "Requests on link and core", lp, ln, c, rep, "all", s.rowAttempts[li][c]);
+                            long tot = 0;
+                            for (long[][] b : s.rowBlocked.values()) tot += b[li][c];
+                            if (tot > 0) countRow(sb, "Blocked requests on link and core", lp, ln, c, rep, "all", tot);
+                            for (Map.Entry<String, long[][]> e : s.rowBlocked.entrySet())
+                                if (e.getValue()[li][c] > 0) countRow(sb, "Blocked requests on link and core by cause", lp, ln, c, rep, e.getKey(), e.getValue()[li][c]);
+                        }
+                        slotRow(sb, "Slot attempts", lp, ln, c, rep, "all", s.slotAttempts[li][c], slots);
+                        int[] sum = new int[slots];
+                        boolean anyBlock = false;
+                        for (int[][][] b : s.slotBlocked.values()) {
+                            if (b[li] == null || b[li][c] == null) continue;
+                            for (int k = 0; k < slots && k < b[li][c].length; k++) sum[k] += b[li][c][k];
+                            anyBlock = true;
+                        }
+                        if (anyBlock) slotRow(sb, "Slot blocked", lp, ln, c, rep, "all", sum, slots);
+                        for (Map.Entry<String, int[][][]> e : s.slotBlocked.entrySet()) {
+                            int[][][] b = e.getValue();
+                            if (b[li] == null || b[li][c] == null) continue;
+                            slotRow(sb, "Slot blocked by cause", lp, ln, c, rep, e.getKey(), b[li][c], slots);
+                        }
+                    }
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private static void countRow(StringBuilder sb, String metric, int lp, String link, int core, int rep, String cause, long v) {
+        sb.append(metric).append(',').append(lp).append(',').append(link).append(',').append(core).append(',').append(rep)
+          .append(',').append(cause.replace(',', ' ')).append(',').append(v).append('\n');
+    }
+
+    private static void slotRow(StringBuilder sb, String metric, int lp, String link, int core, int rep, String cause, int[] v, int slots) {
+        boolean any = false;
+        for (int x : v) if (x != 0) { any = true; break; }
+        if (!any) return;
+        sb.append(metric).append(',').append(lp).append(',').append(link).append(',').append(core).append(',').append(rep)
+          .append(',').append(cause.replace(',', ' '));
+        for (int k = 0; k < slots; k++) sb.append(',').append(k < v.length ? v[k] : 0);
+        sb.append('\n');
     }
 
     // ------------------------------------------------------------------ CSV

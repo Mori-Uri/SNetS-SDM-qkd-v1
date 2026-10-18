@@ -210,6 +210,11 @@ public class SimulationManagement {
                 && simulationRequest.getSimulationConfig().getActiveMetrics().SlotUtilization) {
             finalResult.slotUtilization = buildSlotUtilizationCsv();
         }
+        if (simulationRequest.getSimulationConfig().getActiveMetrics().BlockingProbability
+                && simulationRequest.getSimulationConfig().getActiveMetrics().SlotBlocking) {
+            finalResult.slotBlocking = buildSlotBlockingCsv();
+        }
+        blockingSnapshotsCache = null;
         simulationRequest.setResult(finalResult);
         simulationProgressListener.onSimulationFinished();
     }
@@ -244,6 +249,32 @@ public class SimulationManagement {
 
     /** Part 25: BlockingDetails.csv (observation-only counters of the control plane). */
     private String buildBlockingDetailsCsv() {
+        List<List<qkd.metrics.BlockingDetailRecorder.Snapshot>> snaps = blockingSnapshots();
+        if (snaps == null) return null;
+        try {
+            return qkd.metrics.BlockingDetailRecorder.toCsv(snaps);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /** Part 29: SlotBlocking.csv (where in the spectrum the requests were tried and blocked). */
+    private String buildSlotBlockingCsv() {
+        List<List<qkd.metrics.BlockingDetailRecorder.Snapshot>> snaps = blockingSnapshots();
+        if (snaps == null) return null;
+        try {
+            return qkd.metrics.BlockingDetailRecorder.toSlotCsv(snaps);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private List<List<qkd.metrics.BlockingDetailRecorder.Snapshot>> blockingSnapshotsCache;
+
+    private List<List<qkd.metrics.BlockingDetailRecorder.Snapshot>> blockingSnapshots() {
+        if (blockingSnapshotsCache != null) return blockingSnapshotsCache;
         List<List<qkd.metrics.BlockingDetailRecorder.Snapshot>> snaps =
                 new ArrayList<List<qkd.metrics.BlockingDetailRecorder.Snapshot>>();
         for (List<Simulation> load : simulations) {
@@ -258,12 +289,8 @@ public class SimulationManagement {
             }
             snaps.add(row);
         }
-        try {
-            return qkd.metrics.BlockingDetailRecorder.toCsv(snaps);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return null;
-        }
+        blockingSnapshotsCache = snaps;
+        return snaps;
     }
 
     private static double ratio(double a, double b) { return b > 0 ? a / b : Double.NaN; }
