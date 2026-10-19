@@ -210,3 +210,14 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
   porcentagem.
 - **O que fica fora do mapa.** Bloqueios sem faixa (sem slots livres, sem rota) não têm lugar no espectro. O título de
   cada mapa diz quantos foram.
+
+## Versão 1.10.1
+
+- **Correção.** Cada execução agora roda uma cópia do JAR, guardada na pasta temporária do sistema
+  (`snets-launcher-jars`), e não o próprio JAR de `simulations`.
+  - **O problema:** o Java só lê cada classe do JAR quando precisa dela pela primeira vez. Se o JAR fosse substituído
+    durante a simulação (pelo Gerar JAR ou por uma atualização), a execução morria no fim, ao salvar os resultados,
+    com `NoClassDefFoundError`.
+  - **Agora:** dá para regerar o JAR com simulações rodando. As que já estavam rodando continuam com o JAR antigo; as
+    novas usam o novo.
+  - **Limpeza:** as cópias com mais de 14 dias são apagadas sozinhas.

@@ -148,7 +148,8 @@ final class Runner {
         if (!Workspace.isCase(caseDir)) {
             throw new IllegalArgumentException("A pasta não é um caso de simulação válido: " + casePath);
         }
-        File jar = checkJar(jarPath);
+        File orig = checkJar(jarPath);
+        File jar = runCopy(orig);
         List<String> cmd = javaPrefix(jvmArgs);
         if (threads > 0) {
             cmd.add("-Dsnets.threads=" + threads);
@@ -158,11 +159,54 @@ final class Runner {
         // relative path, like the .bat scripts (Main splits it into parent folder + name)
         // a case of the verification folder ("@verificacao/...") goes as an absolute path
         cmd.add(Workspace.isVerification(casePath) ? caseDir.getAbsolutePath() : casePath.replace('/', File.separatorChar));
-        Run run = new Run("r" + ids.incrementAndGet(), "case", casePath, casePath, jar.getName(), cmd,
+        Run run = new Run("r" + ids.incrementAndGet(), "case", casePath, casePath, orig.getName(), cmd,
                 workspace.simulationsDir(), queued);
         run.threads = Math.max(0, threads);
         run.console = console && (Settings.isWindows() || Boolean.getBoolean("snets.console.test"));
         return run;
+    }
+
+    /**
+     * Parte 30: runs use a private copy of the jar (in the system temp folder, one per size and date of the
+     * original). Java reads the classes from the jar only when it first needs them, so a run whose jar was
+     * replaced meanwhile (Gerar JAR, an update) failed at the end with NoClassDefFoundError. Folders and copy
+     * errors fall back to the original.
+     */
+    static File runCopy(File jar) {
+        if (!jar.isFile() || !jar.getName().toLowerCase().endsWith(".jar")) {
+            return jar;
+        }
+        try {
+            File dir = new File(System.getProperty("java.io.tmpdir"), "snets-launcher-jars");
+            if (!dir.isDirectory() && !dir.mkdirs()) {
+                return jar;
+            }
+            String base = jar.getName().substring(0, jar.getName().length() - 4);
+            File copy = new File(dir, base + "_" + jar.length() + "_" + jar.lastModified() + ".jar");
+            if (!copy.isFile() || copy.length() != jar.length()) {
+                File tmp = new File(dir, copy.getName() + ".part");
+                java.nio.file.Files.copy(jar.toPath(), tmp.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                java.nio.file.Files.move(tmp.toPath(), copy.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+            cleanRunCopies(dir, copy);
+            return copy;
+        } catch (IOException | RuntimeException e) {
+            return jar;
+        }
+    }
+
+    /** Deletes copies older than 14 days (a copy still in use is locked on Windows and stays). */
+    private static void cleanRunCopies(File dir, File keep) {
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        long limit = System.currentTimeMillis() - 14L * 24 * 3600 * 1000;
+        for (File f : files) {
+            if (!f.equals(keep) && f.isFile() && f.lastModified() < limit) {
+                f.delete();
+            }
+        }
     }
 
     private static File checkJar(String jarPath) {
@@ -176,13 +220,14 @@ final class Runner {
     /** A Java main class of the simulator jar (QKD verifiers and reference tools). */
     private Run toolJob(String label, String jarPath, String mainClass, List<String> args,
             String jvmArgs, boolean queued) {
-        File jar = checkJar(jarPath);
+        File orig = checkJar(jarPath);
+        File jar = runCopy(orig);
         List<String> cmd = javaPrefix(jvmArgs);
         cmd.add("-cp");
         cmd.add(jar.getAbsolutePath());
         cmd.add(mainClass);
         cmd.addAll(args);
-        return new Run("r" + ids.incrementAndGet(), "tool", null, label, jar.getName(), cmd,
+        return new Run("r" + ids.incrementAndGet(), "tool", null, label, orig.getName(), cmd,
                 settings.projectRoot(), queued);
     }
 

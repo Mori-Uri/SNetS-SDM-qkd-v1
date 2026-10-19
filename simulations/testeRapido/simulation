@@ -1,0 +1,33 @@
+{
+  "requests": 5000,
+  "rmlsaType": 1,
+  "routing": "djk",
+  "kRouting": "newksp",
+  "coreAndSpectrumAssignment": "csbasdm",
+  "integratedRmlsa": "spcsav2",
+  "modulationSelection": "modulationbyqotv2",
+  "grooming": "notrafficgrooming",
+  "reallocation": "fsalfav1",
+  "powerAssignment": "cpsd",
+  "loadPoints": 10,
+  "replications": 5,
+  "activeMetrics": {
+    "BlockingProbability": true,
+    "BitRateBlockingProbability": true,
+    "SpectrumUtilization": true,
+    "SpectrumSizeStatistics": true,
+    "ExternalFragmentation": true,
+    "RelativeFragmentation": true,
+    "TransmittersReceiversRegeneratorsUtilization": true,
+    "ModulationUtilization": true,
+    "ConsumedEnergy": true,
+    "GroomingStatistics": true,
+    "PhysicalLayerStatistics": true,
+    "SlotUtilization": true,
+    "SlotBlocking": true,
+    "QKDMetrics": true
+  },
+  "regeneratorAssignment": "aar",
+  "networkType": 0,
+  "threads": 10
+}

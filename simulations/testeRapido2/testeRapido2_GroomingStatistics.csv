@@ -1,0 +1,49 @@
+Metrics,LoadPoint, ,rep0,rep1,rep2,rep3,rep4
+Rate of requests by circuit,0, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,1, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,2, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,3, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,4, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,5, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,6, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,7, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,8, ,1.0,1.0,1.0,1.0,1.0
+Rate of requests by circuit,9, ,1.0,1.0,1.0,1.0,1.0
+
+
+Maximum requests by circuit,0, ,1,1,1,1,1
+Maximum requests by circuit,1, ,1,1,1,1,1
+Maximum requests by circuit,2, ,1,1,1,1,1
+Maximum requests by circuit,3, ,1,1,1,1,1
+Maximum requests by circuit,4, ,1,1,1,1,1
+Maximum requests by circuit,5, ,1,1,1,1,1
+Maximum requests by circuit,6, ,1,1,1,1,1
+Maximum requests by circuit,7, ,1,1,1,1,1
+Maximum requests by circuit,8, ,1,1,1,1,1
+Maximum requests by circuit,9, ,1,1,1,1,1
+
+
+Virtual hops,0, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,1, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,2, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,3, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,4, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,5, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,6, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,7, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,8, ,1.0,1.0,1.0,1.0,1.0
+Virtual hops,9, ,1.0,1.0,1.0,1.0,1.0
+
+
+Maximum virtual hops,0, ,1,1,1,1,1
+Maximum virtual hops,1, ,1,1,1,1,1
+Maximum virtual hops,2, ,1,1,1,1,1
+Maximum virtual hops,3, ,1,1,1,1,1
+Maximum virtual hops,4, ,1,1,1,1,1
+Maximum virtual hops,5, ,1,1,1,1,1
+Maximum virtual hops,6, ,1,1,1,1,1
+Maximum virtual hops,7, ,1,1,1,1,1
+Maximum virtual hops,8, ,1,1,1,1,1
+Maximum virtual hops,9, ,1,1,1,1,1
+
+
