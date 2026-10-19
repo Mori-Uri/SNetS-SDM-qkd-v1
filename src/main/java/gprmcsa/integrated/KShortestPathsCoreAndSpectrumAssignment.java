@@ -13,23 +13,17 @@ import network.ControlPlane;
 
 /**
  * Algorithm created to apply integrally the routing, modulation, core and spectrum allocation algorithms.
- *
+ * 
  * @author Alexandre
  *
  */
 public class KShortestPathsCoreAndSpectrumAssignment implements IntegratedRMLSAAlgorithmInterface {
-
+	
 	private int k = 3; //This algorithm uses 3 alternative paths
 	private KRoutingAlgorithmInterface kShortestsPaths; //For routing algorithms with more than one route
     //private ModulationSelectionAlgorithmInterface modulationSelection;
     private CoreAndSpectrumAssignmentAlgorithmInterface coreAndSpectrumAssignment;
-
-	/**
-	 * Returns the rsa.
-	 * @param circuit the circuit.
-	 * @param cp the cp.
-	 * @return true if the condition is met; false otherwise.
-	 */
+    
 	@Override
 	public boolean rsa(Circuit circuit, ControlPlane cp) {
 		if (kShortestsPaths == null){
@@ -38,7 +32,7 @@ public class KShortestPathsCoreAndSpectrumAssignment implements IntegratedRMLSAA
 			if(uv.get("k") != null) {
 				k = Integer.parseInt((String)uv.get("k"));
 			}
-
+			
         	kShortestsPaths = cp.getKRouting();
         	kShortestsPaths.computeAllRoutes(cp.getMesh(), k);
         }
@@ -51,67 +45,67 @@ public class KShortestPathsCoreAndSpectrumAssignment implements IntegratedRMLSAA
 
         List<Modulation> avaliableModulations = cp.getMesh().getAvaliableModulations();
         List<Route> candidateRoutes = kShortestsPaths.getRoutes(circuit.getSource(), circuit.getDestination());
-
+        
         // Route, modulation, core and band chosen
         Route chosenRoute = null;
         Modulation chosenMod = null;
         int chosenCore = -1;
         int chosenBand[] = null;
-
-        // To avoid metrics error
+        
+        // To avoid metrics errorr
   		Route checkRoute = null;
   		Modulation checkMod = null;
   		int checkCore = -1;
   		int checkBand[] = null;
-
+  		
   		Route checkRoute2 = null;
   		Modulation checkMod2 = null;
   		int checkCore2 = -1;
   		int checkBand2[] = null;
-
+        
         for (Route route : candidateRoutes) {
             circuit.setRoute(route);
-
+            
             // Begins with the most spectrally efficient modulation format
     		for (int m = avaliableModulations.size()-1; m >= 0; m--) {
     			Modulation mod = avaliableModulations.get(m);
     			circuit.setModulation(mod);
-
+            
     			int slotsNumber = mod.requiredSlots(circuit.getRequiredBitRate());
-
+	            
 	            coreAndSpectrumAssignment.assignCoreAndSpectrum(slotsNumber, circuit, cp);
 	            int core = circuit.getIndexCore();
 	            int band[] = circuit.getSpectrumAssigned();
-
+	            
 	            if (band != null) {
 	    			checkRoute = route;
             		checkMod = mod;
             		checkCore = core;
 	            	checkBand = band;
-
+	                
             		//Modulation has acceptable QoT
 	                if(cp.isAdmissibleOSNR(circuit)){
 	                	checkRoute2 = route;
 	            		checkMod2 = mod;
 	            		checkCore2 = core;
 		            	checkBand2 = band;
-
+		                
 	                	if (cp.isAdmissibleOSNRInOther(circuit)) { //Checks the OoT for others circuits
 	                		chosenRoute = route;
 			                chosenMod = mod;
 			                chosenCore = core;
 		                	chosenBand = band;
-
+	                    	
 	                    	break; //for when to reach acceptable QoTO
 	                	}
 	            	}
 	            } //core and spectrum
             } //modulations
-
+    		
     		if(chosenBand != null){
             	break;
             }
-
+    		
         } //routes
 
         if (chosenRoute != null) { //If there is no route chosen is why no available resource was found on any of the candidate routes
@@ -121,15 +115,15 @@ public class KShortestPathsCoreAndSpectrumAssignment implements IntegratedRMLSAA
             circuit.setSpectrumAssigned(chosenBand);
 
             return true;
-
+            
         } else if(checkRoute2 != null) {
             circuit.setRoute(checkRoute2);
             circuit.setModulation(checkMod2);
             circuit.setIndexCore(checkCore2);
             circuit.setSpectrumAssigned(checkBand2);
-
+            
             return false;
-
+            
         } else {
         	if(checkRoute == null){
 				checkRoute = candidateRoutes.get(0);
@@ -140,19 +134,19 @@ public class KShortestPathsCoreAndSpectrumAssignment implements IntegratedRMLSAA
             circuit.setModulation(checkMod);
             circuit.setIndexCore(checkCore);
             circuit.setSpectrumAssigned(checkBand);
-
+            
             return false;
         }
 	}
-
+	
 	/**
 	 * Returns the routing algorithm
-	 *
+	 * 
 	 * @return KRoutingAlgorithmInterface
 	 */
 	@Override
 	public KRoutingAlgorithmInterface getRoutingAlgorithm() {
 		return kShortestsPaths;
 	}
-
+	
 }

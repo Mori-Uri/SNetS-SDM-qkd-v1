@@ -24,12 +24,6 @@ public class CompleteSharing_v2 implements IntegratedRMLSAAlgorithmInterface {
     private SpectrumAssignmentAlgorithmInterface spectrumAssignment;
     private CoreAndSpectrumAssignmentAlgorithmInterface coreAndSpectrumAssignment;
 
-    /**
-     * Returns the rsa.
-     * @param circuit the circuit.
-     * @param cp the cp.
-     * @return true if the condition is met; false otherwise.
-     */
     @Override
     public boolean rsa(Circuit circuit, ControlPlane cp) {
         if (kShortestsPaths == null){
@@ -38,7 +32,7 @@ public class CompleteSharing_v2 implements IntegratedRMLSAAlgorithmInterface {
 			if(uv.get("k") != null) {
 				k = Integer.parseInt((String)uv.get("k"));
 			}
-
+			
         	kShortestsPaths = cp.getKRouting();
         	kShortestsPaths.computeAllRoutes(cp.getMesh(), k);
         }
@@ -52,64 +46,64 @@ public class CompleteSharing_v2 implements IntegratedRMLSAAlgorithmInterface {
         if(coreAndSpectrumAssignment == null){
         	coreAndSpectrumAssignment = cp.getCoreAndSpectrumAssignment();
 		}
-
+        
         List<Modulation> avaliableModulations = cp.getMesh().getAvaliableModulations();
         List<Route> candidateRoutes = kShortestsPaths.getRoutes(circuit.getSource(), circuit.getDestination());
-
+        
         // Route, modulation, core and band chosen
         Route chosenRoute = null;
         Modulation chosenMod = null;
         int chosenCore = -1;
         int chosenBand[] = {999999, 999999}; // Value never reached
-
-        // To avoid metrics error
+        
+        // To avoid metrics errorr
   		Route checkRoute = null;
   		Modulation checkMod = null;
   		int checkCore = -1;
   		int checkBand[] = null;
-
+  		
   		Route checkRoute2 = null;
   		Modulation checkMod2 = null;
   		int checkCore2 = -1;
   		int checkBand2[] = null;
-
+  		
   		boolean QoTO = false;
   		boolean XTO = false;
 
         for (Route route : candidateRoutes) {
             circuit.setRoute(route);
-
+            
             // Begins with the most spectrally efficient modulation format
     		for (int m = avaliableModulations.size()-1; m >= 0; m--) {
     			Modulation mod = avaliableModulations.get(m);
 	            circuit.setModulation(mod);
-
+	            
             	int slotsNumber = mod.requiredSlots(circuit.getRequiredBitRate());
-
+            	
             	coreAndSpectrumAssignment.assignCoreAndSpectrum(slotsNumber, circuit, cp);
 	            int core = circuit.getIndexCore();
 	            int ff[] = circuit.getSpectrumAssigned();
-
+	            
 	            if (ff != null && ff[0] < chosenBand[0]) {
 	            	checkRoute = route;
             		checkMod = mod;
             		checkCore = core;
 	            	checkBand = ff;
-
+	            	
 	            	// Check the physical layer
             		boolean QoT = cp.isAdmissibleOSNR(circuit);
             		boolean XT = cp.isAdmissibleCrosstalk(circuit);
-
+            		
             		if (QoT && XT) { // QoT and XT are acceptable
 	                	checkRoute2 = route;
 	            		checkMod2 = mod;
 	            		checkCore2 = core;
 		            	checkBand2 = ff;
-
+	                	
 		            	// Checks the QoT and XT for others circuits
 	            		QoTO = cp.isAdmissibleOSNRInOther(circuit);
 		                XTO = cp.isAdmissibleCrosstalkInOther(circuit);
-
+		                
 		                if (QoTO && XTO) {  // QoTO and XTO are acceptable
 	                		chosenRoute = route;
 			                chosenMod = mod;
@@ -128,15 +122,15 @@ public class CompleteSharing_v2 implements IntegratedRMLSAAlgorithmInterface {
             circuit.setSpectrumAssigned(chosenBand);
 
             return true;
-
+        
         } else if(checkRoute2 != null) {
             circuit.setRoute(checkRoute2);
             circuit.setModulation(checkMod2);
             circuit.setIndexCore(checkCore2);
             circuit.setSpectrumAssigned(checkBand2);
-
+            
             return false;
-
+            
         } else {
         	if(checkRoute == null){
 				checkRoute = candidateRoutes.get(0);
@@ -147,7 +141,7 @@ public class CompleteSharing_v2 implements IntegratedRMLSAAlgorithmInterface {
             circuit.setModulation(checkMod);
             circuit.setIndexCore(checkCore);
             circuit.setSpectrumAssigned(checkBand);
-
+            
             return false;
         }
 
@@ -155,7 +149,7 @@ public class CompleteSharing_v2 implements IntegratedRMLSAAlgorithmInterface {
 
     /**
 	 * Returns the routing algorithm
-	 *
+	 * 
 	 * @return KRoutingAlgorithmInterface
 	 */
     public KRoutingAlgorithmInterface getRoutingAlgorithm(){

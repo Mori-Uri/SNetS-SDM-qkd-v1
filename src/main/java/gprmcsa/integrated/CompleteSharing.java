@@ -16,10 +16,10 @@ import network.ControlPlane;
 /**
  * This class represents the implementation of the Complete Sharing algorithm presented in the article:
  *  - Spectrum management in heterogeneous bandwidth optical networks (2014)
- *
- * In the Complete Sharing the route and the frequency slots are selected in order to allocate a range of
+ *  
+ * In the Complete Sharing the route and the frequency slots are selected in order to allocate a range of 
  * spectrum closer to the beginning of the optical spectrum.
- *
+ * 
  * @author Iallen
  */
 public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
@@ -30,12 +30,6 @@ public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
     private SpectrumAssignmentAlgorithmInterface spectrumAssignment;
     private CoreAndSpectrumAssignmentAlgorithmInterface coreAndSpectrumAssignment;
 
-    /**
-     * Returns the rsa.
-     * @param circuit the circuit.
-     * @param cp the cp.
-     * @return true if the condition is met; false otherwise.
-     */
     @Override
     public boolean rsa(Circuit circuit, ControlPlane cp) {
         if (kShortestsPaths == null){
@@ -44,7 +38,7 @@ public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
 			if(uv.get("k") != null) {
 				k = Integer.parseInt((String)uv.get("k"));
 			}
-
+			
         	kShortestsPaths = cp.getKRouting();
         	kShortestsPaths.computeAllRoutes(cp.getMesh(), k);
         }
@@ -58,22 +52,22 @@ public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
         if(coreAndSpectrumAssignment == null){
         	coreAndSpectrumAssignment = cp.getCoreAndSpectrumAssignment();
 		}
-
+        
         List<Modulation> avaliableModulations = cp.getMesh().getAvaliableModulations();
         List<Route> candidateRoutes = kShortestsPaths.getRoutes(circuit.getSource(), circuit.getDestination());
-
+        
         // Route, modulation, core and band chosen
         Route chosenRoute = null;
         Modulation chosenMod = null;
         int chosenCore = -1;
         int chosenBand[] = {999999, 999999}; // Value never reached
-
-        // To avoid metrics error
+        
+        // To avoid metrics errorr
   		Route checkRoute = null;
   		Modulation checkMod = null;
   		int checkCore = -1;
   		int checkBand[] = null;
-
+  		
   		Route checkRoute2 = null;
   		Modulation checkMod2 = null;
   		int checkCore2 = -1;
@@ -81,31 +75,31 @@ public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
 
         for (Route route : candidateRoutes) {
             circuit.setRoute(route);
-
+            
             // Begins with the most spectrally efficient modulation format
     		for (int m = avaliableModulations.size()-1; m >= 0; m--) {
     			Modulation mod = avaliableModulations.get(m);
 	            circuit.setModulation(mod);
-
+	            
             	int slotsNumber = mod.requiredSlots(circuit.getRequiredBitRate());
-
+            	
             	coreAndSpectrumAssignment.assignCoreAndSpectrum(slotsNumber, circuit, cp);
 	            int core = circuit.getIndexCore();
 	            int ff[] = circuit.getSpectrumAssigned();
-
+	            
 	            if (ff != null && ff[0] < chosenBand[0]) {
 	            	checkRoute = route;
             		checkMod = mod;
             		checkCore = core;
 	            	checkBand = ff;
-
+	            	
 	                //Modulation has acceptable QoT
 	                if(cp.isAdmissibleOSNR(circuit)){
 	                	checkRoute2 = route;
 	            		checkMod2 = mod;
 	            		checkCore2 = core;
 		            	checkBand2 = ff;
-
+	                	
 	                	if (cp.isAdmissibleOSNRInOther(circuit)) { //Checks the OoT for others circuits
 	                		chosenRoute = route;
 			                chosenMod = mod;
@@ -124,15 +118,15 @@ public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
             circuit.setSpectrumAssigned(chosenBand);
 
             return true;
-
+        
         } else if(checkRoute2 != null) {
             circuit.setRoute(checkRoute2);
             circuit.setModulation(checkMod2);
             circuit.setIndexCore(checkCore2);
             circuit.setSpectrumAssigned(checkBand2);
-
+            
             return false;
-
+            
         } else {
         	if(checkRoute == null){
 				checkRoute = candidateRoutes.get(0);
@@ -143,7 +137,7 @@ public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
             circuit.setModulation(checkMod);
             circuit.setIndexCore(checkCore);
             circuit.setSpectrumAssigned(checkBand);
-
+            
             return false;
         }
 
@@ -151,7 +145,7 @@ public class CompleteSharing implements IntegratedRMLSAAlgorithmInterface {
 
     /**
 	 * Returns the routing algorithm
-	 *
+	 * 
 	 * @return KRoutingAlgorithmInterface
 	 */
     public KRoutingAlgorithmInterface getRoutingAlgorithm(){
