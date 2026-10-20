@@ -47,8 +47,8 @@ public final class QKDPhysicalLayerMigration {
 
     private static void walk(File dir, boolean dry, int depth) throws IOException {
         if (!dir.isDirectory() || depth > 8) return;
-        File phy = new File(dir, "physicalLayer");
-        if (phy.isFile()) migrate(dir, dry);
+        File phy = findConfigFile(dir, "physicalLayer");
+        if (phy != null) migrate(dir, dry);
         File[] kids = dir.listFiles();
         if (kids == null) return;
         for (File k : kids) if (k.isDirectory() && !k.getName().startsWith(".")) walk(k, dry, depth + 1);
@@ -56,8 +56,11 @@ public final class QKDPhysicalLayerMigration {
 
     /** Migrates one case folder; returns true when something was written. */
     public static boolean migrate(File caseDir, boolean dry) throws IOException {
-        File phy = new File(caseDir, "physicalLayer");
-        File target = new File(caseDir, "qkdPhysicalLayer");
+        File phy = findConfigFile(caseDir, "physicalLayer");
+        if (phy == null) { skipped++; return false; }
+        File existingTarget = findConfigFile(caseDir, "qkdPhysicalLayer");
+        File target = existingTarget != null ? existingTarget
+                : new File(caseDir, "qkdPhysicalLayer" + (phy.getName().toLowerCase().endsWith(".json") ? ".json" : ""));
         String text = new String(Files.readAllBytes(phy.toPath()), StandardCharsets.UTF_8);
         JsonElement el;
         try {
@@ -69,12 +72,12 @@ public final class QKDPhysicalLayerMigration {
         if (!el.isJsonObject()) { skipped++; return false; }
         JsonObject root = el.getAsJsonObject();
         boolean has = root.has("qkdPhysical") || root.has("qkdReceiver");
-        if (!has || target.isFile()) { skipped++; return false; }
+        if (!has || existingTarget != null) { skipped++; return false; }
         JsonObject out = split(root);
         boolean qkd = qkdEnabled(caseDir);
         System.out.println((dry ? "[dry] " : "") + (qkd ? "migrating " : "removing unused QKD blocks (QKD disabled) ") + caseDir.getPath());
         if (!dry) {
-            Files.write(new File(caseDir, "physicalLayer.before_p26").toPath(), text.getBytes(StandardCharsets.UTF_8));
+            Files.write(new File(caseDir, phy.getName() + ".before_p26").toPath(), text.getBytes(StandardCharsets.UTF_8));
             if (qkd) Files.write(target.toPath(), PRETTY.toJson(out).getBytes(StandardCharsets.UTF_8));
             Files.write(phy.toPath(), PRETTY.toJson(root).getBytes(StandardCharsets.UTF_8));
         }
@@ -85,8 +88,8 @@ public final class QKDPhysicalLayerMigration {
     /** True when the network file of the case has qkd.enabled = true. */
     static boolean qkdEnabled(File caseDir) {
         try {
-            File net = new File(caseDir, "network");
-            if (!net.isFile()) return false;
+            File net = findConfigFile(caseDir, "network");
+            if (net == null) return false;
             JsonElement el = new JsonParser().parse(new String(Files.readAllBytes(net.toPath()), StandardCharsets.UTF_8));
             if (!el.isJsonObject() || !el.getAsJsonObject().has("qkd")) return false;
             JsonElement q = el.getAsJsonObject().get("qkd");
@@ -94,6 +97,15 @@ public final class QKDPhysicalLayerMigration {
         } catch (Exception e) {
             return false;
         }
+    }
+
+
+    /** Resolves baseName.json first and then the legacy extensionless name. */
+    private static File findConfigFile(File dir, String baseName) {
+        File json = new File(dir, baseName + ".json");
+        if (json.isFile()) return json;
+        File legacy = new File(dir, baseName);
+        return legacy.isFile() ? legacy : null;
     }
 
     /**

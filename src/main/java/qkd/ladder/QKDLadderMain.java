@@ -1443,7 +1443,7 @@ public final class QKDLadderMain {
         if (fs == null) return;
         for (File f : fs) {
             if (!f.isDirectory()) continue;
-            if (new File(f, "simulation").isFile() && LadderRunner.hasResults(f)) out.add(f);
+            if ((new File(f, "simulation").isFile() || new File(f, "simulation.json").isFile()) && LadderRunner.hasResults(f)) out.add(f);
             else collectCases(f, out);
         }
     }
