@@ -49,6 +49,7 @@ public class QABNE implements CoreAndSpectrumAssignmentAlgorithmInterface {
         ensureCoreLayout(circuit);
 
         if (classicalCoreIds.isEmpty()) {
+            circuit.setSpectrumAssigned(null);
             return false;
         }
 
@@ -65,13 +66,12 @@ public class QABNE implements CoreAndSpectrumAssignmentAlgorithmInterface {
             chosen = policyFirstFit(numberOfSlots, freeSpectrumBands, circuit);
         }
 
-        if (chosen == null) {
-            return false;
-        }
-
+        // Part 36: same bookkeeping as the classical ABNE (CSBASDM2): the band and the core are written also when
+        // the assignment fails. Before, a failure left the band of the previous (other modulation) attempt in the
+        // circuit, and spcsav2 could test the physical layer with that stale band; it also printed "Core not selected.".
         circuit.setSpectrumAssigned(chosen);
         circuit.setIndexCore(chosenCore);
-        return true;
+        return chosen != null;
     }
 
     /**
