@@ -28,6 +28,7 @@ final class Workspace {
     static final List<String> CASE_FILES = Collections.unmodifiableList(Arrays.asList(
             "network", "physicalLayer", "simulation", "traffic", "others", "qkdPhysicalLayer"));
     static final String ROUTES_FILE = "kRoutesByPar.txt";
+    private static final String JSON_EXTENSION = ".json";
 
     private static final Pattern SAFE_NAME = Pattern.compile("[A-Za-z0-9_.\\-+=()\\[\\] ]{1,120}");
 
@@ -82,8 +83,31 @@ final class Workspace {
         }
     }
 
+    /** Returns the preferred existing representation of a logical config file. */
+    private static File existingConfigFile(File dir, String logicalName) {
+        File json = new File(dir, logicalName + JSON_EXTENSION);
+        if (json.isFile()) return json;
+        File legacy = new File(dir, logicalName);
+        return legacy.isFile() ? legacy : null;
+    }
+
+    /** Existing representation when available; otherwise the new .json standard. */
+    private static File configFileForWrite(File dir, String logicalName) {
+        File existing = existingConfigFile(dir, logicalName);
+        return existing != null ? existing : new File(dir, logicalName + JSON_EXTENSION);
+    }
+
+    /** True for network/network.json, traffic/traffic.json, etc. */
+    private static boolean isCaseConfigName(String fileName) {
+        String base = fileName;
+        if (base != null && base.toLowerCase().endsWith(JSON_EXTENSION)) {
+            base = base.substring(0, base.length() - JSON_EXTENSION.length());
+        }
+        return CASE_FILES.contains(base);
+    }
+
     static boolean isCase(File dir) {
-        return new File(dir, "simulation").isFile() && new File(dir, "network").isFile();
+        return existingConfigFile(dir, "simulation") != null && existingConfigFile(dir, "network") != null;
     }
 
     // ------------------------------------------------------------------ tree
@@ -126,7 +150,8 @@ final class Workspace {
             }
             n.put("csvCount", csv);
             n.put("lastResult", last);
-            n.put("modified", new File(dir, "simulation").lastModified());
+            File simulationConfig = existingConfigFile(dir, "simulation");
+            n.put("modified", simulationConfig != null ? simulationConfig.lastModified() : 0L);
         }
         List<Object> children = new ArrayList<Object>();
         if (depth < 7) {
@@ -178,9 +203,9 @@ final class Workspace {
         Map<String, Object> files = new LinkedHashMap<String, Object>();
         Map<String, Object> mtimes = new LinkedHashMap<String, Object>();
         for (String name : CASE_FILES) {
-            File f = new File(dir, name);
-            files.put(name, f.isFile() ? readText(f) : null);
-            mtimes.put(name, f.isFile() ? f.lastModified() : 0L);
+            File f = existingConfigFile(dir, name);
+            files.put(name, f != null ? readText(f) : null);
+            mtimes.put(name, f != null ? f.lastModified() : 0L);
         }
         out.put("files", files);
         out.put("mtimes", mtimes);
@@ -203,7 +228,7 @@ final class Workspace {
                 info.put("mtime", f.lastModified());
                 if (f.getName().toLowerCase().endsWith(".csv")) {
                     csv.add(info);
-                } else if (!CASE_FILES.contains(f.getName()) && !ROUTES_FILE.equals(f.getName())) {
+                } else if (!isCaseConfigName(f.getName()) && !ROUTES_FILE.equals(f.getName())) {
                     other.add(info);
                 }
             }
@@ -221,7 +246,7 @@ final class Workspace {
         if (!dir.isDirectory()) {
             throw new IllegalArgumentException("Caso não encontrado: " + rel);
         }
-        File target = new File(dir, name);
+        File target = configFileForWrite(dir, name);
         if (expectedMtime > 0 && target.isFile() && target.lastModified() != expectedMtime) {
             throw new IllegalStateException("O arquivo '" + name + "' foi alterado fora do launcher desde que "
                     + "foi aberto. Recarregue o caso antes de salvar para não sobrescrever essa alteração.");
@@ -303,9 +328,10 @@ final class Workspace {
                 throw new IllegalArgumentException("Caso de origem inválido: " + fromRel);
             }
             for (String f : CASE_FILES) {
-                File s = new File(src, f);
-                if (s.isFile()) {
-                    Files.copy(s.toPath(), new File(dir, f).toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+                File s = existingConfigFile(src, f);
+                if (s != null) {
+                    // Preserve the source case filename style (.json or legacy).
+                    Files.copy(s.toPath(), new File(dir, s.getName()).toPath(), StandardCopyOption.COPY_ATTRIBUTES);
                 }
             }
             File routes = new File(src, ROUTES_FILE);
@@ -319,7 +345,7 @@ final class Workspace {
                     continue;
                 }
                 try {
-                    Files.copy(in, new File(dir, f).toPath());
+                    Files.copy(in, new File(dir, f + JSON_EXTENSION).toPath());
                 } finally {
                     in.close();
                 }

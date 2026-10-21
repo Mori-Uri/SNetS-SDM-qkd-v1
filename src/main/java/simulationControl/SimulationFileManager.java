@@ -25,6 +25,27 @@ public class SimulationFileManager {
      * @param name the name.
      * @return the result of the operation.
      */
+    private static final String JSON_EXTENSION = ".json";
+
+    private static final String[] CONFIG_FILE_NAMES = {
+            "network",
+            "simulation",
+            "physicalLayer",
+            "others",
+            "traffic",
+            qkd.physical.QKDPhysicalLayerConfig.FILE_NAME
+    };
+
+    /**
+     * Reads the simulation. Configuration files can use the historical name
+     * without an extension (for example {@code network}) or the JSON name
+     * (for example {@code network.json}). When both forms exist, the
+     * {@code .json} file has priority.
+     *
+     * @param path the path.
+     * @param name the name.
+     * @return the result of the operation.
+     */
     public SimulationRequest readSimulation(String path, String name) throws FileNotFoundException {
         SimulationRequest sr = new SimulationRequest();
         sr.setName(name);
@@ -35,85 +56,103 @@ public class SimulationFileManager {
 
         File folder = new File(filesPath);
         File[] listOfFiles = folder.listFiles();
+        if (listOfFiles == null) {
+            throw new FileNotFoundException("Simulation directory not found or cannot be read: " + filesPath);
+        }
 
         Gson gson = new GsonBuilder().create();
+
+        File networkFile = resolveConfigFileForRead(folder, "network");
+        if (networkFile != null) {
+            sr.setNetworkConfig(gson.fromJson(readFile(networkFile), NetworkConfig.class));
+        }
+
+        File simulationFile = resolveConfigFileForRead(folder, "simulation");
+        if (simulationFile != null) {
+            sr.setSimulationConfig(gson.fromJson(readFile(simulationFile), SimulationConfig.class));
+        }
+
+        File physicalLayerFile = resolveConfigFileForRead(folder, "physicalLayer");
+        if (physicalLayerFile != null) {
+            sr.setPhysicalLayerConfig(gson.fromJson(readFile(physicalLayerFile), PhysicalLayerConfig.class));
+        }
+
+        File othersFile = resolveConfigFileForRead(folder, "others");
+        if (othersFile != null) {
+            sr.setOthersConfig(gson.fromJson(readFile(othersFile), OthersConfig.class));
+        }
+
+        File trafficFile = resolveConfigFileForRead(folder, "traffic");
+        if (trafficFile != null) {
+            sr.setTrafficConfig(gson.fromJson(readFile(trafficFile), TrafficConfig.class));
+        }
+
         qkd.physical.QKDPhysicalLayerConfig qkdPhysicalLayer = null;
+        File qkdPhysicalLayerFile = resolveConfigFileForRead(
+                folder, qkd.physical.QKDPhysicalLayerConfig.FILE_NAME);
+        if (qkdPhysicalLayerFile != null) {
+            qkdPhysicalLayer = gson.fromJson(readFile(qkdPhysicalLayerFile),
+                    qkd.physical.QKDPhysicalLayerConfig.class);
+        }
 
+        // Result files keep their original handling. Configuration files are
+        // skipped here so network.json, traffic.json, etc. are not interpreted
+        // as result files.
         for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                switch(listOfFiles[i].getName()){
-                    case "network":
-                        sr.setNetworkConfig(gson.fromJson(readFile(listOfFiles[i]),NetworkConfig.class));
-                        break;
-                    case "simulation":
-                        sr.setSimulationConfig(gson.fromJson(readFile(listOfFiles[i]),SimulationConfig.class));
-                        break;
-                    case "physicalLayer":
-                        sr.setPhysicalLayerConfig(gson.fromJson(readFile(listOfFiles[i]),PhysicalLayerConfig.class));
-                        break;
-                    case "others":
-                        sr.setOthersConfig(gson.fromJson(readFile(listOfFiles[i]),OthersConfig.class));
-                        break;
-                    case "traffic":
-                        sr.setTrafficConfig(gson.fromJson(readFile(listOfFiles[i]),TrafficConfig.class));
-                        break;
-                    case qkd.physical.QKDPhysicalLayerConfig.FILE_NAME: // Part 26
-                        qkdPhysicalLayer = gson.fromJson(readFile(listOfFiles[i]), qkd.physical.QKDPhysicalLayerConfig.class);
-                        break;
-                    default: //results
-                        String metric = listOfFiles[i].getName();
-                        String s[] = metric.split("_");
-                        metric = s[s.length-1];
-                        //metric = metric.split("" +"[.]")[0];
+            if (!listOfFiles[i].isFile() || isConfigFileName(listOfFiles[i].getName())) {
+                continue;
+            }
 
-                        switch(metric){
-                            case SimulationRequest.Result.FILE_BITRATE_BLOCKING_PROBABILITY:
-                                sr.getResult().bitRateBlockingProbability = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_BLOCKING_PROBABILITY:
-                                sr.getResult().blockingProbability = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_CONSUMED_ENERGY:
-                                sr.getResult().consumedEnergy = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_EXTERNAL_FRAGMENTATION:
-                                sr.getResult().externalFragmentation = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_GROOMING_STATISTICS:
-                                sr.getResult().groomingStatistics = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_MODULATION_UTILIZATION:
-                                sr.getResult().modulationUtilization = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_RELATIVE_FRAGMENTATION:
-                                sr.getResult().relativeFragmentation = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_SPECTRUM_STATISTICS:
-                                sr.getResult().spectrumStatistics = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_SPECTRUM_UTILIZATION:
-                                sr.getResult().spectrumUtilization = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_TRANSMITTERS_RECEIVERS_REGENERATORS_UTILIZATION:
-                                sr.getResult().transmittersReceiversRegeneratorsUtilization = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_DATASET_INFORMATION:
-                                sr.getResult().dataSetInformation = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_PHYSICAL_LAYER_STATISTICS:
-                                sr.getResult().physicalLayerStatistics = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_QKD_STATISTICS:
-                                sr.getResult().qkdStatistics = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_QKD_METRICS:
-                                sr.getResult().qkdMetrics = readFile(listOfFiles[i],true);
-                                break;
-                            case SimulationRequest.Result.FILE_BLOCKING_DETAILS:
-                                sr.getResult().blockingDetails = readFile(listOfFiles[i],true);
-                                break;
-                        }
-                }
+            String metric = listOfFiles[i].getName();
+            String s[] = metric.split("_");
+            metric = s[s.length - 1];
+
+            switch (metric) {
+                case SimulationRequest.Result.FILE_BITRATE_BLOCKING_PROBABILITY:
+                    sr.getResult().bitRateBlockingProbability = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_BLOCKING_PROBABILITY:
+                    sr.getResult().blockingProbability = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_CONSUMED_ENERGY:
+                    sr.getResult().consumedEnergy = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_EXTERNAL_FRAGMENTATION:
+                    sr.getResult().externalFragmentation = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_GROOMING_STATISTICS:
+                    sr.getResult().groomingStatistics = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_MODULATION_UTILIZATION:
+                    sr.getResult().modulationUtilization = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_RELATIVE_FRAGMENTATION:
+                    sr.getResult().relativeFragmentation = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_SPECTRUM_STATISTICS:
+                    sr.getResult().spectrumStatistics = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_SPECTRUM_UTILIZATION:
+                    sr.getResult().spectrumUtilization = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_TRANSMITTERS_RECEIVERS_REGENERATORS_UTILIZATION:
+                    sr.getResult().transmittersReceiversRegeneratorsUtilization = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_DATASET_INFORMATION:
+                    sr.getResult().dataSetInformation = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_PHYSICAL_LAYER_STATISTICS:
+                    sr.getResult().physicalLayerStatistics = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_QKD_STATISTICS:
+                    sr.getResult().qkdStatistics = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_QKD_METRICS:
+                    sr.getResult().qkdMetrics = readFile(listOfFiles[i], true);
+                    break;
+                case SimulationRequest.Result.FILE_BLOCKING_DETAILS:
+                    sr.getResult().blockingDetails = readFile(listOfFiles[i], true);
+                    break;
             }
         }
 
@@ -126,6 +165,46 @@ public class SimulationFileManager {
         }
 
         return sr;
+    }
+
+    /**
+     * Resolves a configuration file for reading. The explicit JSON form is the
+     * preferred representation; the legacy extensionless name remains fully
+     * supported for backwards compatibility.
+     */
+    private File resolveConfigFileForRead(File folder, String baseName) {
+        File jsonFile = new File(folder, baseName + JSON_EXTENSION);
+        File legacyFile = new File(folder, baseName);
+
+        if (jsonFile.isFile()) {
+            if (legacyFile.isFile()) {
+                System.out.println("Warning: both '" + baseName + "' and '"
+                        + baseName + JSON_EXTENSION + "' exist in " + folder.getPath()
+                        + ". Using the .json file.");
+            }
+            return jsonFile;
+        }
+
+        return legacyFile.isFile() ? legacyFile : null;
+    }
+
+    /** Returns true when the supplied file is one of the known config files. */
+    private boolean isConfigFileName(String fileName) {
+        String baseName = removeJsonExtension(fileName);
+        for (String configName : CONFIG_FILE_NAMES) {
+            if (configName.equals(baseName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Removes only the optional .json suffix (case-insensitive). */
+    private String removeJsonExtension(String fileName) {
+        if (fileName != null && fileName.toLowerCase().endsWith(JSON_EXTENSION)) {
+            return fileName.substring(0, fileName.length() - JSON_EXTENSION.length());
+        }
+        return fileName;
     }
 
     /**
@@ -290,11 +369,27 @@ public class SimulationFileManager {
      * @param value the value.
      */
     private void saveConfig(String path, String config, String value) throws IOException {
-        String separator = System.getProperty("file.separator");
-        //String aux[] = path.split(Pattern.quote(separador));
-        //String nomePasta = aux[aux.length - 1];
-        String p = path + separator + config;
-        saveFile(p, value);
+        File target = resolveConfigFileForWrite(new File(path), config);
+        saveFile(target.getPath(), value);
+    }
+
+    /**
+     * Keeps the filename style of an existing case. If both variants exist, the
+     * .json file is updated because it is also the read priority. New files use
+     * the explicit .json extension.
+     */
+    private File resolveConfigFileForWrite(File folder, String baseName) {
+        File jsonFile = new File(folder, baseName + JSON_EXTENSION);
+        if (jsonFile.isFile()) {
+            return jsonFile;
+        }
+
+        File legacyFile = new File(folder, baseName);
+        if (legacyFile.isFile()) {
+            return legacyFile;
+        }
+
+        return jsonFile;
     }
 
 }

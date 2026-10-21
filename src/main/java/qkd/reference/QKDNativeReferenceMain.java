@@ -381,7 +381,7 @@ public final class QKDNativeReferenceMain {
         for (String topology : topologies) {
             for (int qtnd : qtnds) {
                 File dir = caseDir(nativeDir, topology, qtnd);
-                if (!new File(dir, "simulation").isFile()) {
+                if (!new File(dir, "simulation").isFile() && !new File(dir, "simulation.json").isFile()) {
                     throw new IOException("Case not prepared: " + dir + " (run 'prepare' first)");
                 }
                 System.out.println("=== [" + (++done) + "/" + total + "] " + dir.getAbsolutePath());
