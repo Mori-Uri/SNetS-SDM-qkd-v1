@@ -28,6 +28,9 @@
       }
       const name = App.caseNameOf(path);
       const csv = (cd.csv || []).map((c) => ({ name: c.name, size: c.size, mtime: c.mtime, suffix: suffixOf(name, c.name) }));
+      // 1.14.0: cost indicators derived from QKDMetrics.csv (virtual file, computed in the launcher)
+      const qm = csv.find((c) => c.suffix === 'QKDMetrics');
+      if (qm) csv.push({ name: '(derivado do QKDMetrics) QKDCost', size: 0, mtime: qm.mtime, suffix: 'QKDCost', virtual: true });
       const l = App.validate.trafficLoad(files.traffic);
       return { path, name, csv, files, loads: l.generators ? l : null };
     })();
@@ -157,6 +160,7 @@
   }
 
   async function getCsv(path, suffix) {
+    if (suffix === 'QKDCost') return getCostCsv(path);
     const cd = await caseData(path);
     const f = cd.csv.find((c) => c.suffix === suffix) || cd.csv.find((c) => c.name.replace(/\.csv$/i, '').endsWith(suffix));
     if (!f) return null;
@@ -165,6 +169,99 @@
       csvCache.set(key, App.api.csv(path, f.name).then((d) => parseCsv(d.text)).catch((e) => { csvCache.delete(key); throw e; }));
     }
     return csvCache.get(key);
+  }
+
+  // ================================================================ cost (1.14.0)
+
+  /**
+   * Relative cost of each QKD element ("unidades de custo"; the user sets them in the chart studio). Defaults: one unit
+   * per QTx and per QRx, one per trusted-node site, 0,1 per open PICh (classical transceivers, much cheaper).
+   */
+  const COST_DEFAULTS = { qtx: 1, qrx: 1, tn: 1, pich: 0.1 };
+  function costWeights() {
+    try { const v = JSON.parse(localStorage.getItem('snets.cost.weights') || 'null'); if (v) return Object.assign({}, COST_DEFAULTS, v); } catch (e) { /* ignore */ }
+    return Object.assign({}, COST_DEFAULTS);
+  }
+  function setCostWeights(w) {
+    try { localStorage.setItem('snets.cost.weights', JSON.stringify(w)); } catch (e) { /* ignore */ }
+    for (const k of [...csvCache.keys()]) if (k.includes('|QKDCost|')) csvCache.delete(k);
+  }
+
+  /** Metric names of the virtual QKDCost file (also used by the templates and metricinfo). */
+  const COST = {
+    capex: 'QKD equipment cost (relative units)',
+    capexQtx: 'Cost: QTx', capexQrx: 'Cost: QRx', capexTn: 'Cost: trusted-node sites', capexPich: 'Cost: PICh',
+    qtx: 'Installed QTx (sum of node peaks)', qrx: 'Installed QRx (sum of node peaks)', tn: 'Trusted-node sites',
+    pich: 'Peak open PIChs', perSession: 'Cost per simultaneous QKD session', perKey: 'Cost per Mbit/s of delivered key',
+    skrPerQtrx: 'SKR per Q-TRx (Mbit/s)', keyPerQtrx: 'Key in use per active Q-TRx (Mbit/s)', qtrxUse: 'Use of installed Q-TRx',
+    qCore: 'Quantum core spectrum in use', classicalHit: 'Classical candidates rejected to protect QKD (per request)',
+  };
+
+  async function getCostCsv(path) {
+    const cd = await caseData(path);
+    const qm = cd.csv.find((c) => c.suffix === 'QKDMetrics');
+    if (!qm) return null;
+    const w = costWeights();
+    const key = path + '|QKDCost|' + qm.mtime + '|' + JSON.stringify(w);
+    if (!csvCache.has(key)) csvCache.set(key, buildCostParsed(path, w).catch((e) => { csvCache.delete(key); throw e; }));
+    return csvCache.get(key);
+  }
+
+  async function buildCostParsed(path, w) {
+    const q = await getCsv(path, 'QKDMetrics');
+    if (!(q && q.ok)) return q;
+    const cd = await caseData(path);
+    let su = null;
+    try { su = await getCsv(path, 'SpectrumUtilization'); } catch (e) { su = null; }
+    const net = cd.files.network || {};
+    const qCore = App.isPlainObject(net.qkd) && net.qkd.enabled ? String(net.qkd.quantumCoreId) : null;
+    const dims = q.dims;
+    const allDims = dims.map(() => 'all');
+    const rows = [];
+    const one = (m, lp) => repsAt(q, m, lp, null);
+    const sumPerNode = (m, lp) => {
+      const out = [];
+      for (const r of q.byMetric.get(m) || []) {
+        if (r.lp !== lp || r.dims[0] === 'all') continue;
+        r.reps.forEach((v, i) => { out[i] = (out[i] || 0) + (Number.isFinite(v) ? v : 0); });
+      }
+      return out;
+    };
+    const op = (a, b, f) => { const n = Math.min(a.length, b.length); const o = []; for (let i = 0; i < n; i++) o.push(f(a[i], b[i])); return o; };
+    const div = (a, b) => op(a, b, (x, y) => (y > 0 ? x / y : NaN));
+    const mul = (a, b) => op(a, b, (x, y) => x * y);
+    const scale = (a, k) => a.map((x) => x * k);
+    const push = (metric, lp, reps) => { if (reps && reps.length) rows.push({ metric, lp, dims: allDims.slice(), reps }); };
+    for (const lp of q.lps) {
+      const qtx = sumPerNode('Peak QTx in use per node', lp);
+      const qrx = sumPerNode('Peak QRx in use per node', lp);
+      const tn = one('Planned trusted nodes', lp);
+      const pich = one('Peak open PIChs', lp);
+      const n = Math.max(qtx.length, qrx.length, tn.length);
+      const z = (a) => (a.length ? a : new Array(n).fill(0));
+      const cQtx = scale(z(qtx), w.qtx), cQrx = scale(z(qrx), w.qrx), cTn = scale(z(tn), w.tn), cPich = scale(z(pich), w.pich);
+      const capex = [];
+      for (let i = 0; i < n; i++) capex.push((cQtx[i] || 0) + (cQrx[i] || 0) + (cTn[i] || 0) + (cPich[i] || 0));
+      push(COST.capex, lp, capex);
+      push(COST.capexQtx, lp, cQtx); push(COST.capexQrx, lp, cQrx); push(COST.capexTn, lp, cTn); push(COST.capexPich, lp, cPich);
+      push(COST.qtx, lp, qtx); push(COST.qrx, lp, qrx); push(COST.tn, lp, tn); push(COST.pich, lp, pich);
+      const sessions = one('Mean active QKD sessions', lp);
+      const keyMean = one('Mean key demand (Mbit/s)', lp);
+      const keyInUse = mul(sessions, keyMean);
+      push(COST.perSession, lp, div(capex, sessions));
+      push(COST.perKey, lp, div(capex, keyInUse));
+      push(COST.skrPerQtrx, lp, div(one('Mean admission SKR (Mbit/s)', lp), one('Mean Q-TRx pairs per admitted session', lp)));
+      const activePairs = one('Mean active Q-TRx pairs', lp);
+      push(COST.keyPerQtrx, lp, div(keyInUse, activePairs));
+      push(COST.qtrxUse, lp, div(activePairs, z(qtx)));
+      push(COST.classicalHit, lp, one('Classical candidates rejected to protect QKD (per request)', lp));
+      if (su && su.ok && qCore !== null && su.byMetric.has('Utilization per Core')) {
+        const di = su.dims.indexOf('Core');
+        const reps = di >= 0 ? repsAt(su, 'Utilization per Core', lp, null, 'Core', qCore) : [];
+        push(COST.qCore, lp, reps);
+      }
+    }
+    return finishParsed({ ok: true, dims, rows, derived: true });
   }
 
   /** Values of each dimension of a metric (in file order). */
@@ -301,7 +398,7 @@
   // ================================================================ templates
 
   // Parte 27: models grouped by subject (optgroups of the "Modelo de gráfico" box); ids are kept, so saved figures still open
-  const TEMPLATE_GROUPS = ['Bloqueio', 'Causas de bloqueio', 'Núcleos', 'Espectro e utilização', 'Fragmentação', 'Mapas de calor', 'Correlações', 'QKD', 'Outros'];
+  const TEMPLATE_GROUPS = ['Bloqueio', 'Causas de bloqueio', 'Núcleos', 'Espectro e utilização', 'Fragmentação', 'Mapas de calor', 'Correlações', 'QKD', 'Custo QKD', 'Outros'];
   const TEMPLATES = [
     // ---- Bloqueio
     { id: 'bp', group: 'Bloqueio', name: 'Bloqueio de circuitos × carga', type: 'line', file: 'BlockingProbability', metric: 'Blocking probability', y: 'Probabilidade de Bloqueio de Circuito', x: 'Carga (Erlangs)', xMode: 'erl' },
@@ -368,6 +465,30 @@
     { id: 'qkdCauses', group: 'QKD', name: 'Causas do bloqueio QKD (empilhadas)', type: 'bars', file: 'QKDMetrics', itemsFrom: 'metrics', itemsRe: /^QKD blocking probability by /i, xAxis: 'cases', stacked: true, y: 'Probabilidade de bloqueio QKD' },
     { id: 'qkdQtrx', group: 'QKD', name: 'Pares Q-TRx ativos × carga', type: 'line', file: 'QKDMetrics', metric: 'Mean active Q-TRx pairs', y: 'Pares Q-TRx ativos (média)', x: 'Carga (Erlangs)', xMode: 'erl' },
     { id: 'qkdSkr', group: 'QKD', name: 'SKR média na admissão × carga', type: 'line', file: 'QKDMetrics', metric: 'Mean admission SKR (Mbit/s)', y: 'SKR (Mbit/s)', x: 'Carga (Erlangs)', xMode: 'erl' },
+    // ---- Custo QKD (1.14.0): virtual file QKDCost, derived from QKDMetrics.csv with the weights of "Pesos do custo"
+    { id: 'costCapex', group: 'Custo QKD', name: 'Custo de equipamento QKD × carga', type: 'line', file: 'QKDCost', metric: 'QKD equipment cost (relative units)', y: 'Custo de equipamento QKD (unidades)', x: 'Carga (Erlangs)', xMode: 'erl',
+      desc: 'Custo = QTx instalados × peso + QRx instalados × peso + nós confiáveis × peso + PIChs abertos (pico) × peso. "Instalados" = soma, em todos os nós (inclusive os confiáveis), do pico de uso: é o que precisa ser comprado para não faltar equipamento. Ajuste os pesos em "Pesos do custo".' },
+    { id: 'costParts', group: 'Custo QKD', name: 'Composição do custo por caso (QTx, QRx, nós confiáveis, PICh)', type: 'bars', file: 'QKDCost', itemsFrom: 'metrics', itemsRe: /^Cost: /, xAxis: 'cases', stacked: true, y: 'Custo (unidades)',
+      desc: 'Barras empilhadas com a parte do custo de cada tipo de equipamento, no ponto de carga escolhido. Mostra se o custo vem dos transceptores quânticos ou dos nós confiáveis (QTND).' },
+    { id: 'costEquip', group: 'Custo QKD', name: 'Equipamentos instalados por caso (QTx, QRx, nós confiáveis, PICh)', type: 'bars', file: 'QKDCost', itemsFrom: 'metrics', itemsRe: /^(Installed QTx|Installed QRx|Trusted-node sites|Peak open PIChs)/, xAxis: 'cases', stacked: false, y: 'Quantidade' },
+    { id: 'costQtnd', group: 'Custo QKD', name: 'Custo de equipamento × QTND (casos de uma varredura)', type: 'line', file: 'QKDCost', metric: 'QKD equipment cost (relative units)', y: 'Custo de equipamento QKD (unidades)', x: 'QTND (km)', xMode: 'param', paramPath: 'network:qkd.qtndKm',
+      desc: 'Um ponto por caso, com o QTND do arquivo network no eixo x. Menos km entre nós confiáveis = mais nós e mais Q-TRx (mais custo), mas SKR maior.' },
+    { id: 'costPerSession', group: 'Custo QKD', name: 'Custo por sessão QKD simultânea × carga', type: 'line', file: 'QKDCost', metric: 'Cost per simultaneous QKD session', y: 'Custo / sessão ativa (unidades)', x: 'Carga (Erlangs)', xMode: 'erl',
+      desc: 'Custo de equipamento ÷ número médio de sessões QKD ativas. Cai com a carga enquanto o equipamento é compartilhado.' },
+    { id: 'costPerKey', group: 'Custo QKD', name: 'Custo por Mbit/s de chave entregue × carga', type: 'line', file: 'QKDCost', metric: 'Cost per Mbit/s of delivered key', y: 'Custo / (Mbit/s de chave)', x: 'Carga (Erlangs)', xMode: 'erl',
+      desc: 'Custo de equipamento ÷ (sessões ativas × demanda média de chave). Compara demandas de chave diferentes com a mesma régua.' },
+    { id: 'costSkrQtrx', group: 'Custo QKD', name: 'SKR por Q-TRx (eficiência do artigo-base) × carga', type: 'line', file: 'QKDCost', metric: 'SKR per Q-TRx (Mbit/s)', y: 'SKR / Q-TRx (Mbit/s)', x: 'Carga (Erlangs)', xMode: 'erl',
+      desc: 'SKR média na admissão ÷ número médio de Q-TRx por sessão. É a métrica de eficiência de Dibaj et al. (o artigo-base): mais trusted nodes aumentam a SKR de cada trecho, mas gastam mais Q-TRx.' },
+    { id: 'costSkrQtrxQtnd', group: 'Custo QKD', name: 'SKR por Q-TRx × QTND (casos de uma varredura)', type: 'line', file: 'QKDCost', metric: 'SKR per Q-TRx (Mbit/s)', y: 'SKR / Q-TRx (Mbit/s)', x: 'QTND (km)', xMode: 'param', paramPath: 'network:qkd.qtndKm' },
+    { id: 'costKeyQtrx', group: 'Custo QKD', name: 'Chave em uso por Q-TRx ativo × carga', type: 'line', file: 'QKDCost', metric: 'Key in use per active Q-TRx (Mbit/s)', y: 'Mbit/s por Q-TRx ativo', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'costQtrxUse', group: 'Custo QKD', name: 'Uso dos Q-TRx instalados × carga', type: 'line', file: 'QKDCost', metric: 'Use of installed Q-TRx', y: 'Q-TRx ativos (média) ÷ instalados', x: 'Carga (Erlangs)', xMode: 'erl',
+      desc: 'Quanto do equipamento comprado fica em uso, em média. Valores baixos = equipamento ocioso (custo mal aproveitado).' },
+    { id: 'costQcore', group: 'Custo QKD', name: 'Custo espectral: ocupação do núcleo quântico × carga', type: 'line', file: 'QKDCost', metric: 'Quantum core spectrum in use', y: 'Ocupação do núcleo quântico', x: 'Carga (Erlangs)', xMode: 'erl',
+      desc: 'Fração do espectro do núcleo reservado ao QKD que está ocupada por QChs. O núcleo inteiro deixa de servir o tráfego clássico: o que sobra aqui é capacidade reservada e ociosa.' },
+    { id: 'costClassical', group: 'Custo QKD', name: 'Custo para o clássico: candidatos recusados para proteger o QKD × carga', type: 'line', file: 'QKDCost', metric: 'Classical candidates rejected to protect QKD (per request)', y: 'Candidatos recusados / requisição', x: 'Carga (Erlangs)', xMode: 'erl' },
+    { id: 'costVsBlock', group: 'Custo QKD', name: 'Custo × bloqueio QKD (um ponto por carga, uma curva por caso)', type: 'scatter', by: 'LoadPoint', xFile: 'QKDCost', xMetric: 'QKD equipment cost (relative units)', yFile: 'QKDMetrics', yMetric: 'QKD blocking probability', x: 'Custo de equipamento QKD (unidades)', y: 'Probabilidade de bloqueio QKD',
+      desc: 'Cada curva é um caso; cada ponto, uma carga. Casos mais à esquerda e mais abaixo são melhores (menos custo e menos bloqueio): use para escolher QTND, PICh e limite de QTx/QRx.' },
+    { id: 'costVsBlockAll', group: 'Custo QKD', name: 'Custo × bloqueio total (um ponto por carga, uma curva por caso)', type: 'scatter', by: 'LoadPoint', xFile: 'QKDCost', xMetric: 'QKD equipment cost (relative units)', yFile: 'BlockingProbability', yMetric: 'Blocking probability', x: 'Custo de equipamento QKD (unidades)', y: 'Probabilidade de bloqueio' },
     { id: 'qkdQtnd', group: 'QKD', name: 'Métrica × QTND (casos de uma varredura)', type: 'line', file: 'QKDMetrics', metric: 'QKD blocking probability', y: 'Probabilidade de bloqueio QKD', x: 'QTND (km)', xMode: 'param', paramPath: 'network:qkd.qtndKm' },
     { id: 'qkdEquip', group: 'QKD', name: 'QTx/QRx em uso por nó (pico)', type: 'bars', file: 'QKDMetrics', metric: 'Peak QTx in use per node', itemsFrom: 'dim', dim: 'src', xAxis: 'items', y: 'QTx em uso (pico)', x: 'Nó', rotate: -60 },
     // ---- Outros
@@ -1503,11 +1624,38 @@
     leftCol.append(
       section('1. Casos (' + spec.cases.length + ')', true, casesPanel()),
       section('2. Dados', true, dataPanel()),
+      usesCost(spec) ? section('Pesos do custo', true, costPanel()) : null,
       (seriesBox = el('div')),
       section('4. Aparência', false, appearancePanel()),
       section('5. Eixos e números', false, axesPanel()),
       section('6. Legenda e título', false, legendPanel()));
     drawSeriesPanel();
+  }
+
+  function usesCost(spec) {
+    return spec.file === 'QKDCost' || (spec.type === 'scatter' && spec.scatter && (spec.scatter.xFile === 'QKDCost' || spec.scatter.yFile === 'QKDCost'));
+  }
+
+  /** 1.14.0: relative cost of each QKD element, used by every chart of the "Custo QKD" group. */
+  function costPanel() {
+    const w = costWeights();
+    const inp = (k, label, help) => {
+      const i = el('input.input.num', { type: 'text', value: String(w[k]).replace('.', ',') });
+      i.addEventListener('change', () => {
+        const v = App.parseNumber(i.value);
+        if (!(v >= 0)) { i.classList.add('invalid'); return; }
+        i.classList.remove('invalid'); w[k] = v; setCostWeights(w); refresh();
+      });
+      return field(label, i, help);
+    };
+    return el('div.stack-s',
+      el('p.small.muted', 'Unidades relativas (ex.: 1 = preço de um QTx). Valem para todos os gráficos de custo e ficam guardadas neste navegador. Os indicadores são calculados do QKDMetrics.csv de cada caso, sem rodar de novo.'),
+      el('div.fields.two',
+        inp('qtx', 'QTx (transmissor quântico)', 'por unidade instalada'),
+        inp('qrx', 'QRx (receptor quântico, detectores)', 'por unidade instalada'),
+        inp('tn', 'Nó confiável (site)', 'por nó confiável planejado (QTND)'),
+        inp('pich', 'PICh aberto', 'por canal público no pico (transceptores clássicos)')),
+      el('div', el('button.btn.small.ghost', { type: 'button', on: { click: () => { setCostWeights(Object.assign({}, COST_DEFAULTS)); drawControls(); refresh(); } } }, 'Voltar aos valores padrão (1, 1, 1, 0,1)')));
   }
 
   function casesPanel() {

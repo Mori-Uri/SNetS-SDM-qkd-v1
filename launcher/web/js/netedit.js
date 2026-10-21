@@ -8,6 +8,8 @@
   const { el } = App;
   const P = () => App.presets;
   const ui = { topo: '', cores: '', showKm: true };
+  // 1.14.0: a preview chosen in one case must not appear selected in the next one
+  if (App.onCaseOpened) App.onCaseOpened(() => { ui.topo = ''; ui.cores = ''; });
 
   function responsive(svg, maxW) {
     const w = svg.getAttribute('width'), h = svg.getAttribute('height');
@@ -61,7 +63,7 @@
     const info = P().coordsFor(net);
     const opts = { slots: commonValue(links, 'slots') || 320, spectrum: commonValue(links, 'spectrum') || 12.5e9 };
     const topoSel = el('select.input',
-      el('option', { value: '' }, 'Topologia atual do arquivo'),
+      el('option', { value: '' }, 'Topologia atual do arquivo' + (info.source === 'preset' && info.topology ? ' (' + info.topology.name + ')' : ' (' + (net.nodes || []).length + ' nós)')),
       P().TOPOLOGIES.map((t) => el('option', { value: t.id }, t.name)));
     topoSel.value = ui.topo;
     const preset = P().TOPOLOGIES.find((t) => t.id === ui.topo) || null;
@@ -75,7 +77,7 @@
       const q = P().topoPanel(net).qtnd;
       if (q > 0) topoBox.append(el('div.small.muted', { style: { marginTop: '4px' } }, 'Pontos roxos: nós confiáveis a cada ' + App.fmtNum(q, 1) + ' km (QTND), contados a partir do nó de origem do enlace. Passe o mouse para ver a posição.'));
       const u = P().undirectedLinks(net);
-      if (preset) caption.textContent = 'Pré-visualização de ' + preset.name + ' (' + preset.desc + '). Ainda não aplicada: clique em "Aplicar topologia".';
+      if (preset) { caption.textContent = 'PRÉ-VISUALIZAÇÃO de ' + preset.name + ' (' + preset.desc + '). O caso AINDA usa a topologia do arquivo' + (info.source === 'preset' && info.topology ? ' (' + info.topology.name + ')' : '') + ': clique em "Aplicar topologia" e salve para trocar.'; caption.className = 'small warn'; }
       else {
         const src = info.source === 'file' ? 'posições dos campos x/y dos nós'
           : info.source === 'preset' ? 'reconhecida como ' + info.topology.name + ' (posições da topologia pronta)'

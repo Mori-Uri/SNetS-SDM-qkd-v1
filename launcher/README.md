@@ -265,3 +265,28 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
 - **Aba QKD, "Escolha da demanda":** a demanda de chave pode ser sorteada ao acaso entre os intervalos, como antes, ou seguir a taxa clássica da requisição (`qkdKeyDemand.mode = "byBitRate"`).
   - Uma tabela mostra que chave cada taxa clássica recebe e a parcela de cada taxa nas requisições, e pode ser editada.
 - **Simulador:** precisa do jar da Parte 34.
+
+## Versão 1.14.0
+
+- **Cada caso mostra só os dados dele.** A pré-visualização de topologia e as caixas do painel de tráfego QKD voltam aos
+  valores do arquivo sempre que um caso é aberto ou recarregado.
+  - O seletor de topologia mostra qual topologia o arquivo usa.
+  - Quando há uma pré-visualização, um aviso diz que ela ainda não foi aplicada.
+- **Aba QKD, quadro novo "Variações do estudo".** Reúne num lugar só QTND, fração protegida, demanda de chave (fixa,
+  sorteada ou pela taxa clássica), PICh, comprimento de onda, crosstalk sobre o QCh, rotas alternativas, QTx/QRx por nó e
+  núcleo quântico.
+  - Cada linha diz o que o parâmetro causa e em que campo de qual arquivo ele fica.
+  - O crosstalk é gravado no arquivo certo, seja o `qkdPhysicalLayer` novo ou o formato antigo dentro de `physicalLayer`.
+- **Gráficos, grupo novo "Custo QKD".** Usa um arquivo derivado, QKDCost, calculado do QKDMetrics.csv sem rodar de novo.
+  Os modelos são:
+  - custo de equipamento × carga e × QTND;
+  - composição do custo;
+  - equipamentos instalados;
+  - custo por sessão e por Mbit/s de chave;
+  - SKR por Q-TRx (a métrica do artigo-base);
+  - uso dos Q-TRx instalados;
+  - ocupação do núcleo quântico;
+  - candidatos clássicos recusados;
+  - custo × bloqueio.
+
+  Os pesos de cada equipamento ficam em "Pesos do custo".

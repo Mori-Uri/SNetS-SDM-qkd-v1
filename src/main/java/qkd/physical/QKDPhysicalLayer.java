@@ -376,7 +376,7 @@ public final class QKDPhysicalLayer {
                 && !seen.contains(additionalClassicalCircuit)
                 && candidateTraversesLink(additionalClassicalCircuit, link)) {
 
-            final int candidateCoreId = additionalClassicalCircuit.getIndexCore();
+            final int candidateCoreId = qkd.metrics.BlockingDetailRecorder.rawCore(additionalClassicalCircuit);
             if (isAdjacentCore(adjacentCores, candidateCoreId)) {
                 result.add(new InterfererReference(
                         additionalClassicalCircuit,

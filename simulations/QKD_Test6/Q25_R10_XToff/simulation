@@ -1,0 +1,49 @@
+{
+  "requests": 30000,
+  "rmlsaType": 1,
+  "routing": "djk",
+  "kRouting": "newksp",
+  "spectrumAssignment": "randomfit",
+  "coreAndSpectrumAssignment": "qabne",
+  "integratedRmlsa": "spcsav2",
+  "modulationSelection": "modulationbyqotv2",
+  "grooming": "notrafficgrooming",
+  "reallocation": "fsalfav1",
+  "powerAssignment": "cpsd",
+  "loadPoints": 8,
+  "replications": 3,
+  "activeMetrics": {
+    "BlockingProbability": true,
+    "BitRateBlockingProbability": true,
+    "SpectrumUtilization": true,
+    "SpectrumSizeStatistics": true,
+    "ExternalFragmentation": true,
+    "RelativeFragmentation": true,
+    "TransmittersReceiversRegeneratorsUtilization": true,
+    "ModulationUtilization": true,
+    "ConsumedEnergy": true,
+    "GroomingStatistics": true,
+    "DataSetInformation": false,
+    "PhysicalLayerStatistics": true,
+    "QKDMetrics": true,
+    "SlotUtilization": true,
+    "SlotBlocking": true
+  },
+  "regeneratorAssignment": "aar",
+  "networkType": 0,
+  "threads": 10,
+  "qkdProtectedRequestProbability": 0,
+  "trafficRandomSeed": 13000,
+  "qkdProtectionRandomSeed": 1300,
+  "qkdKeyDemand": {
+    "keySizeBits": 256,
+    "updateIntervalsMicroseconds": [
+      64,
+      128,
+      256
+    ],
+    "randomSeed": 130
+  },
+  "qkdExactRequestCount": true,
+  "qkdWarmupFraction": 0.1
+}

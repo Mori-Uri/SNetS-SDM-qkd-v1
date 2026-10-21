@@ -276,4 +276,7 @@ window.App = window.App || {};
     deepClone, deepEqual, isPlainObject, getPath, setPath, downloadText, copyText, debounce,
     parseNumber, caseNameOf, keepScroll, allNoneButtons, picker,
   });
+  // 1.14.0: hooks run by App.openCase (defined here because util.js loads before the panels)
+  App.caseHooks = App.caseHooks || [];
+  App.onCaseOpened = function (fn) { App.caseHooks.push(fn); };
 })(window.App);

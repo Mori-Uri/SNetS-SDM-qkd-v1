@@ -184,6 +184,7 @@
     }
     const q = net.qkd;
     const set = (path, v, redraw) => { App.setValue('network', ['qkd'].concat(path), v); drawModeBar(); if (redraw) App.renderTab(); };
+    root.append(studyPanel());
     const num = (key, label, unit, opts) => {
       opts = opts || {};
       const i = el('input.input.num', { type: 'text', value: q[key] === undefined ? '' : String(q[key]).replace('.', ',') });
@@ -369,6 +370,104 @@
     return root;
   }
 
+  // ------------------------------------------------------------------ 1.14.0: study variations in one place
+
+  /** Current key demand choice of the case: 'fixed' (all generators with the same keyRateMbps), 'uniform', 'byBitRate' or 'mixed'. */
+  function keyChoice() {
+    const tr = st().model.traffic;
+    const gens = isPlainObject(tr) && Array.isArray(tr.requestGenerators) ? tr.requestGenerators : [];
+    const ks = new Set(gens.map((g) => (g.keyRateMbps === undefined ? 'none' : Number(g.keyRateMbps))));
+    if (ks.size === 1 && !ks.has('none')) return { kind: 'fixed', value: [...ks][0] };
+    if (ks.size === 1 && ks.has('none')) return { kind: isByBitRate() ? 'byBitRate' : 'uniform' };
+    return { kind: 'mixed' };
+  }
+
+  function xtPlace() {
+    const m = st().model;
+    if (isPlainObject(m.qkdPhysicalLayer)) return { file: 'qkdPhysicalLayer', path: ['crosstalk', 'intercoreCrosstalkEnabled'], obj: m.qkdPhysicalLayer.crosstalk, key: 'intercoreCrosstalkEnabled' };
+    return { file: 'physicalLayer', path: ['qkdReceiver', 'intercoreCrosstalkEnabled'], obj: isPlainObject(m.physicalLayer) ? m.physicalLayer.qkdReceiver : null, key: 'intercoreCrosstalkEnabled' };
+  }
+
+  function studyPanel() {
+    const m = st().model, net = m.network, q = net.qkd, sim = m.simulation || {};
+    const t0 = trafficQkdSummary();
+    const rows = [];
+    const row = (name, control, effect, where) => rows.push(el('tr', el('td', el('b', name), where ? el('div.small.muted', where) : null), el('td', control), el('td.small', effect)));
+    const setQ = (k, v) => { App.setValue('network', ['qkd', k], v); App.renderTab(); };
+    const numIn = (val, onOk, check) => {
+      const i = el('input.input.num', { type: 'text', value: val === undefined || val === null ? '' : String(val).replace('.', ','), style: { width: '90px' } });
+      i.addEventListener('change', () => { const v = parseNumber(i.value); if (Number.isFinite(v) && (!check || check(v))) onOk(v); else i.classList.add('invalid'); });
+      return i;
+    };
+    const selIn = (val, opts, onCh) => { const x = el('select.input', opts.map(([v, l]) => el('option', { value: String(v) }, l))); x.value = String(val); x.addEventListener('change', () => onCh(x.value)); return x; };
+
+    // QTND
+    const plan = planning(net, Number(q.qtndKm));
+    row('QTND (km)', numIn(q.qtndKm, (v) => setQ('qtndKm', v), (v) => v > 0),
+      'Distância máxima entre nós confiáveis. Menor QTND → mais nós confiáveis e Q-TRx em cada enlace (mais custo), mas SKR maior por QCh. Maior QTND → menos nós confiáveis, SKR menor: cada sessão precisa de mais QChs (mais espectro do núcleo quântico e mais Q-TRx). Agora: ' + plan.trusted + ' nós confiáveis em ' + plan.spans + ' trechos.', 'network.qkd.qtndKm');
+    // protected fraction
+    row('Fração protegida (%)', el('div.toolbar', { style: { margin: 0 } }, (() => {
+      const i = numIn(fmtPct(t0.commonProb || 0), (v) => {
+        const tr = deepClone(m.traffic);
+        for (const g of tr.requestGenerators) g.qkdProtectedProbability = v / 100;
+        App.setValue('traffic', ['requestGenerators'], tr.requestGenerators);
+        App.toast('Fração ' + fmtPct(v / 100) + ' % em ' + tr.requestGenerators.length + ' geradores (a demanda de chave não mudou)', 'ok'); App.renderTab();
+      }, (v) => v >= 0 && v <= 100);
+      return i;
+    })(), el('span.small.muted', '% em todos os geradores')),
+    'Parte das requisições que pede também uma sessão QKD. A carga clássica não muda. 0 % com QKD ligado = referência clássica com o núcleo quântico reservado (o algoritmo continua o mesmo).', 'traffic: qkdProtectedProbability de cada gerador');
+    // key demand
+    const kc = keyChoice();
+    const fixedIn = numIn(kc.kind === 'fixed' ? kc.value : 2, () => {}, (v) => v > 0);
+    const keySel = selIn(kc.kind === 'mixed' ? 'mixed' : kc.kind, [['fixed', 'Fixa (mesmo valor em todas)'], ['uniform', 'Sorteada entre 1, 2 e 4 Mbit/s'], ['byBitRate', 'Pela taxa clássica da requisição'], ['mixed', 'Misturada (geradores diferentes)']], () => {});
+    const applyKey = () => {
+      const kind = keySel.value;
+      if (kind === 'mixed') return;
+      const kv = parseNumber(fixedIn.value);
+      if (kind === 'fixed' && !(kv > 0)) { fixedIn.classList.add('invalid'); return; }
+      const tr = deepClone(m.traffic);
+      for (const g of tr.requestGenerators) { if (kind === 'fixed') g.keyRateMbps = kv; else delete g.keyRateMbps; }
+      App.setValue('traffic', ['requestGenerators'], tr.requestGenerators);
+      const kd = Object.assign({ keySizeBits: 256, updateIntervalsMicroseconds: [64.0, 128.0, 256.0], randomSeed: 2024 }, isPlainObject(sim.qkdKeyDemand) ? sim.qkdKeyDemand : {});
+      if (kind === 'byBitRate') kd.mode = 'byBitRate'; else { delete kd.mode; delete kd.keyRateMbpsByBitRate; }
+      App.setValue('simulation', ['qkdKeyDemand'], kd);
+      App.toast('Demanda de chave: ' + (kind === 'fixed' ? kv + ' Mbit/s fixa' : kind === 'uniform' ? 'sorteada (1/2/4)' : 'pela taxa clássica'), 'ok');
+      App.renderTab();
+    };
+    row('Demanda de chave', el('div.toolbar', { style: { margin: 0 } }, keySel, fixedIn, el('span.small.muted', 'Mbit/s (só "Fixa")'),
+      el('button.btn.small', { type: 'button', on: { click: applyKey } }, 'Aplicar')),
+    'Taxa de chave que cada sessão precisa. Fixa: igual para todas (keyRateMbps). Sorteada: 1, 2 ou 4 Mbit/s ao acaso (política do arquivo simulation). Pela taxa clássica: a menor taxa clássica pede a menor chave (tabela no quadro "Demanda QKD" abaixo). No modo "link", um QCh atende várias sessões até somar a SKR dele; demanda maior → mais QChs ativos por enlace (mais espectro do núcleo quântico e mais Q-TRx, logo mais custo) e mais bloqueio quando o núcleo quântico ou os QTx/QRx acabam.', 'traffic.keyRateMbps / simulation.qkdKeyDemand');
+    // PICh
+    row('PICh (slots por canal)', numIn(q.pichSlots || 0, (v) => setQ('pichSlots', Math.round(v)), (v) => v >= 0 && Number.isInteger(v)),
+      'Canal clássico público do BB84, num núcleo clássico, em cada enlace da rota QKD. 0 = não modelado. Maior → tira espectro do tráfego clássico (mais bloqueio clássico) e pode bloquear sessões por falta de PICh.', 'network.qkd.pichSlots');
+    // wavelength
+    row('Comprimento de onda do QCh', selIn(q.wavelengthPolicy || 'grid', [['fixed', 'fixed — todos em 1550 nm'], ['grid', 'grid — λ do slot']], (v) => setQ('wavelengthPolicy', v)),
+      'fixed: todo QCh tem a atenuação mínima (SKR igual em qualquer slot). grid: o QCh usa o λ do slot, com atenuação α(λ) maior longe de 1550 nm → SKR menor nos slots das bordas, logo mais QChs para a mesma demanda.', 'network.qkd.wavelengthPolicy');
+    // XT on QCh
+    const xt = xtPlace();
+    const xtOn = !(xt.obj && xt.obj[xt.key] === false);
+    row('Crosstalk dos canais clássicos sobre o QCh', selIn(xtOn ? 'on' : 'off', [['on', 'ligado'], ['off', 'desligado']], (v) => {
+      if (xt.file === 'physicalLayer' && !isPlainObject(m.physicalLayer)) return;
+      App.setValue(xt.file, xt.path, v === 'on'); App.renderTab();
+    }),
+    'Ligado: os circuitos clássicos dos núcleos vizinhos somam ruído no detector do QCh (QBER maior, SKR menor). Desligado: só o ruído de escuro (referência sem coexistência). Mostra quanto a coexistência na MCF custa ao QKD.', xt.file + '.' + xt.path.join('.'));
+    // alternative routes
+    row('Rotas QKD alternativas', numIn(q.alternativeRoutes || 0, (v) => setQ('alternativeRoutes', Math.round(v)), (v) => v >= 0 && Number.isInteger(v)),
+      'Quantas rotas além da rota clássica a sessão QKD pode tentar quando a primeira falha (QCh sem slot, SKR baixa). Mais rotas → menos bloqueio QKD, rotas mais longas (mais Q-TRx).', 'network.qkd.alternativeRoutes');
+    // QTx/QRx
+    row('QTx e QRx por nó', numIn(q.qTransmittersPerNode || 0, (v) => { App.setValue('network', ['qkd', 'qTransmittersPerNode'], Math.round(v)); App.setValue('network', ['qkd', 'qReceiversPerNode'], Math.round(v)); App.renderTab(); }, (v) => v >= 0 && Number.isInteger(v)),
+      'Limite de transmissores e receptores quânticos em cada nó (os nós confiáveis seguem o mesmo limite). 0 = ilimitado. Um limite baixo representa um orçamento de equipamento: aparece como bloqueio por falta de QTx/QRx.', 'network.qkd.qTransmittersPerNode / qReceiversPerNode');
+    // quantum core
+    const cs = cores();
+    row('Núcleo quântico', selIn(q.quantumCoreId, cs.map((c) => [c.id, c.id + ' (' + (c.adjacentCores || []).length + ' vizinhos)']), (v) => setQ('quantumCoreId', Number(v))),
+      'Núcleo reservado aos QChs. Núcleo de borda (poucos vizinhos) recebe menos crosstalk; o central (vizinho de todos) recebe mais.', 'network.qkd.quantumCoreId');
+
+    return el('section.panel',
+      el('h2', 'Variações do estudo'),
+      el('p.lead', 'Os parâmetros que mudam de um caso para outro no estudo, num só lugar, com o efeito de cada um. As mudanças vão para os arquivos do caso (salve para gravar). Os detalhes continuam nos quadros abaixo.'),
+      el('div.table-wrap', el('table.grid.data', el('thead', el('tr', el('th', 'Parâmetro'), el('th', 'Valor neste caso'), el('th', 'O que causa'))), el('tbody', rows))));
+  }
+
   function kvBox(k, v, unit) { return el('div', el('div.k', k), el('div.v', v, unit ? el('small', ' ' + unit) : null)); }
 
   /** 1.12.0: the values of the current files, side by side (QKD tab and QKD traffic panel). */
@@ -476,6 +575,9 @@
     ['Requisições protegidas (esperado)', 'Média das frações protegidas ponderada pela carga de cada gerador: a porcentagem das requisições da simulação que devem pedir QKD.'],
     ['Lista QKD dedicada', 'Geradores extras com fração 1, para estudar só pares escolhidos. Eles somam carga à rede: cada requisição também ocupa espectro clássico.'],
   ];
+
+  // 1.14.0: the boxes of the QKD traffic panel always restart from the files when a case is opened or reloaded
+  if (App.onCaseOpened) App.onCaseOpened(() => { trafficPanel.state = null; trafficPanel.stateFor = null; });
 
   function trafficPanel(sum) {
     const net = st().model.network;

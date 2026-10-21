@@ -387,7 +387,8 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         return best == 3 ? D_AVAILABLE : best == 2 ? D_CONTIGUITY : best == 1 ? D_CONTINUITY : D_NO_SLOTS;
     }
 
-    private static int rawCore(Circuit c) {
+    /** Part 35: also used by the QKD control code (no 'Core not selected.' message for candidates without a core). */
+    public static int rawCore(Circuit c) {
         // Circuit.getIndexCore() prints an error when no core was selected; read it quietly.
         try {
             java.lang.reflect.Field f = Circuit.class.getDeclaredField("indexCore");

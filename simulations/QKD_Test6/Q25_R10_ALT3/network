@@ -1,0 +1,581 @@
+{
+  "nodes": [
+    {
+      "name": "1",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 160,
+      "y": 137
+    },
+    {
+      "name": "2",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 28,
+      "y": 265
+    },
+    {
+      "name": "3",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 158,
+      "y": 398
+    },
+    {
+      "name": "4",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 258,
+      "y": 325
+    },
+    {
+      "name": "5",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 402,
+      "y": 390
+    },
+    {
+      "name": "6",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 530,
+      "y": 530
+    },
+    {
+      "name": "7",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 535,
+      "y": 280
+    },
+    {
+      "name": "8",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 617,
+      "y": 200
+    },
+    {
+      "name": "9",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 746,
+      "y": 200
+    },
+    {
+      "name": "10",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 705,
+      "y": 512
+    },
+    {
+      "name": "11",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 712,
+      "y": 66
+    },
+    {
+      "name": "12",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 887,
+      "y": 117
+    },
+    {
+      "name": "13",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 952,
+      "y": 257
+    },
+    {
+      "name": "14",
+      "transmitters": 1000,
+      "receivers": 1000,
+      "regenerators": 0,
+      "qTransmitters": 0,
+      "qReceivers": 0,
+      "x": 853,
+      "y": 340
+    }
+  ],
+  "links": [
+    {
+      "source": "1",
+      "destination": "2",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1050.0
+    },
+    {
+      "source": "2",
+      "destination": "1",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1050.0
+    },
+    {
+      "source": "1",
+      "destination": "3",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "3",
+      "destination": "1",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "1",
+      "destination": "8",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1800.0
+    },
+    {
+      "source": "8",
+      "destination": "1",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1800.0
+    },
+    {
+      "source": "2",
+      "destination": "3",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "3",
+      "destination": "2",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "2",
+      "destination": "4",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "4",
+      "destination": "2",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "3",
+      "destination": "6",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "6",
+      "destination": "3",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "4",
+      "destination": "5",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "5",
+      "destination": "4",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "4",
+      "destination": "11",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "11",
+      "destination": "4",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "5",
+      "destination": "6",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1300.0
+    },
+    {
+      "source": "6",
+      "destination": "5",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1300.0
+    },
+    {
+      "source": "5",
+      "destination": "7",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "7",
+      "destination": "5",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 600.0
+    },
+    {
+      "source": "6",
+      "destination": "10",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1050.0
+    },
+    {
+      "source": "10",
+      "destination": "6",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1050.0
+    },
+    {
+      "source": "6",
+      "destination": "14",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "14",
+      "destination": "6",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1500.0
+    },
+    {
+      "source": "7",
+      "destination": "8",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 750.0
+    },
+    {
+      "source": "8",
+      "destination": "7",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 750.0
+    },
+    {
+      "source": "7",
+      "destination": "10",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1350.0
+    },
+    {
+      "source": "10",
+      "destination": "7",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 1350.0
+    },
+    {
+      "source": "8",
+      "destination": "9",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 750.0
+    },
+    {
+      "source": "9",
+      "destination": "8",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 750.0
+    },
+    {
+      "source": "9",
+      "destination": "10",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 800.0
+    },
+    {
+      "source": "10",
+      "destination": "9",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 800.0
+    },
+    {
+      "source": "9",
+      "destination": "12",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 300.0
+    },
+    {
+      "source": "12",
+      "destination": "9",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 300.0
+    },
+    {
+      "source": "9",
+      "destination": "13",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 300.0
+    },
+    {
+      "source": "13",
+      "destination": "9",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 300.0
+    },
+    {
+      "source": "11",
+      "destination": "12",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 500.0
+    },
+    {
+      "source": "12",
+      "destination": "11",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 500.0
+    },
+    {
+      "source": "11",
+      "destination": "13",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 750.0
+    },
+    {
+      "source": "13",
+      "destination": "11",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 750.0
+    },
+    {
+      "source": "12",
+      "destination": "14",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 800.0
+    },
+    {
+      "source": "14",
+      "destination": "12",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 800.0
+    },
+    {
+      "source": "13",
+      "destination": "14",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 300.0
+    },
+    {
+      "source": "14",
+      "destination": "13",
+      "slots": 320,
+      "spectrum": 12500000000,
+      "size": 300.0
+    }
+  ],
+  "modulations": [
+    {
+      "name": "4QAM",
+      "maxRange": 5000,
+      "M": 4,
+      "SNR": 8.95,
+      "XT": -19.03
+    },
+    {
+      "name": "8QAM",
+      "maxRange": 2500,
+      "M": 8,
+      "SNR": 13.15,
+      "XT": -23.23
+    },
+    {
+      "name": "16QAM",
+      "maxRange": 1250,
+      "M": 16,
+      "SNR": 15.49,
+      "XT": -25.57
+    },
+    {
+      "name": "32QAM",
+      "maxRange": 625,
+      "M": 32,
+      "SNR": 18.51,
+      "XT": -28.59
+    },
+    {
+      "name": "64QAM",
+      "maxRange": 312,
+      "M": 64,
+      "SNR": 21.28,
+      "XT": -31.36
+    }
+  ],
+  "cores": [
+    {
+      "id": 0,
+      "adjacentCores": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "qkdReserved": false
+    },
+    {
+      "id": 1,
+      "adjacentCores": [
+        0,
+        2,
+        6
+      ],
+      "qkdReserved": false
+    },
+    {
+      "id": 2,
+      "adjacentCores": [
+        0,
+        1,
+        3
+      ],
+      "qkdReserved": false
+    },
+    {
+      "id": 3,
+      "adjacentCores": [
+        0,
+        2,
+        4
+      ],
+      "qkdReserved": false
+    },
+    {
+      "id": 4,
+      "adjacentCores": [
+        0,
+        3,
+        5
+      ],
+      "qkdReserved": false
+    },
+    {
+      "id": 5,
+      "adjacentCores": [
+        0,
+        4,
+        6
+      ],
+      "qkdReserved": false
+    },
+    {
+      "id": 6,
+      "adjacentCores": [
+        0,
+        1,
+        5
+      ],
+      "qkdReserved": false
+    }
+  ],
+  "guardBand": 1,
+  "bvtSpectralAmplitude": 1000,
+  "qkd": {
+    "enabled": true,
+    "qtndKm": 25,
+    "quantumCoreId": 1,
+    "qchGranularity": "link",
+    "qchSlotPolicy": "firstfit",
+    "wavelengthPolicy": "fixed",
+    "alternativeRoutes": 3,
+    "pichSlots": 0,
+    "undirectedChannels": false,
+    "tdmSlots": 0,
+    "spanLanePlacement": "first",
+    "pichMode": "segment",
+    "pichSessionsPerChannel": 0,
+    "qchSharing": "shared",
+    "qTransmittersPerNode": 0,
+    "qReceiversPerNode": 0,
+    "qTransmittersPerTrustedNode": -1,
+    "qReceiversPerTrustedNode": -1
+  }
+}

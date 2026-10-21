@@ -169,6 +169,12 @@
 
   // ================================================================== case loading
 
+  /**
+   * 1.14.0: functions called every time a case is opened or reloaded. Panels that keep typed values between renders
+   * (topology preview, QKD traffic boxes, ...) register here to start again from the files of the case.
+   */
+  App.caseHooks = App.caseHooks || [];
+
   App.openCase = async function (path, tab) {
     if (st.casePath && path !== st.casePath && App.dirtyFiles().length
       && !window.confirm('Há alterações não salvas em ' + st.casePath + '. Descartá-las e abrir outro caso?')) return;
@@ -200,6 +206,7 @@
     document.getElementById('caseCrumbs').textContent = App.isVerificationPath(path)
       ? parts.slice(0, -1).map((p) => p + '/').join('').slice(1)
       : 'simulations/' + parts.slice(0, -1).map((p) => p + '/').join('');
+    for (const h of App.caseHooks) { try { h(path); } catch (e) { /* a panel must not block the case */ } }
     if (tab) st.tab = tab;
     if (st.tab === 'qkd' && !App.qkdcase.isQkd()) st.tab = 'overview';
     drawTabs();

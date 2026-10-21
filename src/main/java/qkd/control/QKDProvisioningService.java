@@ -243,7 +243,7 @@ public final class QKDProvisioningService {
                 boolean[] f = new boolean[n + 2];
                 for (int[] b : l.getCore(coreId).getFreeSpectrumBands(guard))
                     for (int k = Math.max(1, b[0]); k <= Math.min(n, b[1]); k++) f[k] = true;
-                if (candidate != null && candidate.getIndexCore() == coreId && candidate.getSpectrumAssigned() != null
+                if (candidate != null && qkd.metrics.BlockingDetailRecorder.rawCore(candidate) == coreId && candidate.getSpectrumAssigned() != null
                         && candidate.getRoute() != null && containsLink(candidate.getRoute(), l)) {
                     int[] cb = candidate.getSpectrumAssigned();
                     for (int k = Math.max(1, cb[0] - guard); k <= Math.min(n, cb[1] + guard); k++) f[k] = false;

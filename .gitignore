@@ -185,3 +185,10 @@ physicalLayer.before_p26
 /simulations/QKD_Test2
 /simulations/QKD_Test3
 /simulations/QKD_TEST4
+# resultados dos estudos (as configuracoes continuam no git)
+/simulations/QKD_Test5/**/*.csv
+/simulations/QKD_Test6/**/*.csv
+/simulations/QKD_Test5/**/*.txt
+/simulations/QKD_Test6/**/*.txt
+/simulations/QKD_Test5/**/savestate/
+/simulations/QKD_Test6/**/savestate/

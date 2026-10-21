@@ -279,7 +279,7 @@ public final class QKDExistingSessionImpactEvaluator {
             if (!isCoreAdjacentToQkdCore(
                     qkdLink,
                     allocation.getQuantumCoreId(),
-                    candidate.getIndexCore())) {
+                    qkd.metrics.BlockingDetailRecorder.rawCore(candidate))) {
                 continue;
             }
 
