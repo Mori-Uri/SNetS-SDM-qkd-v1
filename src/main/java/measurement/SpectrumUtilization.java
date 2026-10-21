@@ -117,7 +117,8 @@ public class SpectrumUtilization extends Measurement {
 	            // since the classical view shows it as fully occupied); guard bands count as occupied
 	            int[] freeSlot = freeSlotsOf(linkIndex, link, coreId);
 	            if (freeSlot != null) {
-	                List<int[]> bands = core.isQkdReserved() ? core.getFreeSpectrumBandsForQKD(0) : core.getFreeSpectrumBands(0);
+	                List<int[]> bands = core.isQkdReserved() ? core.getFreeSpectrumBandsForQKD(0)
+	                        : core.isDisabled() ? core.getFreeSpectrumBandsIgnoringReservation(0) : core.getFreeSpectrumBands(0);
 	                for (int[] faixa : bands) {
 	                    for (int i = faixa[0] - 1; i < faixa[1] && i < freeSlot.length; i++) freeSlot[i]++;
 	                }

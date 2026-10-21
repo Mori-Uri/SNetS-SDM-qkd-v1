@@ -75,6 +75,26 @@ public final class QKDSharedResourceManager implements Serializable {
     private final Set<String> networkNodeNames = new java.util.HashSet<String>();
     /** Part 26: why the last QCh activation failed: null, "SPECTRUM" or "QTRX". */
     private String lastActivationFailure;
+
+    /*
+     * Part 33 (observation only): the QCh bands touched while one request is handled (channels reserved or
+     * activated, and the bands evaluated in route mode), for the spectrum maps of the quantum core
+     * (SlotBlocking.csv). Null when no request is being observed. Does not change any decision.
+     */
+    private transient List<Object[]> qchAttemptLog;
+
+    public synchronized void beginQchAttemptLog() { qchAttemptLog = new ArrayList<Object[]>(); }
+
+    public synchronized List<Object[]> endQchAttemptLog() {
+        List<Object[]> out = qchAttemptLog;
+        qchAttemptLog = null;
+        return out == null ? Collections.<Object[]>emptyList() : out;
+    }
+
+    private void logQch(QKDChannelAllocation a) {
+        if (qchAttemptLog != null && a != null && a.getLink() != null && a.getSpectrumBand() != null)
+            qchAttemptLog.add(new Object[] {a.getLink(), Integer.valueOf(a.getQuantumCoreId()), a.getSpectrumBand().clone()});
+    }
     private String lastActivationFailureNode;
 
     /** Link-granularity channels. */
@@ -293,6 +313,7 @@ public final class QKDSharedResourceManager implements Serializable {
                 if (slots <= tdmSlots && channel.getUsedSlots() + slots <= tdmSlots) {
                     channel.reserve(demand, slots);
                     QKDChannelShare share = new QKDChannelShare(channel, demand, slots);
+                    logQch(channel.getAllocation());
                     shares.add(share); allShares.add(share);
                     reusedCapacityReservations++;
                     return shares;
@@ -308,6 +329,7 @@ public final class QKDSharedResourceManager implements Serializable {
             if (slots > tdmSlots) return null;
             channel.reserve(demand, slots);
             QKDChannelShare share = new QKDChannelShare(channel, demand, slots);
+            logQch(channel.getAllocation());
             shares.add(share); allShares.add(share);
             return shares;
         }
@@ -323,6 +345,7 @@ public final class QKDSharedResourceManager implements Serializable {
             if (take > EPS) {
                 channel.reserve(take);
                 QKDChannelShare share = new QKDChannelShare(channel, take);
+                logQch(channel.getAllocation());
                 shares.add(share); allShares.add(share);
                 remaining -= take;
                 reusedCapacityReservations++;
@@ -339,6 +362,7 @@ public final class QKDSharedResourceManager implements Serializable {
             if (take <= EPS) return null;
             channel.reserve(take);
             QKDChannelShare share = new QKDChannelShare(channel, take);
+            logQch(channel.getAllocation());
             shares.add(share); allShares.add(share);
             remaining -= take;
         }
@@ -476,6 +500,7 @@ public final class QKDSharedResourceManager implements Serializable {
                 Link link = links.get(i);
                 QKDLinkPlan plan = routePlan.getLinkPlans().get(i);
                 QKDChannelAllocation alloc = new QKDChannelAllocation(link, coreId, band, guardBand, plan.getSpanCount());
+                logQch(alloc);
                 QKDLinkChannelPhysicalResult r = additional == null
                         ? evaluator.evaluateLinkChannel(link, plan, mesh.getPhysicalLayer(), alloc, wl)
                         : evaluator.evaluateLinkChannelWithAdditionalClassicalCircuit(link, plan, mesh.getPhysicalLayer(),
@@ -565,6 +590,7 @@ public final class QKDSharedResourceManager implements Serializable {
         if (band == null || !core.useSpectrumForQKD(band, guardBand)) { lastActivationFailure = "SPECTRUM"; return null; }
         QKDChannelAllocation allocation = new QKDChannelAllocation(
                 link, coreId, band, guardBand, plan.getSpanCount());
+        logQch(allocation);
         QKDLinkChannelPhysicalResult physical = additionalClassicalCircuit == null
                 ? evaluator.evaluateLinkChannel(link, plan, mesh.getPhysicalLayer(), allocation, wavelengthNm)
                 : evaluator.evaluateLinkChannelWithAdditionalClassicalCircuit(link, plan, mesh.getPhysicalLayer(),
@@ -645,6 +671,7 @@ public final class QKDSharedResourceManager implements Serializable {
         double wl = wavelengthGrid ? gridWavelength(lane, maxLanes) : Double.NaN;
         QKDLinkPlan evalPlan = singleSpanPlan(plan, span);
         QKDChannelAllocation allocation = new QKDChannelAllocation(link, coreId, band, guardBand, 1);
+        logQch(allocation);
         double evalWl = Double.isNaN(wl) ? wavelengthNm : wl;
         QKDLinkChannelPhysicalResult physical = additionalClassicalCircuit == null
                 ? evaluator.evaluateLinkChannel(link, evalPlan, mesh.getPhysicalLayer(), allocation, evalWl)

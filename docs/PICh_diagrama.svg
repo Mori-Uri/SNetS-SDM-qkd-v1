@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640" font-family="Calibri, Arial, sans-serif">
+  <rect width="1100" height="640" fill="#ffffff"/>
+  <text x="550" y="30" text-anchor="middle" font-size="20" font-weight="700">Como uma requisição protegida por QKD é atendida (QCh + PICh) no SNetS-SDM-QKD</text>
+
+  <!-- nodes -->
+  <g font-size="14" font-weight="700" text-anchor="middle">
+    <rect x="40" y="95" width="150" height="120" rx="10" fill="#f3f3f3" stroke="#000"/>
+    <text x="115" y="118">Nó origem A</text>
+    <rect x="60" y="130" width="110" height="28" rx="4" fill="#d9c6f5" stroke="#7b4fc9"/><text x="115" y="149" font-size="13">QTx (transmissor)</text>
+    <rect x="60" y="168" width="110" height="28" rx="4" fill="#ffffff" stroke="#000"/><text x="115" y="187" font-size="13">Tx/Rx clássico</text>
+
+    <rect x="475" y="95" width="150" height="120" rx="10" fill="#f3f3f3" stroke="#000"/>
+    <text x="550" y="118">Nó B (intermediário)</text>
+    <text x="550" y="150" font-size="12" font-weight="400">só repassa (ROADM)</text>
+    <text x="550" y="170" font-size="12" font-weight="400">ou nó confiável (TN)</text>
+    <text x="550" y="190" font-size="12" font-weight="400">se o enlace passa do QTND</text>
+
+    <rect x="910" y="95" width="150" height="120" rx="10" fill="#f3f3f3" stroke="#000"/>
+    <text x="985" y="118">Nó destino C</text>
+    <rect x="930" y="130" width="110" height="28" rx="4" fill="#d9c6f5" stroke="#7b4fc9"/><text x="985" y="149" font-size="13">QRx (receptor)</text>
+    <rect x="930" y="168" width="110" height="28" rx="4" fill="#ffffff" stroke="#000"/><text x="985" y="187" font-size="13">Tx/Rx clássico</text>
+  </g>
+
+  <!-- fibers: two links, each with quantum core and classical core strip -->
+  <g font-size="12">
+    <!-- link A-B -->
+    <text x="332" y="88" text-anchor="middle" font-weight="700" font-size="13">Enlace A–B (fibra MCF)</text>
+    <rect x="205" y="100" width="255" height="40" fill="#d9c6f5" stroke="#7b4fc9"/>
+    <text x="212" y="116" font-weight="700">Núcleo 1 (quântico, reservado)</text>
+    <rect x="300" y="122" width="40" height="14" fill="#7b4fc9"/><text x="345" y="134">QCh: faixa de slots, λ(slot)</text>
+    <rect x="205" y="150" width="255" height="40" fill="#ffffff" stroke="#000"/>
+    <text x="212" y="166" font-weight="700">Núcleo 0 (clássico)</text>
+    <rect x="212" y="172" width="28" height="14" fill="#2e8b57"/><text x="244" y="184">PICh (pichSlots)</text>
+    <rect x="340" y="172" width="110" height="14" fill="#9dc3e6"/><text x="395" y="184" text-anchor="middle">dados clássicos</text>
+    <rect x="205" y="196" width="255" height="18" fill="#ffffff" stroke="#000"/>
+    <text x="212" y="209">Núcleos 2…6 (clássicos): circuitos → XT no núcleo 1</text>
+
+    <!-- link B-C -->
+    <text x="767" y="88" text-anchor="middle" font-weight="700" font-size="13">Enlace B–C</text>
+    <rect x="640" y="100" width="255" height="40" fill="#d9c6f5" stroke="#7b4fc9"/>
+    <text x="647" y="116" font-weight="700">Núcleo 1 (quântico)</text>
+    <rect x="735" y="122" width="40" height="14" fill="#7b4fc9"/><text x="780" y="134">QCh</text>
+    <rect x="640" y="150" width="255" height="40" fill="#ffffff" stroke="#000"/>
+    <text x="647" y="166" font-weight="700">Núcleo 0 (clássico)</text>
+    <rect x="647" y="172" width="28" height="14" fill="#2e8b57"/><text x="679" y="184">PICh</text>
+    <rect x="775" y="172" width="110" height="14" fill="#9dc3e6"/><text x="830" y="184" text-anchor="middle">dados clássicos</text>
+    <rect x="640" y="196" width="255" height="18" fill="#ffffff" stroke="#000"/>
+    <text x="647" y="209">Núcleos 2…6: XT sobre o QCh</text>
+  </g>
+
+  <!-- flows -->
+  <g font-size="13">
+    <line x1="115" y1="240" x2="985" y2="240" stroke="#7b4fc9" stroke-width="3" marker-end="url(#a)"/>
+    <text x="550" y="258" text-anchor="middle" fill="#7b4fc9" font-weight="700">QCh: fótons (estados quânticos) de A para C pelo núcleo 1 → gera a chave bruta</text>
+    <line x1="115" y1="282" x2="985" y2="282" stroke="#2e8b57" stroke-width="3" marker-end="url(#a)" marker-start="url(#b)"/>
+    <text x="550" y="300" text-anchor="middle" fill="#2e8b57" font-weight="700">PICh: canal clássico público, nos dois sentidos (bases, correção de erros, amplificação de privacidade)</text>
+    <line x1="115" y1="324" x2="985" y2="324" stroke="#5b9bd5" stroke-width="3" marker-end="url(#a)"/>
+    <text x="550" y="342" text-anchor="middle" fill="#2f6fa8" font-weight="700">Circuito clássico da requisição (dados cifrados com a chave), em qualquer núcleo clássico</text>
+  </g>
+  <defs>
+    <marker id="a" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker>
+    <marker id="b" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="1" refY="5" orient="auto"><path d="M10,0 L0,5 L10,10 z" fill="#333"/></marker>
+  </defs>
+
+  <!-- steps -->
+  <g font-size="14">
+    <text x="40" y="385" font-weight="700" font-size="16">Ordem de atendimento (requisição protegida, pichMode = segment)</text>
+    <text x="40" y="410">1. O algoritmo RMSCA aloca o circuito clássico (rota, modulação, núcleo, slots) como em uma requisição comum.</text>
+    <text x="40" y="433">2. QKD: procura QTx livre em A e QRx livre em C (ou um par por trecho, se houver nós confiáveis no caminho).</text>
+    <text x="40" y="456">3. QCh: uma faixa livre no núcleo 1 em cada enlace (continuidade espectral no trecho); a SKR do trecho usa α(λ) do slot e o XT</text>
+    <text x="58" y="476">dos circuitos clássicos dos núcleos vizinhos. A SKR deve cobrir a demanda de chave (keyRateMbps ou 1/2/4 Mbit/s); senão, bloqueio por SKR.</text>
+    <text x="40" y="499">4. PICh: em cada enlace da rota QKD, uma faixa de pichSlots no núcleo clássico de menor índice com espaço (first fit). Ela é</text>
+    <text x="58" y="519">compartilhada por várias sessões (pichSessionsPerChannel; 0 = ilimitado). Sem faixa livre: bloqueio por PICh. pichSlots = 0: não modelado.</text>
+    <text x="40" y="542">5. Se tudo couber, a sessão fica ativa; QTx/QRx, faixa do QCh e vaga no PICh são liberados quando a requisição termina.</text>
+    <text x="40" y="565">6. A potência do PICh não entra no cálculo de XT (é tratada como canal de controle de baixa potência).</text>
+    <text x="40" y="598" font-weight="700">Recursos por requisição protegida:</text>
+    <text x="40" y="618">QTx + QRx (por trecho) · faixa de QCh no núcleo 1 em cada enlace · vaga no PICh (pichSlots no núcleo clássico) em cada enlace · o circuito clássico.</text>
+  </g>
+</svg>

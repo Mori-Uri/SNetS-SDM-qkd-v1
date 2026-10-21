@@ -246,7 +246,13 @@
       el('h2', 'Vários casos'),
       el('p.lead', 'Executa vários casos direto no launcher — em fila (um após o outro) ou em paralelo, dividindo as threads entre eles — ou gera um script .bat/.sh no padrão dos run_*.bat.'),
       el('div.two-col',
-        el('div.stack-s', { style: { alignSelf: 'start' } }, el('div.flabel', 'Casos'), filter, list,
+        el('div.stack-s', { style: { alignSelf: 'start' } }, el('div.flabel', 'Casos'), filter,
+          App.allNoneButtons(() => {
+            const q = filter.value.trim().toLowerCase();
+            for (const c of cases) if (!q || c.path.toLowerCase().includes(q)) picked.add(c.path);
+            drawList(); updatePlan(); regen();
+          }, () => { picked.clear(); drawList(); updatePlan(); regen(); }),
+          list,
           el('div.muted.small', 'A ordem de execução segue a ordem da lista.')),
         el('div.form-grid',
           el('div.field', el('div.flabel', 'JAR'), jarSel),

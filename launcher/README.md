@@ -221,3 +221,37 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
   - **Agora:** dá para regerar o JAR com simulações rodando. As que já estavam rodando continuam com o JAR antigo; as
     novas usam o novo.
   - **Limpeza:** as cópias com mais de 14 dias são apagadas sozinhas.
+
+## Versão 1.11.0
+
+- **Marcar todos e Desmarcar todos** em todas as listas de caixinhas:
+  - no estúdio de gráficos: casos (respeitando o filtro), pontos de carga, enlaces, núcleos, métricas, itens e
+    séries (Mostrar todas / Ocultar todas);
+  - na execução de vários casos;
+  - nas taxas do tráfego QKD.
+- **Como funciona o Desmarcar todos.** Ele só limpa as caixinhas. Em várias listas, nada marcado quer dizer "todos",
+  então o gráfico mantém a seleção anterior até você marcar alguma.
+- **A tela não volta mais para o topo.** Marcar uma caixinha ou mudar uma opção redesenha só o que precisa, e a posição
+  de rolagem fica onde estava: da página, da coluna de controles e das listas internas.
+- **Modelo de gráfico.** Virou uma lista própria, com filtro por texto. Ela reabre onde você parou, e o modelo atual fica
+  destacado.
+
+## Versão 1.12.0
+
+- **Aba QKD e painel de tráfego:**
+  - os quadros de resumo mostram também a carga inicial, o incremento por ponto e a carga do último ponto (Σ chegada ÷ serviço);
+  - os campos do painel de tráfego vêm sempre do arquivo do caso aberto;
+  - a fração protegida agora é editada em 0–100 %;
+  - há um só bloco "Demanda de chave": `keyRateMbps` fixo ou a política `qkdKeyDemand` (1/2/4 Mbit/s sorteados).
+- **Aba Rede:**
+  - caixas para desativar núcleos (`network.disabledCores`);
+  - no desenho da fibra, o núcleo quântico aparece em roxo claro e os desativados em vermelho com o número em branco.
+- **Resultados:**
+  - os diagramas de núcleos usam as mesmas cores, com opção para desligá-las;
+  - no mapa de bloqueio por slot, o núcleo quântico ganha as linhas dos QCh tentados, e o número do núcleo fica em roxo.
+- **Modelos novos:**
+  - modulação × taxa da requisição (empilhada ou em 100 %);
+  - slots usados por requisição;
+  - modulação dos circuitos em cada enlace.
+- **Relatório:** junta várias figuras dos casos numa só imagem, com as letras (a), (b)…, e exporta em SVG, PNG ou PDF. Exemplo: o mapa de espectro com o mapa da topologia, com a legenda à direita no alto. Há relatórios prontos e eles podem ser personalizados. O "Gravar na pasta" grava também o PDF.
+- **Simulador:** precisa do jar da Parte 33.

@@ -182,9 +182,98 @@ window.App = window.App || {};
 
   function caseNameOf(path) { const p = String(path || '').split('/'); return p[p.length - 1]; }
 
+  // ------------------------------------------------------------------ scroll position across redraws (1.11.0)
+
+  /**
+   * Runs fn (which rebuilds part of the page) and puts back the scroll positions: the page, the main panel,
+   * the figure controls column and every inner list marked with data-sk="key". Without this, a redraw after a
+   * click (a checkbox, a select) sent the view back to the top.
+   */
+  function keepScroll(fn) {
+    const roots = [document.scrollingElement, document.getElementById('main')].concat([...document.querySelectorAll('.fig-controls')]);
+    const saved = roots.filter(Boolean).map((r) => [r, r.scrollTop, r.classList && r.classList.contains('fig-controls')]);
+    const inner = new Map();
+    document.querySelectorAll('[data-sk]').forEach((n) => { if (n.scrollTop) inner.set(n.getAttribute('data-sk'), n.scrollTop); });
+    const out = fn();
+    for (const [r, top, isControls] of saved) {
+      // the figure column is rebuilt in place (same element) or replaced by a new one
+      const target = isControls && !r.isConnected ? document.querySelector('.fig-controls') : r;
+      if (target && target.isConnected) target.scrollTop = top;
+    }
+    if (inner.size) document.querySelectorAll('[data-sk]').forEach((n) => { const t = inner.get(n.getAttribute('data-sk')); if (t) n.scrollTop = t; });
+    return out;
+  }
+
+  /** Two small buttons, "Marcar todos" / "Desmarcar todos", for a group of checkboxes. */
+  function allNoneButtons(onAll, onNone, labels) {
+    const l = labels || ['Marcar todos', 'Desmarcar todos'];
+    return el('div.allnone',
+      el('button.btn.small', { type: 'button', on: { click: (e) => { e.preventDefault(); onAll(); } } }, l[0]),
+      el('button.btn.small', { type: 'button', on: { click: (e) => { e.preventDefault(); onNone(); } } }, l[1]));
+  }
+
+  /**
+   * A dropdown list that replaces a long <select>: options in groups, a filter box, the current option marked,
+   * and the list keeps its scroll position between openings (a native select always reopens at the top of
+   * long lists in some browsers). groups: [{label, items:[{value, label, title?}]}].
+   */
+  const pickerScroll = new Map();
+  function picker(key, groups, value, onChange) {
+    const flat = groups.flatMap((g) => g.items);
+    const cur = flat.find((o) => o.value === value);
+    const wrap = el('div.picker');
+    const btn = el('button.input.picker-btn', { type: 'button', title: cur ? cur.label : '' }, el('span.ell', cur ? cur.label : '—'), el('span.picker-caret', '▾'));
+    const panel = el('div.picker-panel', { hidden: true });
+    const filter = el('input.input.picker-filter', { type: 'search', placeholder: 'Filtrar…' });
+    const list = el('div.picker-list');
+    panel.append(filter, list);
+    wrap.append(btn, panel);
+    const fill = () => {
+      clear(list);
+      const q = filter.value.trim().toLowerCase();
+      for (const g of groups) {
+        const items = g.items.filter((o) => !q || o.label.toLowerCase().includes(q) || (g.label || '').toLowerCase().includes(q));
+        if (!items.length) continue;
+        if (g.label) list.append(el('div.picker-group', g.label));
+        for (const o of items) {
+          const row = el('div.picker-item' + (o.value === value ? '.selected' : ''), { title: o.title || o.label, role: 'option', tabindex: '-1' }, o.label);
+          row.addEventListener('click', () => { close(); if (o.value !== value) onChange(o.value); });
+          list.append(row);
+        }
+      }
+      if (!list.childNodes.length) list.append(el('div.picker-empty', 'Nada corresponde ao filtro.'));
+    };
+    const onDoc = (e) => { if (!wrap.contains(e.target)) close(); };
+    const onKey = (e) => { if (e.key === 'Escape') { close(); btn.focus(); } };
+    function open() {
+      fill();
+      panel.hidden = false;
+      const saved = pickerScroll.get(key);
+      if (saved !== undefined) list.scrollTop = saved;
+      else { const s = list.querySelector('.selected'); if (s) list.scrollTop = Math.max(0, s.offsetTop - list.clientHeight / 2); }
+      document.addEventListener('mousedown', onDoc, true);
+      document.addEventListener('keydown', onKey, true);
+      setTimeout(() => filter.focus(), 0);
+    }
+    function close() {
+      if (panel.hidden) return;
+      pickerScroll.set(key, list.scrollTop);
+      panel.hidden = true;
+      document.removeEventListener('mousedown', onDoc, true);
+      document.removeEventListener('keydown', onKey, true);
+    }
+    list.addEventListener('scroll', () => pickerScroll.set(key, list.scrollTop));
+    filter.addEventListener('input', () => { fill(); list.scrollTop = 0; });
+    filter.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { const first = list.querySelector('.picker-item'); if (first) first.click(); }
+    });
+    btn.addEventListener('click', (e) => { e.preventDefault(); if (panel.hidden) open(); else close(); });
+    return wrap;
+  }
+
   Object.assign(App, {
     el, clear, svg, toast, modal, fmtNum, fmtSci, fmtBytes, fmtDate, fmtDuration, fmtBitRate,
     deepClone, deepEqual, isPlainObject, getPath, setPath, downloadText, copyText, debounce,
-    parseNumber, caseNameOf,
+    parseNumber, caseNameOf, keepScroll, allNoneButtons, picker,
   });
 })(window.App);

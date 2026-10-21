@@ -125,8 +125,26 @@ public class NetworkConfig {
         for (CoreConfig core : cores) {
             if (core != null) {
                 core.setQkdReserved(enabled && core.getId() == reservedId);
+                // Part 33: cores that the classical side must not use (the quantum core is never disabled)
+                core.setDisabled(disabledCores != null && disabledCores.contains(Integer.valueOf(core.getId()))
+                        && !(enabled && core.getId() == reservedId));
             }
         }
+    }
+
+    /**
+     * Part 33: ids of the cores that no circuit may use, in every link (e.g. [3, 5]). Optional; absent or empty =
+     * all cores usable (original behaviour). A disabled core looks full to the algorithms. Ignored for the QKD core.
+     */
+    private List<Integer> disabledCores;
+
+    public List<Integer> getDisabledCores() {
+        return disabledCores;
+    }
+
+    public void setDisabledCores(List<Integer> disabledCores) {
+        this.disabledCores = disabledCores;
+        applyQkdCoreReservation();
     }
 
     /** QKD-specific infrastructure parameters stored in the network file. */
@@ -514,6 +532,17 @@ public class NetworkConfig {
 
         public boolean isQkdReserved() {
             return qkdReserved;
+        }
+
+        /** Part 33: set from network.disabledCores (not read from the core object of the JSON). */
+        private transient boolean disabled;
+
+        public boolean isDisabled() {
+            return disabled;
+        }
+
+        public void setDisabled(boolean disabled) {
+            this.disabled = disabled;
         }
 
         public void setQkdReserved(boolean qkdReserved) {

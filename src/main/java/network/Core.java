@@ -63,7 +63,7 @@ public class Core implements Serializable {
      */
     public boolean useSpectrum(int[] spectrumBand, int guardBand)
             throws Exception {
-        if (qkdReserved) {
+        if (qkdReserved || disabled) {
             return false;
         }
         return spectrum.useSpectrum(spectrumBand, guardBand);
@@ -80,9 +80,28 @@ public class Core implements Serializable {
      * to have no available spectrum.
      */
     public List<int[]> getFreeSpectrumBands(int guardBand) {
-        if (qkdReserved) {
+        if (qkdReserved || disabled) {
             return Collections.emptyList();
         }
+        return spectrum.getFreeSpectrumBands(guardBand);
+    }
+
+    /*
+     * Part 33: a core disabled in the network file (network.disabledCores) behaves like the QKD core for the
+     * classical side: no free spectrum and no allocation, so every algorithm skips it. Default false.
+     */
+    private boolean disabled;
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    /** Part 33: the real free bands, whatever the flags (used by the occupancy metrics). */
+    public List<int[]> getFreeSpectrumBandsIgnoringReservation(int guardBand) {
         return spectrum.getFreeSpectrumBands(guardBand);
     }
 

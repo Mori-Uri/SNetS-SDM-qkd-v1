@@ -290,7 +290,12 @@
     document.getElementById('main').scrollTop = 0;
   };
 
+  // 1.11.0: a redraw of the same tab (after a click) keeps the scroll position; selectTab still goes to the top
   App.renderTab = function () {
+    App.keepScroll(renderTabInner);
+  };
+
+  function renderTabInner() {
     const body = clear(document.getElementById('tabBody'));
     let node;
     try {
@@ -311,7 +316,7 @@
       node = el('div.notice.err', 'Erro ao montar esta aba: ' + e.message);
     }
     body.appendChild(node);
-  };
+  }
 
   // ------------------------------------------------------------------ config tabs (form/json)
 

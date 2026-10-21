@@ -13,6 +13,8 @@
 (function (App) {
   'use strict';
   const { el, clear, fmtNum, fmtBitRate, parseNumber, isPlainObject, deepClone } = App;
+  /** 0..1 → "25" (pt-BR comma, no useless decimals). */
+  const fmtPct = (f) => String(Math.round(Number(f) * 100 * 1000) / 1000).replace('.', ',');
   const st = () => App.state;
 
   const QKD_DEFAULTS = {
@@ -285,6 +287,18 @@
         });
         return field(label, i, unit);
       };
+      // 1.12.0: the fraction is typed in % (the file keeps 0..1)
+      const simPct = (path, label, unit) => {
+        const cur = path.reduce((o, k) => (o ? o[k] : undefined), sim);
+        const i = el('input.input.num', { type: 'text', value: cur === undefined ? '' : fmtPct(cur) });
+        i.addEventListener('change', () => {
+          const v = parseNumber(i.value);
+          const ok = Number.isFinite(v) && v >= 0 && v <= 100;
+          i.classList.toggle('invalid', !ok);
+          if (ok) { App.setValue('simulation', path, v / 100); App.renderTab(); }
+        });
+        return field(label, i, unit);
+      };
       const intervals = el('input.input.mono', { type: 'text', value: kd ? (kd.updateIntervalsMicroseconds || []).join(', ') : '' });
       intervals.addEventListener('change', () => {
         const arr = intervals.value.split(/[;,\s]+/).filter(Boolean).map((x) => parseNumber(x));
@@ -298,12 +312,9 @@
       met.addEventListener('change', () => { if (!isPlainObject(sim.activeMetrics)) sim.activeMetrics = {}; App.setValue('simulation', ['activeMetrics', 'QKDMetrics'], met.checked); });
       root.append(el('section.panel',
         el('h2', 'Demanda QKD e métricas'),
-        el('div.kv',
-          kvBox('Geradores com campos QKD', fmtNum(tr.withFields) + ' / ' + fmtNum(tr.total)),
-          kvBox('Requisições protegidas (esperado)', fmtNum(100 * tr.protectedShare, 1), '%'),
-          kvBox('Demanda média de chave', Number.isFinite(tr.meanKey) ? fmtNum(tr.meanKey, 2) : '—', 'Mbit/s')),
+        qkdKvBoxes(tr),
         el('div.fields', { style: { marginTop: '12px' } },
-          simNum(['qkdProtectedRequestProbability'], 'Fração protegida padrão', 'geradores sem qkdProtectedProbability', (v) => v >= 0 && v <= 1),
+          simPct(['qkdProtectedRequestProbability'], 'Fração protegida padrão (%)', 'de 0 a 100 %; vale para os geradores sem qkdProtectedProbability'),
           simNum(['qkdKeyDemand', 'keySizeBits'], 'Tamanho da chave', 'bits', (v) => v > 0 && Number.isInteger(v)),
           field('Intervalos de renovação da chave', intervals, 'µs; ' + (rates.length ? rates.map((r) => fmtNum(r, 3)).join(' / ') + ' Mbit/s' : '—')),
           simNum(['qkdWarmupFraction'], 'Warm-up das métricas QKD', 'fração das chegadas', (v) => v >= 0 && v < 1)),
@@ -320,6 +331,17 @@
 
   function kvBox(k, v, unit) { return el('div', el('div.k', k), el('div.v', v, unit ? el('small', ' ' + unit) : null)); }
 
+  /** 1.12.0: the values of the current files, side by side (QKD tab and QKD traffic panel). */
+  function qkdKvBoxes(t) {
+    return el('div.kv',
+      kvBox('Geradores com campos QKD', fmtNum(t.withFields) + ' / ' + fmtNum(t.total)),
+      kvBox('Requisições protegidas (esperado)', fmtNum(100 * t.protectedShare, 1), '%'),
+      kvBox('Demanda média de chave', Number.isFinite(t.meanKey) ? fmtNum(t.meanKey, 2) : '—', 'Mbit/s'),
+      kvBox('Carga inicial', fmtNum(t.loadBase, 1), 'Erlang'),
+      kvBox('Incremento por ponto', fmtNum(t.loadInc, 1), 'Erlang'),
+      Number.isFinite(t.loadLast) ? kvBox('Carga do último ponto (' + t.points + ')', fmtNum(t.loadLast, 1), 'Erlang') : null);
+  }
+
   // ------------------------------------------------------------------ traffic
 
   function trafficQkdSummary() {
@@ -329,15 +351,24 @@
     const kd = isPlainObject(sim.qkdKeyDemand) ? sim.qkdKeyDemand : null;
     const policyMean = kd && Array.isArray(kd.updateIntervalsMicroseconds) && kd.updateIntervalsMicroseconds.length
       ? kd.updateIntervalsMicroseconds.reduce((s, us) => s + (kd.keySizeBits || 256) / us, 0) / kd.updateIntervalsMicroseconds.length : NaN;
-    let lam = 0, lamP = 0, keyW = 0, withFields = 0;
+    let lam = 0, lamP = 0, keyW = 0, withFields = 0, erl = 0, erlInc = 0;
+    const probs = new Map(), keys = new Map();
     for (const g of gens) {
       const l = Number(g.arrivalRate) || 0;
+      const mu = Number(g.holdRate) || 1;
+      erl += l / mu; erlInc += (Number(g.arrivalRateIncrease) || 0) / mu;
+      if (g.qkdProtectedProbability !== undefined) probs.set(Number(g.qkdProtectedProbability), (probs.get(Number(g.qkdProtectedProbability)) || 0) + 1);
+      if (g.keyRateMbps !== undefined) keys.set(Number(g.keyRateMbps), (keys.get(Number(g.keyRateMbps)) || 0) + 1);
       const p = g.qkdProtectedProbability !== undefined ? Number(g.qkdProtectedProbability) : globalP;
       const k = g.keyRateMbps !== undefined ? Number(g.keyRateMbps) : policyMean;
       if (g.qkdProtectedProbability !== undefined || g.keyRateMbps !== undefined) withFields++;
       lam += l; lamP += l * p; keyW += l * p * k;
     }
-    return { total: gens.length, withFields, protectedShare: lam ? lamP / lam : 0, meanKey: lamP ? keyW / lamP : NaN };
+    const mode = (m) => { let best, n = -1; for (const [v, c] of m) if (c > n) { best = v; n = c; } return best; };
+    const points = Number(sim.loadPoints) || 0;
+    return { total: gens.length, withFields, protectedShare: lam ? lamP / lam : 0, meanKey: lamP ? keyW / lamP : NaN,
+      loadBase: erl, loadInc: erlInc, loadLast: points > 0 ? erl + (points - 1) * erlInc : NaN, points,
+      commonProb: probs.size ? mode(probs) : globalP, commonKey: keys.size ? mode(keys) : NaN, anyKeyField: keys.size > 0, policyMean };
   }
 
   function applyQkdFields(match, prob, keyMbps) {
@@ -360,7 +391,7 @@
   /** Panel inserted in the Traffic tab when the case is in QKD mode. */
   const QKD_TERMS = [
     ['Requisição protegida por QKD', 'Requisição que, além do circuito clássico, precisa de uma sessão de distribuição quântica de chaves (QKD) entre a origem e o destino: um canal quântico (QCh) no núcleo reservado e pares Q-TRx em cada nó confiável da rota QKD. Ela só é aceita se o circuito clássico E a sessão QKD forem provisionados; se a parte QKD falhar, a requisição inteira é bloqueada (bloqueio QKD).'],
-    ['Fração protegida (qkdProtectedProbability)', 'Probabilidade de cada requisição deste gerador ser protegida por QKD, sorteada requisição a requisição. 0 = nenhuma; 1 = todas. Não é fração da banda nem da carga: a carga clássica do gerador continua a mesma, só parte das requisições passa a pedir também chave quântica.', 'Ex.: 0,2 → em média 1 de cada 5 requisições do gerador é protegida.'],
+    ['Fração protegida (qkdProtectedProbability)', 'Probabilidade de cada requisição deste gerador ser protegida por QKD, sorteada requisição a requisição. No launcher é digitada em %: 0 % = nenhuma; 100 % = todas (no arquivo fica de 0 a 1). Não é fração da banda nem da carga: a carga clássica do gerador continua a mesma, só parte das requisições passa a pedir também chave quântica.', 'Ex.: 20 % → em média 1 de cada 5 requisições do gerador é protegida.'],
     ['Fração padrão (simulation)', 'qkdProtectedRequestProbability, na aba Simulação: vale para os geradores que não têm o campo próprio.'],
     ['Demanda de chave (keyRateMbps)', 'Taxa de chave secreta que a sessão QKD precisa entregar, em Mbit/s, enquanto a conexão estiver ativa. A sessão só é aceita se a taxa de chave segura (SKR) de todos os trechos da rota QKD for pelo menos esta demanda.', 'Ex.: chave AES de 256 bits renovada a cada 128 µs = 256/128 = 2 Mbit/s.'],
     ['Política qkdKeyDemand (sem keyRateMbps)', 'A demanda é sorteada para cada requisição protegida: tamanho da chave ÷ intervalo de renovação, com o intervalo escolhido ao acaso da lista do arquivo simulation.', 'Padrão: 256 bits e 64, 128 ou 256 µs → 4, 2 ou 1 Mbit/s.'],
@@ -372,7 +403,17 @@
     const net = st().model.network;
     const nodes = isPlainObject(net) && Array.isArray(net.nodes) ? net.nodes.map((n) => String(n.name)) : [];
     const rates = sum.rates.map((r) => r.rate);
-    const s = trafficPanel.state || (trafficPanel.state = { src: '', dst: '', rates: new Set(), prob: '0,2', key: '2', policy: false, dedSrc: '', dedDst: '', dedRate: '100', dedLoad: '10', dedInc: '5', dedKey: '2' });
+    // 1.12.0: the boxes start with the values of THIS case's files (they used to keep the last typed values)
+    const t0 = trafficQkdSummary();
+    const caseKey = st().casePath;
+    if (!trafficPanel.state || trafficPanel.stateFor !== caseKey) {
+      const keyNow = Number.isFinite(t0.commonKey) ? t0.commonKey : t0.policyMean;
+      trafficPanel.state = { src: '', dst: '', rates: new Set(), prob: fmtPct(t0.commonProb || 0), key: Number.isFinite(keyNow) ? String(keyNow).replace('.', ',') : '2',
+        policy: t0.withFields > 0 && !t0.anyKeyField, dedSrc: '', dedDst: '', dedRate: '100',
+        dedLoad: String(Math.round(t0.loadBase * 10) / 10 || 10).replace('.', ','), dedInc: String(Math.round(t0.loadInc * 10) / 10 || 5).replace('.', ',') };
+      trafficPanel.stateFor = caseKey;
+    }
+    const s = trafficPanel.state;
     const nodeSel = (key) => {
       const x = el('select.input', el('option', { value: '' }, 'qualquer'), nodes.map((n) => el('option', { value: n }, n)));
       x.value = s[key];
@@ -392,7 +433,7 @@
     usePolicy.addEventListener('change', () => { s.policy = usePolicy.checked; });
     const match = (g) => (!s.src || String(g.source) === s.src) && (!s.dst || String(g.destination) === s.dst)
       && (s.rates.size === 0 || s.rates.has(Number(g.bitRate)));
-    const t = trafficQkdSummary();
+    const t = t0;
     const byRate = new Map();
     for (const g of sum.gens) {
       const r = Number(g.bitRate);
@@ -402,11 +443,13 @@
       if (g.keyRateMbps !== undefined) e.k.push(Number(g.keyRateMbps));
       byRate.set(r, e);
     }
+    const rngPct = (a) => (a.length ? (Math.min(...a) === Math.max(...a) ? fmtPct(a[0]) + ' %' : fmtPct(Math.min(...a)) + '–' + fmtPct(Math.max(...a)) + ' %') : '—');
     const rng = (a) => (a.length ? (Math.min(...a) === Math.max(...a) ? fmtNum(a[0], 3) : fmtNum(Math.min(...a), 3) + '–' + fmtNum(Math.max(...a), 3)) : '—');
 
     const apply = el('button.btn.primary', { type: 'button', on: { click: () => {
-      const p = parseNumber(s.prob), k = s.policy ? null : parseNumber(s.key);
-      if (!(p >= 0 && p <= 1)) { App.toast('Fração protegida deve estar entre 0 e 1.', 'err'); return; }
+      const pp = parseNumber(s.prob), k = s.policy ? null : parseNumber(s.key);
+      if (!(pp >= 0 && pp <= 100)) { App.toast('Fração protegida deve estar entre 0 e 100 %.', 'err'); return; }
+      const p = pp / 100;
       if (!s.policy && !(k > 0)) { App.toast('Demanda de chave deve ser > 0 Mbit/s.', 'err'); return; }
       const n = applyQkdFields(match, p, k);
       App.toast('Campos QKD aplicados a ' + fmtNum(n) + ' gerador(es) (não salvo).', 'ok');
@@ -418,15 +461,19 @@
       App.renderTab();
     } } }, 'Remover campos QKD');
     const addDedicated = el('button.btn', { type: 'button', on: { click: () => {
-      const rate = parseNumber(s.dedRate) * 1e9, load = parseNumber(s.dedLoad), inc = parseNumber(s.dedInc), key = parseNumber(s.dedKey);
-      if (!(rate > 0) || !(load >= 0) || !(inc >= 0) || !(key > 0)) { App.toast('Valores inválidos para os geradores QKD dedicados.', 'err'); return; }
+      const rate = parseNumber(s.dedRate) * 1e9, load = parseNumber(s.dedLoad), inc = parseNumber(s.dedInc), key = s.policy ? null : parseNumber(s.key);
+      if (!(rate > 0) || !(load >= 0) || !(inc >= 0) || (!s.policy && !(key > 0))) { App.toast('Valores inválidos para os geradores QKD dedicados.', 'err'); return; }
       const pairs = [];
       for (const a of nodes) for (const b of nodes) if (a !== b && (!s.dedSrc || a === s.dedSrc) && (!s.dedDst || b === s.dedDst)) pairs.push([a, b]);
       if (!pairs.length) { App.toast('Nenhum par selecionado.', 'err'); return; }
       const tr = st().model.traffic;
       const gens = deepClone(isPlainObject(tr) && Array.isArray(tr.requestGenerators) ? tr.requestGenerators : []);
-      for (const [a, b] of pairs) gens.push({ source: a, destination: b, bitRate: rate, arrivalRate: load / pairs.length, holdRate: 1.0,
-        arrivalRateIncrease: inc / pairs.length, qkdProtectedProbability: 1.0, keyRateMbps: key });
+      for (const [a, b] of pairs) {
+        const g = { source: a, destination: b, bitRate: rate, arrivalRate: load / pairs.length, holdRate: 1.0,
+          arrivalRateIncrease: inc / pairs.length, qkdProtectedProbability: 1.0 };
+        if (key !== null) g.keyRateMbps = key;
+        gens.push(g);
+      }
       if (!isPlainObject(tr)) App.setValue('traffic', [], { requestGenerators: gens });
       else App.setValue('traffic', ['requestGenerators'], gens);
       App.toast(pairs.length + ' geradores QKD dedicados adicionados (não salvo).', 'ok');
@@ -437,28 +484,31 @@
       el('h2', 'Tráfego QKD'),
       el('p.lead', 'Cada gerador do arquivo traffic pode ter dois campos opcionais: a fração protegida (qkdProtectedProbability) e a demanda de chave (keyRateMbps). Sem eles valem a fração padrão e a política qkdKeyDemand do arquivo simulation. Gerar um tráfego novo acima apaga esses campos: aplique-os de novo aqui.'),
       App.traffic.glossary('O que significa cada variável QKD', QKD_TERMS, 'qkdtraffic', true),
-      el('div.kv',
-        kvBox('Geradores com campos QKD', fmtNum(t.withFields) + ' / ' + fmtNum(t.total)),
-        kvBox('Requisições protegidas (esperado)', fmtNum(100 * t.protectedShare, 1), '%'),
-        kvBox('Demanda média de chave', Number.isFinite(t.meanKey) ? fmtNum(t.meanKey, 2) : '—', 'Mbit/s')),
+      qkdKvBoxes(t),
+      el('div.stack-s', { style: { margin: '12px 0 0' } },
+        el('h3', 'Demanda de chave (vale para as duas ações abaixo)'),
+        el('div.fields', field('Demanda fixa por requisição', inp('key'), 'Mbit/s → campo keyRateMbps de cada gerador')),
+        el('label.check', usePolicy, ' Não fixar: usar a política qkdKeyDemand da aba QKD (tamanho da chave ÷ intervalo sorteado; padrão 1, 2 ou 4 Mbit/s por requisição)')),
       el('div.table-wrap', { style: { margin: '12px 0' } }, el('table.grid.data',
         el('thead', el('tr', el('th', 'Taxa'), el('th.num', 'Geradores'), el('th.num', 'Com campos QKD'), el('th.num', 'Fração protegida'), el('th.num', 'Chave (Mbit/s)'))),
         el('tbody', [...byRate.entries()].sort((a, b) => a[0] - b[0]).map(([r, e]) => el('tr',
-          el('td', fmtBitRate(r)), el('td.num', fmtNum(e.n)), el('td.num', fmtNum(e.q)), el('td.num', rng(e.p)), el('td.num', rng(e.k))))))),
+          el('td', fmtBitRate(r)), el('td.num', fmtNum(e.n)), el('td.num', fmtNum(e.q)), el('td.num', rngPct(e.p)), el('td.num', rng(e.k))))))),
       el('div.two-col',
         el('div.stack-s',
           el('h3', 'Marcar geradores existentes'),
           el('div.fields', field('Origem', nodeSel('src')), field('Destino', nodeSel('dst'))),
-          rates.length ? el('div.field', el('div.flabel', 'Taxas'), rateBox) : null,
-          el('div.fields', field('Fração protegida', inp('prob'), 'probabilidade de 0 a 1'), field('Demanda de chave', inp('key'), 'Mbit/s')),
-          el('div.help', 'Ex.: 0,2 e 2 → em média 20 % das requisições dos geradores filtrados pedem também uma sessão QKD que entregue 2 Mbit/s de chave; as outras 80 % são só clássicas.'),
-          el('label.check', usePolicy, ' Usar a política qkdKeyDemand da simulação (sem keyRateMbps)'),
+          rates.length ? el('div.field', el('div.flabel', 'Taxas'), rateBox,
+            rates.length > 1 ? App.allNoneButtons(
+              () => { rates.forEach((x) => s.rates.add(x)); rateBox.querySelectorAll('input[type=checkbox]').forEach((c) => { c.checked = true; }); },
+              () => { s.rates.clear(); rates.forEach((x) => s.rates.add(-1)); rateBox.querySelectorAll('input[type=checkbox]').forEach((c) => { c.checked = false; }); }) : null) : null,
+          el('div.fields', field('Fração protegida (%)', inp('prob'), 'de 0 a 100 %')),
+          el('div.help', 'Ex.: 20 % e 2 Mbit/s → em média 1 de cada 5 requisições dos geradores filtrados pede também uma sessão QKD que entregue 2 Mbit/s de chave; as outras são só clássicas. A demanda de chave usada é a do quadro "Demanda de chave" acima.'),
           el('div.toolbar', apply, remove)),
         el('div.stack-s',
           el('h3', 'Gerar lista QKD dedicada'),
           el('p.small.muted', 'Acrescenta novos geradores em que todas as requisições são protegidas (fração = 1), para os pares escolhidos ("qualquer" = todos os nós). A carga informada é somada à carga do tráfego atual e dividida igualmente entre os pares; cada requisição ocupa um circuito clássico da taxa indicada e uma sessão QKD com a demanda de chave indicada.'),
           el('div.fields', field('Origem', nodeSel('dedSrc')), field('Destino', nodeSel('dedDst')),
-            field('Taxa clássica', inp('dedRate'), 'Gb/s'), field('Demanda de chave', inp('dedKey'), 'Mbit/s'),
+            field('Taxa clássica', inp('dedRate'), 'Gb/s'),
             field('Carga inicial total', inp('dedLoad'), 'Erlang'), field('Incremento por ponto', inp('dedInc'), 'Erlang')),
           el('div.toolbar', addDedicated))));
   }

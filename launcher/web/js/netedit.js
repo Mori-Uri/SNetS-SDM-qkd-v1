@@ -38,12 +38,13 @@
     return responsive(R.render({ kind: 'topo', panels: [panel], range: null }, st), 680);
   }
 
-  function coresPreview(coresCfg, quantumCore) {
+  function coresPreview(coresCfg, quantumCore, disabled) {
     const R = App.figRender;
     const pos = P().coreLayout(coresCfg);
+    const dis = disabled || new Set();
     const cores = coresCfg.map((c) => {
       const p = pos.get(c.id) || { x: 0, y: 0 };
-      return { id: c.id, x: p.x, y: p.y, util: NaN, block: NaN, unused: false, highlight: quantumCore === c.id ? '#c9a3ff' : null };
+      return { id: c.id, x: p.x, y: p.y, util: NaN, block: NaN, unused: false, quantum: quantumCore === c.id, disabled: quantumCore !== c.id && dis.has(Number(c.id)) };
     });
     const st = Object.assign(R.defaultStyle(), { width: 300, height: 300, coreShow: 'none', coreLegend: false, coreCols: 1, showTitle: false, fontSize: 11 });
     return responsive(R.render({ kind: 'cores', diagrams: [{ title: coresCfg.length + ' núcleos', cores }] }, st), 300);
@@ -159,7 +160,9 @@
     const showN = ui.cores ? Number(ui.cores) : null;
     const showCfg = showN ? P().coresConfig(showN) : cores;
     const coreBox = el('div.net-preview.cores');
-    if (showCfg.length) coreBox.append(coresPreview(showCfg, qkdCore));
+    const disList = Array.isArray(net.disabledCores) ? net.disabledCores.map(Number).filter(Number.isFinite) : [];
+    const disSet = new Set(disList);
+    if (showCfg.length) coreBox.append(coresPreview(showCfg, qkdCore, disSet));
     else coreBox.append(el('div.muted.small', 'O arquivo não tem núcleos.'));
     const desc = showN ? P().CORES[showN].desc : curPreset ? P().CORES[curPreset].desc : cores.length ? 'Layout lido de network.cores (não corresponde a 2, 7, 12 ou 19 núcleos padrão).' : '';
     const adj = el('details.small', el('summary', 'Vizinhos de cada núcleo (fonte de crosstalk)'),
@@ -172,13 +175,41 @@
       const warn = qkdCore !== null && qkdCore >= showN;
       App.toast(P().CORES[showN].name + ' aplicada' + (warn ? ' — o núcleo QKD (' + qkdCore + ') não existe nesta fibra' : ''), warn ? 'warn' : 'ok', warn ? 7000 : 3000);
     };
+    // ---------------- disabled cores (network.disabledCores)
+    const setDisabled = (ids) => {
+      const sorted = Array.from(new Set(ids)).sort((a, b) => a - b);
+      if (sorted.length) App.setValue('network', ['disabledCores'], sorted);
+      else { const n = st.model.network; delete n.disabledCores; App.setValue('network', [], n); }
+      App.renderTab();
+    };
+    const classical = cores.filter((c) => Number(c.id) !== qkdCore);
+    const disChecks = cores.map((c) => {
+      const id = Number(c.id);
+      const isQ = id === qkdCore;
+      const cb = el('input', { type: 'checkbox', checked: !isQ && disSet.has(id), disabled: isQ });
+      cb.addEventListener('change', () => setDisabled(cb.checked ? disList.concat([id]) : disList.filter((v) => v !== id)));
+      return el('label.check.small', { title: isQ ? 'Núcleo quântico: já é reservado para QKD (não recebe tráfego clássico)' : 'Desativar o núcleo ' + id }, cb, ' ' + id + (isQ ? ' (QKD)' : ''));
+    });
+    const unknown = disList.filter((v) => !cores.some((c) => Number(c.id) === v));
+    const left = classical.filter((c) => !disSet.has(Number(c.id))).length;
+    const disCard = cores.length ? el('div.stack-xs',
+      el('div.flabel', 'Núcleos desativados (não usados por nenhum circuito)'),
+      el('div.checks', disChecks),
+      el('div.toolbar', disList.length ? el('button.btn.small.ghost', { type: 'button', on: { click: () => setDisabled([]) } }, 'Reativar todos') : null),
+      el('p.small.muted', 'Grava network.disabledCores. Um núcleo desativado não aceita circuitos clássicos nem canais QKD (QCh e PICh): para os algoritmos ele aparece sem nenhum slot livre. '
+        + 'O crosstalk que ele recebe ou gera é zero, porque nunca tem sinal. O núcleo quântico não pode ser desativado aqui: para não usar QKD, desligue qkd.enabled. '
+        + 'Algoritmos que escolhem um núcleo e não tentam outro bloqueiam quando escolhem o desativado.'),
+      unknown.length ? el('p.small.warn', 'Atenção: os núcleos ' + unknown.join(', ') + ' não existem nesta fibra e são ignorados.') : null,
+      left === 0 ? el('p.small.warn', 'Atenção: todos os núcleos clássicos estão desativados; todas as requisições serão bloqueadas.') : null) : null;
+
     const coreCard = el('div.net-card',
       el('h3', 'Fibra multinúcleo'),
       el('label.field', el('div.flabel', 'Arquitetura de núcleos'), coreSel),
       el('div.toolbar', el('button.btn.primary.small', { type: 'button', disabled: !showN, on: { click: applyCores } }, 'Aplicar núcleos'),
         showN ? el('span.small.muted', 'pré-visualização, ainda não aplicada') : null),
       coreBox,
-      el('p.small.muted', desc + (qkdCore !== null ? ' Em lilás: núcleo reservado para QKD (' + qkdCore + ').' : '')),
+      el('p.small.muted', desc + (qkdCore !== null ? ' Em roxo claro: núcleo reservado para QKD (' + qkdCore + ').' : '') + (disSet.size ? ' Em vermelho: núcleos desativados.' : '')),
+      showN ? null : disCard,
       adj,
       el('p.small.muted', 'O mesmo desenho é usado no diagrama de uso e bloqueio por núcleo dos resultados.'));
 

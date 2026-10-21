@@ -455,3 +455,19 @@ body.sidebar-collapsed .sidebar { display: none; }
 .ladder-cases > .small { flex-basis: 100%; }
 @media (max-width: 760px) { .ladder-step-main { grid-template-columns: minmax(0, 1fr); } .ladder-actions { justify-content: flex-start; } }
 .fsub { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-3); font-weight: 600; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
+
+/* 1.11.0: marcar/desmarcar todos e lista suspensa que guarda a posição */
+.stack-xs { display: grid; gap: 4px; }
+.allnone { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 0; }
+.picker { position: relative; }
+.picker-btn { width: 100%; display: flex; align-items: center; gap: 6px; text-align: left; cursor: pointer; }
+.picker-btn .ell { flex: 1 1 auto; min-width: 0; }
+.picker-caret { color: var(--fg-3); font-size: 11px; }
+.picker-panel { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); padding: 6px; display: grid; gap: 6px; }
+.picker-list { max-height: 360px; overflow: auto; }
+.picker-group { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--fg-3); padding: 8px 6px 3px; }
+.picker-item { padding: 5px 8px; border-radius: 5px; cursor: pointer; font-size: 13px; }
+.picker-item:hover { background: var(--surface-2); }
+.picker-item.selected { background: var(--surface-3); font-weight: 600; }
+.picker-empty { padding: 8px; color: var(--fg-3); font-size: 12.5px; }
+p.warn, .small.warn { color: var(--warn); font-weight: 600; }

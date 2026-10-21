@@ -53,6 +53,7 @@
       // cores diagram
       coreCols: 2, coreFiber: '#ededed', coreFiberStroke: '#9a9a9a', coreFill: '#ffffff', coreStroke: '#000000',
       coreBlockColor: '#f4b183', coreUtilColor: '#9dc3e6', coreShow: 'both', coreDigits: 6, coreHideUnused: true,
+      coreMarkQuantum: true, coreMarkDisabled: true, coreQuantumColor: '#d9c6f5', coreDisabledColor: '#d32f2f',
       coreHeat: 'none', coreHeatColor: '#2f75b5', coreLegend: true, coreLabelSize: 0,
       // topology / link heat map
       topoCols: 3, topoNodeR: 11, topoLinkWidth: 5, topoDir: 'both', topoLabels: 'none', topoLegend: 'right',
@@ -606,6 +607,10 @@
       const items = [];
       if (show === 'both' || show === 'block') items.push({ name: model.blockLabel || 'Bloqueio do núcleo', color: st.coreBlockColor, kind: 'box' });
       if (show === 'both' || show === 'util') items.push({ name: model.utilLabel || 'Uso do núcleo', color: st.coreUtilColor, kind: 'box' });
+      const anyQ = model.diagrams.some((d) => d.cores.some((c) => c.quantum)) && st.coreMarkQuantum !== false;
+      const anyD = model.diagrams.some((d) => d.cores.some((c) => c.disabled)) && st.coreMarkDisabled !== false;
+      if (anyQ) items.push({ name: 'Núcleo quântico', color: st.coreQuantumColor || '#d9c6f5', kind: 'box' });
+      if (anyD) items.push({ name: 'Núcleo desativado', color: st.coreDisabledColor || '#d32f2f', kind: 'box' });
       const lg = buildLegend(items, Object.assign({}, st, { legendBox: false }), box.w, 1);
       root.appendChild(lg.draw(box.x + (box.w - lg.w) / 2, top));
       top += lg.h + 4;
@@ -650,9 +655,13 @@
           const v = st.coreHeat === 'util' ? c.util : c.block;
           if (Number.isFinite(v)) fill = mix(st.coreHeatColor, Math.min(1, v / heatMax));
         }
+        if (c.quantum && st.coreMarkQuantum !== false) fill = st.coreQuantumColor || '#d9c6f5';
+        if (c.disabled && st.coreMarkDisabled !== false) fill = st.coreDisabledColor || '#d32f2f';
         if (c.highlight) fill = c.highlight;
-        g.appendChild(S('circle', { cx: x, cy: y, r: coreR, fill: c.unused ? 'none' : fill, stroke: c.unused ? '#9a9a9a' : st.coreStroke, 'stroke-width': 1.3, 'stroke-dasharray': c.unused ? '3 2' : null }));
-        g.appendChild(textEl(x, y + Math.min(coreR * 1.05, Math.max(fs * 1.7, coreR * 0.6)) * 0.36, String(c.id), { size: Math.min(coreR * 1.05, Math.max(fs * 1.7, coreR * 0.6)), font: st.font, color: c.unused ? '#9a9a9a' : '#000000', anchor: 'middle', weight: 700 }));
+        const dis = c.disabled && st.coreMarkDisabled !== false;
+        const hollow = c.unused && !dis && !c.quantum;
+        g.appendChild(S('circle', { cx: x, cy: y, r: coreR, fill: hollow ? 'none' : fill, stroke: hollow ? '#9a9a9a' : st.coreStroke, 'stroke-width': 1.3, 'stroke-dasharray': hollow ? '3 2' : null }));
+        g.appendChild(textEl(x, y + Math.min(coreR * 1.05, Math.max(fs * 1.7, coreR * 0.6)) * 0.36, String(c.id), { size: Math.min(coreR * 1.05, Math.max(fs * 1.7, coreR * 0.6)), font: st.font, color: dis ? '#ffffff' : hollow ? '#9a9a9a' : '#000000', anchor: 'middle', weight: 700 }));
         if (c.unused || !nBoxes) continue;
         // label position: radially outside the fiber; the centre core goes to the right
         let ang = Math.atan2(c.y, c.x);
@@ -1096,7 +1105,7 @@
           cells.appendChild(rect);
           k = e;
         }
-        g.appendChild(textEl(x0 + G.linkColW + G.coreColW / 2, ry + rowH / 2 + Math.min(fs, rowH) * 0.36, rowH >= 7 ? String(r.core) : '', { size: Math.min(fs, Math.max(6, rowH - 1)), font: st.font, color: st.textColor, anchor: 'middle', weight: 700 }));
+        g.appendChild(textEl(x0 + G.linkColW + G.coreColW / 2, ry + rowH / 2 + Math.min(fs, rowH) * 0.36, rowH >= 7 ? String(r.core) : '', { size: Math.min(fs, Math.max(6, rowH - 1)), font: st.font, color: r.quantum ? '#7b4fc9' : st.textColor, anchor: 'middle', weight: 700 }));
         if (r.summary && G.sumW.length) {
           let cx = sx;
           const sfs = Math.min(fs, Math.max(6, rowH - 1));

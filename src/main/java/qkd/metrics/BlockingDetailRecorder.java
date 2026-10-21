@@ -98,6 +98,12 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
     private int[][][] slotAttempts;
     private final Map<String, int[][][]> slotBlocked = new LinkedHashMap<String, int[][][]>();
     private final long[] blockedNoBand = new long[2];
+    /* Part 33: QKD-protected requests rejected by the QKD side without any QCh band tried (quantum core full). */
+    private long qkdBlockedNoQchBand;
+    /* Part 33: established circuits per link and modulation, [classical, qkd] */
+    private final Map<String, Map<String, long[]>> modPerLink = new TreeMap<String, Map<String, long[]>>();
+    /* cause decided by the last observe() (null = accepted), used by markQch */
+    private String lastObservedCause;
     /* Part 29: the same, counted once per request on each link and core it used (not per slot). */
     private long[][] rowAttempts;
     private final Map<String, long[][]> rowBlocked = new LinkedHashMap<String, long[][]>();
@@ -144,6 +150,58 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         blockedNoBand[0] = blockedNoBand[1] = 0;
         if (rowAttempts != null) for (long[] a : rowAttempts) java.util.Arrays.fill(a, 0);
         rowBlocked.clear();
+        qkdBlockedNoQchBand = 0;
+        modPerLink.clear();
+    }
+
+    /**
+     * Part 33: QCh bands of a QKD-protected request on the quantum core. Accepted: the bands of its session
+     * count as attempts; rejected by the QKD side: the bands tried count as attempts and blocks of the cause.
+     * Each (link, core, band) counts once per request. Entries: {Link, Integer core, int[] band}.
+     */
+    public void markQch(RequestForConnection request, boolean success, List<Object[]> entries, boolean qkdTried) {
+        if (request == null || !request.isQkdProtected() || slotAttempts == null) return;
+        String cause = success ? null : lastObservedCause;
+        boolean qkdCause = cause != null && cause.startsWith("QKD ") && !C_QKD_PROTECT.equals(cause);
+        if (!success && !qkdCause) return; // blocked by the classical side: the QKD side did not decide
+        java.util.Set<String> seen = new java.util.HashSet<String>();
+        boolean any = false;
+        if (entries != null) {
+            for (Object[] e : entries) {
+                Link l = (Link) e[0];
+                int core = ((Integer) e[1]).intValue();
+                int[] band = (int[]) e[2];
+                String key = linkName(l) + "|" + core + "|" + band[0] + "-" + band[1];
+                if (!seen.add(key)) continue;
+                any |= markBand(linkName(l), core, band, cause);
+            }
+        }
+        if (!success && !any && qkdTried) qkdBlockedNoQchBand++;
+    }
+
+    /** Adds one attempt (and one block of the cause, when not null) on a band of one link and core. */
+    private boolean markBand(String link, int core, int[] band, String blockedCause) {
+        Integer li = linkIndex.get(link);
+        if (li == null || core < 0 || core >= slotCores || band == null || band.length < 2 || band[0] < 1 || band[1] < band[0]) return false;
+        int[][][] blk = null;
+        long[][] rblk = null;
+        if (blockedCause != null) {
+            rblk = rowBlocked.get(blockedCause);
+            if (rblk == null) { rblk = new long[linkNames.size()][slotCores]; rowBlocked.put(blockedCause, rblk); }
+            blk = slotBlocked.get(blockedCause);
+            if (blk == null) { blk = new int[linkNames.size()][][]; slotBlocked.put(blockedCause, blk); }
+            if (blk[li] == null) blk[li] = new int[slotCores][];
+            if (blk[li][core] == null) blk[li][core] = new int[slotSlots];
+        }
+        int[] at = slotAttempts[li][core];
+        int[] bl = blk == null ? null : blk[li][core];
+        for (int s = band[0] - 1; s < band[1] && s < slotSlots; s++) {
+            at[s]++;
+            if (bl != null) bl[s]++;
+        }
+        rowAttempts[li][core]++;
+        if (rblk != null) rblk[li][core]++;
+        return true;
     }
 
     /** Part 29: adds one attempt (and one block of the cause, when not null) on the band of the candidate. */
@@ -230,9 +288,11 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
             qkdCause = null;
         }
         String cause = null;
+        lastObservedCause = null;
         if (!success) {
             blocked[cls]++;
             cause = qkdCause != null ? qkdCause : classicalCause(cp, blockedCircuit);
+            lastObservedCause = cause;
             blockedByCause.get(cause)[cls]++;
             String diag;
             try {
@@ -251,7 +311,19 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
 
         // Part 29: position of the request in the spectrum
         if (success) {
-            if (request.getCircuits() != null) for (Circuit c : request.getCircuits()) markSlots(c, null);
+            if (request.getCircuits() != null) for (Circuit c : request.getCircuits()) {
+                markSlots(c, null);
+                // Part 33: modulation chosen on each link of the circuit's route
+                if (c.getRoute() != null && c.getModulation() != null) {
+                    for (Link l : c.getRoute().getLinkList()) {
+                        Map<String, long[]> m = modPerLink.get(linkName(l));
+                        if (m == null) { m = new TreeMap<String, long[]>(); modPerLink.put(linkName(l), m); }
+                        long[] v = m.get(c.getModulation().getName());
+                        if (v == null) { v = new long[2]; m.put(c.getModulation().getName(), v); }
+                        v[cls]++;
+                    }
+                }
+            }
         } else if (!markSlots(blockedCircuit != null ? blockedCircuit : any, cause)) {
             blockedNoBand[cls]++;
         }
@@ -362,6 +434,12 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         s.slotAttempts = deepCopy(slotAttempts);
         for (Map.Entry<String, int[][][]> e : slotBlocked.entrySet()) s.slotBlocked.put(e.getKey(), deepCopy(e.getValue()));
         s.blockedNoBand = blockedNoBand.clone();
+        s.qkdBlockedNoQchBand = qkdBlockedNoQchBand;
+        for (Map.Entry<String, Map<String, long[]>> e : modPerLink.entrySet()) {
+            Map<String, long[]> m = new TreeMap<String, long[]>();
+            for (Map.Entry<String, long[]> f : e.getValue().entrySet()) m.put(f.getKey(), f.getValue().clone());
+            s.modPerLink.put(e.getKey(), m);
+        }
         if (rowAttempts != null) {
             s.rowAttempts = new long[rowAttempts.length][];
             for (int i = 0; i < rowAttempts.length; i++) s.rowAttempts[i] = rowAttempts[i].clone();
@@ -399,6 +477,8 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         public int[][][] slotAttempts;
         public final Map<String, int[][][]> slotBlocked = new LinkedHashMap<String, int[][][]>();
         public long[] blockedNoBand;
+        public long qkdBlockedNoQchBand;
+        public final Map<String, Map<String, long[]>> modPerLink = new TreeMap<String, Map<String, long[]>>();
         public long[][] rowAttempts;
         public final Map<String, long[][]> rowBlocked = new LinkedHashMap<String, long[][]>();
     }
@@ -424,6 +504,9 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
                 if (s == null || s.slotAttempts == null) continue;
                 sb.append("Blocked requests without spectrum band,").append(lp).append(",all,all,").append(rep).append(",all,")
                   .append(s.blockedNoBand[0] + s.blockedNoBand[1]).append('\n');
+                if (s.qkdBlockedNoQchBand > 0)
+                    sb.append("Blocked QKD requests without QCh band,").append(lp).append(",all,all,").append(rep).append(",all,")
+                      .append(s.qkdBlockedNoQchBand).append('\n');
                 for (int li = 0; li < s.slotAttempts.length; li++) {
                     String ln = "<" + s.linkNames.get(li) + ">";
                     for (int c = 0; c < s.slotAttempts[li].length; c++) {
@@ -558,6 +641,22 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
                 row(sb, snaps, "Link blocking probability by QKD causes", "all", "all", "all", ln, s -> {
                     long[] v = s.perLink.get(link);
                     return v == null ? Double.NaN : ratio(v[4], v[0] + v[1]);
+                });
+            }
+        }
+        // Part 33: share of the circuits established on each link that use each modulation (Cause column = modulation)
+        java.util.TreeSet<String> mods = new java.util.TreeSet<String>();
+        for (List<Snapshot> row : snaps) for (Snapshot s : row) if (s != null) for (Map<String, long[]> m : s.modPerLink.values()) mods.addAll(m.keySet());
+        for (String link : links) {
+            String ln = "<" + link + ">";
+            for (String mod : mods) {
+                row(sb, snaps, "Share of circuits per modulation on link", "all", "all", mod, ln, s -> {
+                    Map<String, long[]> m = s.modPerLink.get(link);
+                    if (m == null) return Double.NaN;
+                    double tot = 0;
+                    for (long[] v : m.values()) tot += v[0] + v[1];
+                    long[] v = m.get(mod);
+                    return tot > 0 ? (v == null ? 0 : v[0] + v[1]) / tot : Double.NaN;
                 });
             }
         }

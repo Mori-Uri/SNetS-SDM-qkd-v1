@@ -265,7 +265,7 @@
   function parseSlotBlockCsv(lines, header) {
     const nSlots = header.length - 6;
     const att = new Map(), blkAll = new Map(), blk = new Map();
-    const reqAtt = new Map(), reqBlkAll = new Map(), reqBlk = new Map(), noBand = new Map();
+    const reqAtt = new Map(), reqBlkAll = new Map(), reqBlk = new Map(), noBand = new Map(), noQch = new Map();
     const links = [], linkSet = new Set(), cores = new Set(), lps = new Set(), reps = new Set(), causes = [];
     const addArr = (m, key, c) => { let a = m.get(key); if (!a) { a = new Float64Array(nSlots); m.set(key, a); } for (let k = 0; k < nSlots; k++) { const v = Number(c[6 + k]); if (v) a[k] += v; } };
     const addNum = (m, key, v) => m.set(key, (m.get(key) || 0) + (Number(v) || 0));
@@ -280,6 +280,7 @@
       const metric = c[0].trim(), link = c[2].trim(), core = c[3].trim(), cause = c[5].trim();
       lps.add(lp); reps.add(c[4].trim());
       if (metric === 'Blocked requests without spectrum band') { addNum(noBand, lp, c[6]); continue; }
+      if (metric === 'Blocked QKD requests without QCh band') { addNum(noQch, lp, c[6]); continue; }
       const key = lp + '|' + link + '|' + core;
       if (!linkSet.has(link)) { linkSet.add(link); links.push(link); }
       cores.add(core);
@@ -291,7 +292,7 @@
       else if (metric === 'Blocked requests on link and core by cause') addNum(sub(reqBlk, cause), key, c[6]);
     }
     const p = { ok: true, slotblock: true, dims: [], rows: [], nSlots, links, cores: [...cores].sort((a, b) => Number(a) - Number(b)),
-      att, blkAll, blk, reqAtt, reqBlkAll, reqBlk, noBand, causes, nReps: reps.size };
+      att, blkAll, blk, reqAtt, reqBlkAll, reqBlk, noBand, noQch, causes, nReps: reps.size };
     finishParsed(p);
     p.lps = [...lps].sort((a, b) => a - b);
     return p;
@@ -328,6 +329,14 @@
     { id: 'slotProfile', group: 'Espectro e utilização', name: 'Perfil de ocupação por slot (uma linha por núcleo)', type: 'slotline', file: 'SlotUtilization', y: 'Ocupação do slot', x: 'Slot',
       desc: 'Ocupação média de cada slot nos enlaces escolhidos, uma linha por núcleo: mostra onde a política de alocação concentra os circuitos (ex.: first fit à esquerda). Usa o SlotUtilization.csv (Parte 27).' },
     { id: 'mod', group: 'Espectro e utilização', name: 'Circuitos por modulação', type: 'bars', file: 'ModulationUtilization', metric: 'Percentage of cicuits per modulation', itemsFrom: 'dim', dim: 'Modulation', xAxis: 'cases', y: 'Percentual de circuitos' },
+    { id: 'modBw', group: 'Espectro e utilização', name: 'Modulação × taxa da requisição (empilhadas)', type: 'bars', file: 'ModulationUtilization', metric: 'Percentage of cicuits per modulation and bandwidth', itemsFrom: 'dim', dim: 'Bandwidth', seriesDim: 'Modulation', xAxis: 'items', stacked: true, y: 'Fração de todos os circuitos', x: 'Taxa da requisição (Gb/s)',
+      desc: 'Cada barra é uma taxa de requisição; as cores são as modulações escolhidas para os circuitos dessa taxa. Os valores são a fração de todos os circuitos aceitos (a soma de todas as barras é 1). Escolha um caso por vez, ou use painéis.' },
+    { id: 'modBw100', group: 'Espectro e utilização', name: 'Modulação × taxa da requisição (cada taxa em 100 %)', type: 'bars', file: 'ModulationUtilization', metric: 'Percentage of cicuits per modulation and bandwidth', itemsFrom: 'dim', dim: 'Bandwidth', seriesDim: 'Modulation', xAxis: 'items', stacked: true, normalize: true, y: '', x: 'Taxa da requisição (Gb/s)',
+      desc: 'Como o anterior, mas cada taxa soma 100 %: mostra qual modulação cada tamanho de requisição recebe.' },
+    { id: 'slotsReq', group: 'Espectro e utilização', name: 'Slots usados por requisição (distribuição)', type: 'bars', file: 'SpectrumStatistics', metric: 'Requisitons per number of slots', itemsFrom: 'dim', dim: 'Number of slots', xAxis: 'items', y: 'Fração das requisições', x: 'Número de slots da requisição',
+      desc: 'Fração das requisições atendidas pelo número de slots que o circuito ocupa (sem bandas de guarda); depende da taxa e da modulação escolhida. Uma barra por caso em cada número de slots.' },
+    { id: 'modLink', group: 'Espectro e utilização', name: 'Modulação dos circuitos em cada enlace (empilhadas)', type: 'bars', file: 'BlockingDetails', metric: 'Share of circuits per modulation on link', itemsFrom: 'dim', dim: 'Link', seriesDim: 'Cause', xAxis: 'items', stacked: true, normalize: true, y: '', x: 'Enlace', rotate: -60,
+      desc: 'Para cada enlace, a parcela dos circuitos aceitos que passam por ele com cada modulação (as cores). Um circuito conta em todos os enlaces da rota. Gravado no BlockingDetails.csv pelo simulador da Parte 33 (coluna Cause = modulação).' },
     // ---- Fragmentação
     { id: 'fragExt', group: 'Fragmentação', name: 'Fragmentação externa × carga (vertical e horizontal)', type: 'line', file: 'ExternalFragmentation', metric: 'External Fragmentation (Vertical)', metrics: ['External Fragmentation (Vertical)', 'External Fragmentation (Horizontal)'], seriesBy: 'metric', y: 'Fragmentação externa', x: 'Carga (Erlangs)', xMode: 'erl',
       desc: 'Vertical: média, nos núcleos de cada enlace e em todos os enlaces, de 1 − (maior faixa livre ÷ total de slots livres), observada a cada chegada. Horizontal: a mesma medida na interseção do espectro livre ao longo da rota de cada requisição, no núcleo escolhido. Requer ExternalFragmentation ligada na aba Métricas.' },
@@ -729,7 +738,7 @@
         net = { nodes: [...names].map((n) => ({ name: n })), links };
       }
       const base = App.presets.topoPanel(net);
-      const lps = T.lps && T.lps.length ? p.lps.filter((l) => T.lps.includes(l)) : p.lps;
+      const lps = T.lps && T.lps.length ? (T.lps.includes(-1) ? p.lps.slice(-1) : p.lps.filter((l) => T.lps.includes(l))) : p.lps;
       let bp = null;
       if (T.block) {
         try { bp = await getCsv(c.path, T.blockFile || 'BlockingDetails'); } catch (e) { bp = null; }
@@ -848,6 +857,8 @@
       const n = to - from + 1;
       const causes = want === 'all' ? p.causes : p.causes.filter((k) => k === want);
       const rows = [];
+      const netS = cd.files.network || {};
+      const qCoreS = App.isPlainObject(netS.qkd) && netS.qkd.enabled ? String(netS.qkd.quantumCoreId) : null;
       let totReq = 0, totBlk = 0;
       for (const link of links) for (const core of cores) {
         const key = lp + '|' + link + '|' + core;
@@ -864,7 +875,7 @@
           const a = att[from - 1 + i], b = blkArr ? blkArr[from - 1 + i] : 0;
           values[i] = mode === 'count' ? b : (a > 0 ? b / a : NaN);
         }
-        const row = { link, core, values, summary: [App.fmtNum(reqB, 0) + '/' + App.fmtNum(reqA, 0), pct(reqB, reqA)] };
+        const row = { link, core, quantum: qCoreS !== null && String(core) === qCoreS, values, summary: [App.fmtNum(reqB, 0) + '/' + App.fmtNum(reqA, 0), pct(reqB, reqA)] };
         if (mode === 'causes') {
           row.colors = new Array(n);
           for (let i = 0; i < n; i++) {
@@ -896,7 +907,8 @@
       nSlotsAll = Math.max(nSlotsAll, n);
       const nb = p.noBand.get(lp) || 0;
       const sub = [lpLabel(cd, lp), p.nReps > 1 ? 'soma de ' + p.nReps + ' replicações' : '', want !== 'all' ? autoLabel(want) : '',
-        nb > 0 && want === 'all' ? nb + ' bloqueio' + (nb > 1 ? 's' : '') + ' sem faixa no espectro (fora do mapa)' : ''].filter(Boolean);
+        nb > 0 && want === 'all' ? nb + ' bloqueio' + (nb > 1 ? 's' : '') + ' sem faixa no espectro (fora do mapa)' : '',
+        (p.noQch.get(lp) || 0) > 0 && want === 'all' ? p.noQch.get(lp) + ' bloqueio' + (p.noQch.get(lp) > 1 ? 's' : '') + ' QKD sem QCh tentado (fora do núcleo ' + (qCoreS || 'quântico') + ')' : ''].filter(Boolean);
       panels.push({ title: (spec.cases.length > 1 ? caseLabel(c) + ' · ' : '') + sub.join(' · '), rows, from, to, path: c.path, lp, noBand: nb, totReq, totBlk });
     }
     S.slotCauses = allCauses;
@@ -1074,6 +1086,9 @@
         cores = dv.filter((v) => /^\d+$/.test(v)).map((v) => ({ id: Number(v), adjacentCores: [] }));
       }
       const pos = coreLayout(cores);
+      const netf = cd.files.network || {};
+      const qCore = App.isPlainObject(netf.qkd) && netf.qkd.enabled ? Number(netf.qkd.quantumCoreId) : null;
+      const disSet = new Set((Array.isArray(netf.disabledCores) ? netf.disabledCores : []).map(Number).filter((v) => v !== qCore));
       const util = {}, block = {};
       for (const core of cores) {
         if (up && up.ok && up.byMetric.has(C.utilMetric)) {
@@ -1093,7 +1108,7 @@
         const u = util[core.id], b = block[core.id];
         const unused = spec.style.coreHideUnused && (!Number.isFinite(u) || u === 0) && (!Number.isFinite(b) || b === 0);
         const p = pos.get(core.id) || { x: 0, y: 0 };
-        return { id: core.id, x: p.x, y: p.y, util: u, block: b, unused };
+        return { id: core.id, x: p.x, y: p.y, util: u, block: b, unused, quantum: qCore === Number(core.id), disabled: disSet.has(Number(core.id)) };
       });
       diagrams.push({ title: caseLabel(c), cores: list, path: c.path });
     }
@@ -1354,7 +1369,9 @@
         el('div', el('h1', 'Estúdio de gráficos'),
           el('p.muted', 'Monte figuras com os CSVs de vários casos, ajuste o estilo e exporte em SVG/PNG. As figuras salvas ficam em launcher/figures e são recalculadas com os resultados atuais.')),
         toolbar());
-    host.append(head, el('div.fig-layout', leftCol, el('div.fig-right', infoBox, previewBox, tableBox)));
+    const reportSec = section('Relatório: várias figuras numa imagem (SVG/PNG/PDF)', false, reportPanel());
+    reportSec.classList.add('fig-report');
+    host.append(head, el('div.fig-layout', leftCol, el('div.fig-right', infoBox, previewBox, tableBox, reportSec)));
     await refreshSaved();
     drawControls();
     await refresh();
@@ -1477,7 +1494,10 @@
 
   function drawControls() {
     if (!leftCol) return;
-    const top = leftCol.scrollTop;
+    App.keepScroll(drawControlsInner);
+  }
+
+  function drawControlsInner() {
     clear(leftCol);
     const spec = S.spec;
     leftCol.append(
@@ -1488,7 +1508,6 @@
       section('5. Eixos e números', false, axesPanel()),
       section('6. Legenda e título', false, legendPanel()));
     drawSeriesPanel();
-    leftCol.scrollTop = top;
   }
 
   function casesPanel() {
@@ -1510,11 +1529,13 @@
     if (!spec.cases.length) selList.append(el('p.small.muted', 'Nenhum caso selecionado. Marque abaixo os casos cujos resultados entram no gráfico (a ordem define a ordem no gráfico).'));
 
     const filter = el('input.input', { type: 'search', placeholder: 'Filtrar casos com resultados…', value: S.caseFilter });
-    const list = el('div.fig-pick');
+    const list = el('div.fig-pick', { 'data-sk': 'fig-cases' });
+    let shownNow = [];
     const fill = () => {
       clear(list);
       const q = S.caseFilter.toLowerCase();
       const shown = all.filter((c) => !q || c.path.toLowerCase().includes(q));
+      shownNow = shown.slice(0, 400);
       for (const c of shown.slice(0, 400)) {
         const cb = el('input', { type: 'checkbox' });
         cb.checked = !!spec.cases.find((x) => x.path === c.path);
@@ -1542,6 +1563,10 @@
       el('div.toolbar', { style: { margin: '6px 0' } }, fsel,
         spec.cases.length ? el('button.btn.small', { type: 'button', on: { click: () => { spec.cases = []; changedData(); } } }, 'Limpar') : null),
       filter,
+      App.allNoneButtons(
+        () => { for (const c of shownNow) if (!spec.cases.find((x) => x.path === c.path)) spec.cases.push({ path: c.path, label: App.caseNameOf(c.path) }); changedData(); },
+        () => { spec.cases = []; changedData(); },
+        ['Marcar todos' + (S.caseFilter ? ' (do filtro)' : ''), 'Desmarcar todos']),
       App.state.tree && App.state.tree.verification ? el('label.check.small', (() => {
         const cb = el('input', { type: 'checkbox' });
         cb.checked = withVerif;
@@ -1555,19 +1580,21 @@
   function dataPanel() {
     const spec = S.spec;
     const box = el('div.stack-s');
-    const tmplSel = el('select.input', templateOptions());
-    tmplSel.value = spec.template;
-    tmplSel.addEventListener('change', () => {
+    const chooseTemplate = (id) => {
       const keepCases = spec.cases;
       const keepStyle = { width: spec.style.width, font: spec.style.font, fontSize: spec.style.fontSize, decimal: spec.style.decimal, palette: spec.style.palette, bg: spec.style.bg };
-      S.spec = newSpec(tmplSel.value, []);
+      S.spec = newSpec(id, []);
       S.spec.cases = keepCases;
       Object.assign(S.spec.style, keepStyle);
       if (S.spec.template === 'cores') { S.spec.style.width = Math.max(S.spec.style.width, 900); }
       changedData();
-    });
+    };
+    // 1.11.0: a dropdown that reopens where it was (the native select went back to the top of the long list)
+    const tmplSel = App.picker('fig-template',
+      TEMPLATE_GROUPS.map((g) => ({ label: g, items: TEMPLATES.filter((t) => t.group === g).map((t) => ({ value: t.id, label: t.name, title: t.desc || t.name })) })),
+      spec.template, chooseTemplate);
     const tdesc = (TEMPLATES.find((t) => t.id === spec.template) || {}).desc;
-    box.append(field('Modelo de gráfico', tmplSel, tdesc || 'Preenche tipo, arquivo, métrica e títulos; tudo pode ser ajustado abaixo.'));
+    box.append(groupField('Modelo de gráfico', tmplSel, tdesc || 'Preenche tipo, arquivo, métrica e títulos; tudo pode ser ajustado abaixo.'));
 
     const typeSel = selectInput(spec, 'type', [['line', 'Linhas (métrica × carga ou parâmetro)'], ['bars', 'Barras (agrupadas / empilhadas)'], ['cores', 'Diagrama da fibra (núcleos)'], ['topo', 'Mapa de calor na topologia (enlaces)'], ['slots', 'Mapa de calor do espectro (slots × núcleos × enlaces)'], ['slotblock', 'Mapa de calor do bloqueio no espectro (slots)'], ['slotline', 'Perfil de ocupação por slot (linhas)'], ['scatter', 'Dispersão: métrica × métrica (correlação)']], () => {
       if (spec.type === 'topo' && !spec.file) { spec.file = 'SpectrumUtilization'; spec.metric = 'Utilization Per Link'; }
@@ -1595,7 +1622,7 @@
       const T = spec.topo;
       const lpText = (l) => 'Ponto ' + (l + 1) + (S.lpErl && S.lpErl[l] !== undefined ? ' · ' + App.fmtNum(S.lpErl[l], 0) + ' Erlangs' : '');
       const labels = lps.map(lpText);
-      box.append(field('Pontos de carga (uma imagem por ponto)', metricChecklist(labels, (T.lps.length ? lps.filter((l) => T.lps.includes(l)) : lps).map(lpText), (arr) => {
+      box.append(groupField('Pontos de carga (uma imagem por ponto)', metricChecklist(labels, (T.lps.length ? lps.filter((l) => T.lps.includes(l)) : lps).map(lpText), (arr) => {
         const chosen = lps.filter((l, i) => arr.includes(labels[i]));
         T.lps = chosen.length === lps.length ? [] : chosen;
         changedData();
@@ -1680,7 +1707,11 @@
     box.append(field('Ponto de carga', lpSelect(C, 'lp')),
       field('Mostrar', selectInput(S.spec.style, 'coreShow', [['both', 'Bloqueio e uso'], ['block', 'Só bloqueio'], ['util', 'Só uso'], ['none', 'Só a fibra']], () => changedStyle())),
       el('div.checks', checkInput(C, 'normBlock', 'Bloqueio como fração do total (soma = 1)', () => changedData()),
-        checkInput(S.spec.style, 'coreHideUnused', 'Núcleos sem uso e sem bloqueio tracejados (ex.: sem núcleo central)', () => changedData())),
+        checkInput(S.spec.style, 'coreHideUnused', 'Núcleos sem uso e sem bloqueio tracejados (ex.: sem núcleo central)', () => changedData()),
+        checkInput(S.spec.style, 'coreMarkQuantum', 'Núcleo quântico (QKD) em roxo', () => changedStyle()),
+        checkInput(S.spec.style, 'coreMarkDisabled', 'Núcleos desativados em vermelho', () => changedStyle())),
+      el('div.fields.two', field('Cor do núcleo quântico', colorInput(S.spec.style, 'coreQuantumColor', changedStyle)),
+        field('Cor do núcleo desativado', colorInput(S.spec.style, 'coreDisabledColor', changedStyle))),
       el('p.small.muted', 'Uso: ' + C.utilFile + '.csv → "' + C.utilMetric + '" (Link = all). Bloqueio: ' + C.blockFile + '.csv → "' + C.blockPrefix + ' N". A posição dos núcleos segue o arquivo network: as fibras de 2, 7, 12 e 19 núcleos usam os mesmos desenhos da aba Rede; nas demais, o núcleo vizinho de todos fica no centro e os outros em anel.'));
     return box;
   }
@@ -1753,13 +1784,11 @@
     const linkBox = metricChecklist(links, T.links.length ? links.filter((l) => T.links.includes(l)) : links, (arr) => { T.links = arr.length === links.length ? [] : arr; changedData(); }, true);
     box.append(groupField('Enlaces (' + (T.links.length || links.length) + ' de ' + links.length + ')', el('div.stack-s',
       el('div.toolbar', { style: { margin: 0 } },
-        quick('Todos', () => { T.links = []; changedData(); }),
         quick('Só um sentido (a < b)', () => { T.links = links.filter((l) => { const m = /^<([^<>]+?)-([^<>]+)>$/.exec(l); return m && linkCompare('<' + m[1] + '-' + m[2] + '>', '<' + m[2] + '-' + m[1] + '>') < 0; }); changedData(); }),
         quick('Primeiro', () => { T.links = [links[0]]; changedData(); })),
       linkBox)));
     const cores = o.cores;
     box.append(groupField('Núcleos', el('div.stack-s',
-      el('div.toolbar', { style: { margin: 0 } }, quick('Todos', () => { T.cores = []; changedData(); })),
       metricChecklist(cores, T.cores.length ? cores.filter((c) => T.cores.includes(c)) : cores, (arr) => { T.cores = arr.length === cores.length ? [] : arr; changedData(); }, true))));
     box.append(el('div.fields.two',
       field('Do slot', numInput(T, 'from', () => changedStyleData(), { min: 1, max: o.nSlots, step: 1 })),
@@ -1777,19 +1806,32 @@
     return selectInput(obj, key, opts, () => changedData());
   }
 
+  /**
+   * A list of checkboxes with "Marcar todos" / "Desmarcar todos" on top (1.11.0). "Desmarcar todos" only clears
+   * the boxes: many lists treat an empty selection as "all", so the chart keeps the previous selection until a
+   * box is checked again. The list keeps its scroll position across redraws (data-sk).
+   */
   function metricChecklist(all, selected, onChange, plain) {
-    const box = el('div.fig-checklist');
+    const list = el('div.fig-checklist', { 'data-sk': 'cl:' + all.length + ':' + all.slice(0, 3).join('|') });
     const sel = new Set(selected);
+    const boxes = [];
+    const hint = el('div.small.muted', { hidden: true }, 'Nenhum marcado: o gráfico mantém a seleção anterior até você marcar algum.');
     for (const m of all) {
       const cb = el('input', { type: 'checkbox' });
       cb.checked = sel.has(m);
       cb.addEventListener('change', () => {
         if (cb.checked) sel.add(m); else sel.delete(m);
+        hint.hidden = true;
         onChange(all.filter((x) => sel.has(x)));
       });
-      box.append(el('label.fig-pick-row', cb, el('span.ell', { title: m }, m), plain || autoLabel(m) === m ? null : el('span.small.muted', autoLabel(m))));
+      boxes.push(cb);
+      list.append(el('label.fig-pick-row', cb, el('span.ell', { title: m }, m), plain || autoLabel(m) === m ? null : el('span.small.muted', autoLabel(m))));
     }
-    return box;
+    if (all.length < 2) return list;
+    const tools = App.allNoneButtons(
+      () => { all.forEach((m) => sel.add(m)); onChange(all.slice()); },
+      () => { sel.clear(); boxes.forEach((b) => { b.checked = false; }); hint.hidden = false; });
+    return el('div.stack-xs', tools, list, hint);
   }
 
   function filterFields(spec, freeDim) {
@@ -1837,7 +1879,7 @@
   function drawSeriesPanel() {
     if (!seriesBox) return;
     const keepFocus = focusKeyIn(seriesBox);
-    try { drawSeriesPanelInner(); } finally { restoreFocus(seriesBox, keepFocus); }
+    try { App.keepScroll(drawSeriesPanelInner); } finally { restoreFocus(seriesBox, keepFocus); }
   }
 
   function drawSeriesPanelInner() {
@@ -1955,6 +1997,10 @@
         el('div.checks', checkInput(st, 'coreLegend', 'Mostrar legenda', changedStyle)));
       seriesBox.append(section('3. Cores e rótulos', true, body));
       return;
+    }
+    if (entries.length > 1) {
+      const setAll = (v) => { for (const e of entries) (spec.seriesStyle[e.key] || (spec.seriesStyle[e.key] = {})).visible = v; persistDraft(); drawSeriesPanel(); refresh(true); };
+      body.append(App.allNoneButtons(() => setAll(true), () => setAll(false), ['Mostrar todas', 'Ocultar todas']));
     }
     entries.forEach((e, i) => {
       const o = spec.seriesStyle[e.key] || (spec.seriesStyle[e.key] = {});
@@ -2366,5 +2412,237 @@
     for (const k of [...csvCache.keys()]) if (k.startsWith(path + '|')) csvCache.delete(k);
   }
 
-  App.figures = { render, renderInto, openWith, invalidate, parseCsv, buildModel, newSpec, TEMPLATES, _state: S };
+
+  // ================================================================ reports (Parte 33)
+
+  /**
+   * A report puts several figures of the selected cases in one image (SVG/PNG/PDF): e.g. the spectrum heat map and
+   * the topology heat map one under the other. Each item is a template or a saved figure; it is built with the cases
+   * of section 1, so the same report works for any case.
+   */
+  const REPORT_PRESETS = [
+    { id: 'blockMaps', name: 'Bloqueio: espectro (slots) + topologia', items: ['slotBlock', 'heatBlock'] },
+    { id: 'causeMaps', name: 'Causas: espectro (slots) + topologia', items: ['slotBlockCauses', 'heatBlock'] },
+    { id: 'useMaps', name: 'Ocupação: espectro (slots) + topologia', items: ['slotHeat', 'heat'] },
+    { id: 'coresRep', name: 'Núcleos: diagrama da fibra + bloqueio por núcleo com causas', items: ['cores', 'coreCauses'] },
+    { id: 'modRep', name: 'Modulação: por taxa + por enlace + slots por requisição', items: ['modBw100', 'modLink', 'slotsReq'] },
+  ];
+  const RP = { preset: 'blockMaps', items: ['slotBlock', 'heatBlock'], cols: 1, gap: 16, title: '', letters: true, legendRight: true, lp: 'last', width: 1400, svg: null, busy: false };
+  try { const v = JSON.parse(localStorage.getItem('snets.fig.report') || 'null'); if (v && Array.isArray(v.items)) Object.assign(RP, v, { svg: null, busy: false }); } catch (e) { /* ignore */ }
+  const saveRP = () => { try { localStorage.setItem('snets.fig.report', JSON.stringify(Object.assign({}, RP, { svg: null, busy: false }))); } catch (e) { /* ignore */ } };
+
+  /** Spec of one report item, with the cases of the studio. 'saved:<name>' opens a saved figure. */
+  async function reportItemSpec(item, cases) {
+    let spec;
+    if (item.startsWith('saved:')) {
+      const d = await App.api.figure(item.slice(6));
+      spec = upgrade(JSON.parse(d.text));
+    } else spec = newSpec(item, []);
+    spec.cases = cases.map((c) => ({ path: c.path, label: c.label }));
+    if (RP.legendRight) { spec.style.topoLegend = 'right'; spec.style.slotLegend = 'right'; }
+    if (RP.lp === 'last') {
+      // same load point in every figure: the last one (the topology maps would otherwise draw one map per point)
+      if (spec.topo) spec.topo.lps = [-1];
+      for (const k of ['slots', 'cores', 'bars']) if (spec[k] && 'lp' in spec[k]) spec[k].lp = -1;
+    }
+    return spec;
+  }
+
+  /** Renders one spec to an SVG node (applyStyle reads S.spec, so it is swapped only around the synchronous part). */
+  async function renderSpec(spec) {
+    const model = await buildModel(spec);
+    if (!model || model.empty) return { empty: (model && model.empty) || 'Sem dados.' };
+    const keep = S.spec;
+    try { S.spec = spec; applyStyle(model); return { svg: R().render(model, spec.style) }; } finally { S.spec = keep; }
+  }
+
+  async function buildReport() {
+    const cases = S.spec.cases;
+    if (!cases.length) throw new Error('Selecione um caso na seção 1.');
+    if (!RP.items.length) throw new Error('Adicione pelo menos uma figura ao relatório.');
+    const parts = [];
+    const notes = [];
+    for (const it of RP.items) {
+      let spec;
+      try { spec = await reportItemSpec(it, cases); } catch (e) { notes.push(reportItemName(it) + ': ' + e.message); continue; }
+      const r = await renderSpec(spec);
+      if (r.empty) { notes.push(reportItemName(it) + ': ' + r.empty); continue; }
+      parts.push({ svg: r.svg, w: Number(r.svg.getAttribute('width')), h: Number(r.svg.getAttribute('height')) });
+    }
+    if (!parts.length) throw new Error('Nenhuma figura do relatório tem dados. ' + notes.join(' · '));
+    const NS = 'http://www.w3.org/2000/svg';
+    const cols = Math.max(1, Math.min(Number(RP.cols) || 1, parts.length));
+    const W = Math.max(400, Number(RP.width) || 1400);
+    const gap = Math.max(0, Number(RP.gap) || 0);
+    const cellW = (W - gap * (cols - 1)) / cols;
+    const st = S.spec.style;
+    const font = st.font;
+    const titleH = RP.title ? 34 : 0;
+    const letH = RP.letters ? 22 : 0;
+    // rows: height of the tallest scaled item in the row
+    const rowsH = [];
+    parts.forEach((p, i) => { const r = Math.floor(i / cols); p.sw = cellW; p.sh = p.h * cellW / p.w; rowsH[r] = Math.max(rowsH[r] || 0, p.sh + letH); });
+    const H = Math.round(titleH + rowsH.reduce((a, b) => a + b, 0) + gap * (rowsH.length - 1) + 4);
+    const root = document.createElementNS(NS, 'svg');
+    const set = (n, a) => { for (const k of Object.keys(a)) n.setAttribute(k, a[k]); return n; };
+    set(root, { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, 'font-family': font });
+    root.appendChild(set(document.createElementNS(NS, 'rect'), { x: 0, y: 0, width: W, height: H, fill: st.bg || '#ffffff' }));
+    const text = (x, y, t, size, anchor) => {
+      const n = set(document.createElementNS(NS, 'text'), { x, y, 'font-size': size, 'font-weight': 700, fill: st.titleColor || '#000000', 'text-anchor': anchor || 'start' });
+      n.textContent = t; return n;
+    };
+    if (RP.title) root.appendChild(text(W / 2, 24, RP.title, 20, 'middle'));
+    let y = titleH;
+    parts.forEach((p, i) => {
+      const c = i % cols, r = Math.floor(i / cols);
+      if (c === 0 && i > 0) y += rowsH[r - 1] + gap;
+      const x = c * (cellW + gap);
+      if (RP.letters) root.appendChild(text(x + 2, y + 16, '(' + String.fromCharCode(97 + i) + ')', 15));
+      const n = p.svg;
+      n.removeAttribute('style');
+      set(n, { x: x.toFixed(1), y: (y + letH).toFixed(1), width: p.sw.toFixed(1), height: p.sh.toFixed(1), preserveAspectRatio: 'xMidYMin meet' });
+      root.appendChild(n);
+    });
+    return { svg: root, notes };
+  }
+
+  function reportItemName(it) {
+    if (it.startsWith('saved:')) return 'Figura salva "' + it.slice(6) + '"';
+    const t = TEMPLATES.find((x) => x.id === it);
+    return t ? t.name : it;
+  }
+
+  /** Minimal PDF (one page, the report as a JPEG image) built in the browser. */
+  async function reportPdf(svgNode, scale) {
+    const png = await R().toPng(svgNode, scale);
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Falha ao gerar PDF')); i.src = png; });
+    const cv = document.createElement('canvas');
+    cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+    const ctx = cv.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0);
+    const jpg = atob(cv.toDataURL('image/jpeg', 0.95).split(',')[1]);
+    const w = Number(svgNode.getAttribute('width')) * 0.75, h = Number(svgNode.getAttribute('height')) * 0.75;
+    const enc = (str) => { const a = new Uint8Array(str.length); for (let i = 0; i < str.length; i++) a[i] = str.charCodeAt(i) & 255; return a; };
+    const chunks = []; const offs = []; let len = 0;
+    const push = (u8) => { chunks.push(u8); len += u8.length; };
+    push(enc('%PDF-1.4\n%\xe2\xe3\xcf\xd3\n'));
+    const content = 'q ' + w.toFixed(2) + ' 0 0 ' + h.toFixed(2) + ' 0 0 cm /Im0 Do Q';
+    const objs = [
+      '<< /Type /Catalog /Pages 2 0 R >>',
+      '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + w.toFixed(2) + ' ' + h.toFixed(2) + '] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>',
+      null,
+      '<< /Length ' + content.length + ' >>\nstream\n' + content + '\nendstream',
+    ];
+    objs.forEach((o, i) => {
+      offs.push(len);
+      if (o === null) {
+        push(enc('4 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + cv.width + ' /Height ' + cv.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpg.length + ' >>\nstream\n'));
+        push(enc(jpg)); push(enc('\nendstream\nendobj\n'));
+      } else push(enc((i + 1) + ' 0 obj\n' + o + '\nendobj\n'));
+    });
+    const xref = len;
+    let x = 'xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n';
+    for (const o of offs) x += String(o).padStart(10, '0') + ' 00000 n \n';
+    x += 'trailer\n<< /Size ' + (objs.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+    push(enc(x));
+    return new Blob(chunks, { type: 'application/pdf' });
+  }
+
+  function blobToDataUrl(b) {
+    return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('Falha ao ler o PDF')); r.readAsDataURL(b); });
+  }
+
+  function reportPanel() {
+    const box = el('div.stack-s');
+    const preview = el('div');
+    const notesBox = el('div');
+    const fname = () => ((RP.title || ('relatorio_' + (REPORT_PRESETS.find((p) => p.id === RP.preset) || { id: 'personalizado' }).id) + (S.spec.cases[0] ? '_' + caseLabel(S.spec.cases[0]) : ''))
+      .replace(/[^\w\-. ()+À-ÿ]+/g, '_').slice(0, 80)) || 'relatorio';
+    const scaleSel = el('select.input', { style: { width: 'auto' } }, [[1, '1×'], [2, '2×'], [3, '3× (≈300 dpi)'], [4, '4×']].map(([v, l]) => el('option', { value: v }, l)));
+    scaleSel.value = '3';
+    const presetSel = el('select.input', el('option', { value: '' }, 'Personalizado'), REPORT_PRESETS.map((p) => el('option', { value: p.id }, p.name)));
+    presetSel.value = RP.preset || '';
+    const list = el('div.stack-xs');
+    const options = () => [el('optgroup', { label: 'Modelos' }, TEMPLATES.filter((t) => t.type !== 'scatter').map((t) => el('option', { value: t.id }, t.group + ' · ' + t.name))),
+      (S.saved || []).length ? el('optgroup', { label: 'Figuras salvas' }, S.saved.map((f) => el('option', { value: 'saved:' + f.name }, f.name))) : null];
+    const drawList = () => {
+      clear(list);
+      RP.items.forEach((it, i) => {
+        const sel = el('select.input', options());
+        sel.value = it;
+        sel.addEventListener('change', () => { RP.items[i] = sel.value; RP.preset = ''; presetSel.value = ''; saveRP(); });
+        const up = el('button.btn.small.ghost', { type: 'button', title: 'Subir', disabled: i === 0, on: { click: () => { [RP.items[i - 1], RP.items[i]] = [RP.items[i], RP.items[i - 1]]; RP.preset = ''; presetSel.value = ''; saveRP(); drawList(); } } }, '↑');
+        const rm = el('button.btn.small.ghost', { type: 'button', title: 'Remover', on: { click: () => { RP.items.splice(i, 1); RP.preset = ''; presetSel.value = ''; saveRP(); drawList(); } } }, '✕');
+        list.append(el('div.toolbar', { style: { margin: 0, flexWrap: 'nowrap' } }, el('b.small', '(' + String.fromCharCode(97 + i) + ')'), sel, up, rm));
+      });
+      list.append(el('div', el('button.btn.small', { type: 'button', on: { click: () => { RP.items.push('heat'); RP.preset = ''; presetSel.value = ''; saveRP(); drawList(); } } }, '+ Adicionar figura')));
+    };
+    presetSel.addEventListener('change', () => {
+      RP.preset = presetSel.value;
+      const p = REPORT_PRESETS.find((x) => x.id === RP.preset);
+      if (p) RP.items = p.items.slice();
+      saveRP(); drawList();
+    });
+    drawList();
+    const num = (key, min, max) => {
+      const i = el('input.input.num', { type: 'number', min, max, step: 1, value: RP[key] });
+      i.addEventListener('change', () => { const v = Number(i.value); if (Number.isFinite(v)) { RP[key] = Math.max(min, Math.min(max, Math.round(v))); saveRP(); } });
+      return i;
+    };
+    const titleIn = el('input.input', { type: 'text', value: RP.title, placeholder: 'sem título' });
+    titleIn.addEventListener('change', () => { RP.title = titleIn.value; saveRP(); });
+    const chk = (key, label) => { const c = el('input', { type: 'checkbox', checked: !!RP[key] }); c.addEventListener('change', () => { RP[key] = c.checked; saveRP(); }); return el('label.check.small', c, ' ' + label); };
+    const need = () => { if (!RP.svg) { App.toast('Clique em "Gerar relatório" primeiro.', 'warn'); return false; } return true; };
+    const download = (href, name) => { const a = el('a', { href, download: name }); document.body.appendChild(a); a.click(); a.remove(); };
+    const gen = async () => {
+      if (RP.busy) return;
+      RP.busy = true;
+      clear(preview).append(el('div.small.muted', 'Montando o relatório…'));
+      clear(notesBox);
+      try {
+        const r = await buildReport();
+        RP.svg = r.svg;
+        const frame = el('div.fig-canvas', { style: { maxWidth: '100%' } });
+        const shown = r.svg.cloneNode(true);
+        shown.setAttribute('style', 'width:100%;height:auto;display:block');
+        frame.appendChild(shown);
+        clear(preview).append(frame, el('div.small.muted', { style: { marginTop: '6px' } }, r.svg.getAttribute('width') + ' × ' + r.svg.getAttribute('height') + ' px · ' + S.spec.cases.map(caseLabel).join(', ')));
+        if (r.notes.length) notesBox.append(el('div.notice.warn', 'Figuras sem dados (fora do relatório): ' + r.notes.join(' · ')));
+      } catch (e) {
+        RP.svg = null;
+        clear(preview).append(el('div.notice.err', e.message || String(e)));
+      } finally { RP.busy = false; }
+    };
+    box.append(
+      el('p.small.muted', 'Junta várias figuras dos casos da seção 1 numa só imagem (SVG, PNG ou PDF), com as letras (a), (b)… Cada figura usa o modelo ou a figura salva escolhida, com os casos atuais; o estilo de cada uma é o do modelo (ou o da figura salva). Os mapas de calor ficam com a legenda no canto superior direito.'),
+      field('Relatório pronto', presetSel),
+      el('div.flabel', 'Figuras (de cima para baixo)'), list,
+      el('div.fields.two', field('Colunas', num('cols', 1, 3)), field('Largura total (px)', num('width', 400, 4000)), field('Espaço entre figuras (px)', num('gap', 0, 200)), field('Título', titleIn)),
+      field('Ponto de carga', (() => { const sl = el('select.input', el('option', { value: 'last' }, 'O último ponto em todas as figuras'), el('option', { value: 'fig' }, 'O de cada figura (topologia: um mapa por ponto)')); sl.value = RP.lp || 'last'; sl.addEventListener('change', () => { RP.lp = sl.value; saveRP(); }); return sl; })()),
+      el('div.checks', chk('letters', 'Letras (a), (b)…'), chk('legendRight', 'Legenda dos mapas à direita, no alto')),
+      el('div.toolbar',
+        el('button.btn.small.primary', { type: 'button', on: { click: gen } }, 'Gerar relatório'),
+        el('span.sep'),
+        el('button.btn.small', { type: 'button', on: { click: () => { if (need()) App.downloadText(fname() + '.svg', R().serialize(RP.svg), 'image/svg+xml'); } } }, 'Baixar SVG'),
+        scaleSel,
+        el('button.btn.small', { type: 'button', on: { click: async () => { if (!need()) return; try { download(await R().toPng(RP.svg, Number(scaleSel.value)), fname() + '.png'); } catch (e) { App.toast(e.message, 'err'); } } } }, 'Baixar PNG'),
+        el('button.btn.small', { type: 'button', title: 'PDF de uma página com o relatório como imagem na resolução escolhida', on: { click: async () => {
+          if (!need()) return;
+          try { const b = await reportPdf(RP.svg, Number(scaleSel.value)); const u = URL.createObjectURL(b); download(u, fname() + '.pdf'); setTimeout(() => URL.revokeObjectURL(u), 5000); } catch (e) { App.toast(e.message, 'err'); }
+        } } }, 'Baixar PDF'),
+        el('button.btn.small', { type: 'button', title: 'Grava SVG, PNG e PDF em launcher/figures', on: { click: async () => {
+          if (!need()) return;
+          try {
+            const n = fname();
+            await App.api.saveFigureImage(n, 'svg', R().serialize(RP.svg));
+            await App.api.saveFigureImage(n, 'png', await R().toPng(RP.svg, Number(scaleSel.value)));
+            const d = await App.api.saveFigureImage(n, 'pdf', await blobToDataUrl(await reportPdf(RP.svg, Number(scaleSel.value))));
+            App.toast('Relatório gravado: ' + d.file.replace(/\.pdf$/, '.{svg,png,pdf}'), 'ok', 6000);
+          } catch (e) { App.toast(e.message, 'err'); }
+        } } }, 'Gravar na pasta')),
+      notesBox, preview);
+    return box;
+  }
+
+  App.figures = { render, renderInto, openWith, invalidate, parseCsv, buildModel, newSpec, TEMPLATES, buildReport, _report: RP, _state: S };
 })(window.App);

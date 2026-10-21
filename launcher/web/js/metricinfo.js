@@ -24,6 +24,8 @@
     [/^share of all requests blocked per core by cause$/i, 'BlockingDetails: requisições bloqueadas com candidato no núcleo e com esta causa ÷ todas as requisições. Somando núcleos e causas obtém-se o bloqueio total.', 'fração'],
     [/^link blocking probability by qkd causes$/i, 'BlockingDetails: requisições recusadas por causas QKD cuja rota tentada passa pelo enlace ÷ requisições cuja rota passa pelo enlace.', 'fração'],
     [/^link blocking probability$/i, 'BlockingDetails: bloqueio do enlace direcional: requisições bloqueadas cuja rota tentada passa pelo enlace ÷ requisições cuja rota (tentada ou usada) passa por ele, na classe da coluna Class. Uma requisição bloqueada conta em todos os enlaces da rota tentada, então o valor indica onde o bloqueio acontece, não qual enlace o causou.', 'fração'],
+    [/^share of circuits per modulation on link$/i, 'BlockingDetails (Parte 33): no enlace da coluna Link, a parcela dos circuitos aceitos que passam por ele com a modulação da coluna Cause. Um circuito conta em todos os enlaces da rota; as modulações de um enlace somam 1.', 'fração'],
+    [/^blocked qkd requests without qch band$/i, 'SlotBlocking (Parte 33): requisições protegidas bloqueadas por causa QKD em que nenhum QCh chegou a ser tentado (sem banda no núcleo quântico para marcar no mapa).', 'requisições'],
     [/^link requests$/i, 'BlockingDetails: número de requisições (depois do transiente) cuja rota passa pelo enlace, na classe indicada.', 'requisições'],
     [/^requests$/i, 'BlockingDetails: número de requisições contadas (depois do transiente) na classe indicada.', 'requisições'],
     [/^blocking probability per bitrate$/i, 'PBC só das requisições da taxa de bits indicada na coluna BitRate.', 'fração'],

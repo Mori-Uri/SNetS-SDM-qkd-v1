@@ -272,9 +272,37 @@ public class QKDControlPlane extends ControlPlane {
     public boolean handleRequisition(RequestForConnection request) throws Exception {
         lastQkdRejectCause = null;
         if (request != null) blockingDetails.arrival();
-        final boolean ok = handleRequisitionQkd(request);
-        if (request != null) blockingDetails.observe(this, request, ok, ok ? null : lastQkdRejectCause);
+        final qkd.capacity.QKDSharedResourceManager rmLog = provisioningService.getResourceManager();
+        final boolean protectedReq = request != null && request.isQkdProtected();
+        if (protectedReq && rmLog != null) rmLog.beginQchAttemptLog();
+        boolean ok = false;
+        java.util.List<Object[]> tried = java.util.Collections.emptyList();
+        try {
+            ok = handleRequisitionQkd(request);
+        } finally {
+            if (protectedReq && rmLog != null) tried = rmLog.endQchAttemptLog();
+        }
+        if (request != null) {
+            blockingDetails.observe(this, request, ok, ok ? null : lastQkdRejectCause);
+            // Part 33: QCh bands on the quantum core (observation only)
+            if (protectedReq) {
+                java.util.List<Object[]> bands = tried;
+                if (ok) bands = sessionBands(sessionRegistry.get(request));
+                blockingDetails.markQch(request, ok, bands, !tried.isEmpty() || lastQkdRejectCause != null);
+            }
+        }
         return ok;
+    }
+
+    /** Part 33: {link, core, band} of each QCh of an admitted session. */
+    private static java.util.List<Object[]> sessionBands(QKDActiveConnection c) {
+        java.util.List<Object[]> out = new java.util.ArrayList<Object[]>();
+        if (c == null || c.getQkdSession() == null || c.getQkdSession().getAllocations() == null) return out;
+        for (qkd.resource.QKDChannelAllocation a : c.getQkdSession().getAllocations()) {
+            if (a == null || a.getLink() == null || a.getSpectrumBand() == null) continue;
+            out.add(new Object[] {a.getLink(), Integer.valueOf(a.getQuantumCoreId()), a.getSpectrumBand().clone()});
+        }
+        return out;
     }
 
     /** Part 25: blocking details (observation only, see BlockingDetailRecorder). */

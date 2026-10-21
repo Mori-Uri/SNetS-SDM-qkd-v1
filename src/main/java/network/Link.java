@@ -80,6 +80,7 @@ public class Link implements Serializable {
                     numOfSlots,
                     slotSpectrumBand,
                     coreConfig.isQkdReserved());
+            core.setDisabled(coreConfig.isDisabled());
 
             /*
              * The original SNetS stores a core at the list index equal to its

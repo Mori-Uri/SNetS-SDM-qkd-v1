@@ -93,7 +93,7 @@ final class Figures {
         byte[] bytes;
         if ("svg".equals(e)) {
             bytes = body.getBytes(StandardCharsets.UTF_8);
-        } else if ("png".equals(e)) {
+        } else if ("png".equals(e) || "pdf".equals(e)) {
             String b = body.trim();
             int comma = b.indexOf(',');
             if (b.startsWith("data:") && comma > 0) {
@@ -117,7 +117,7 @@ final class Figures {
 
     void delete(String name) throws IOException {
         String n = clean(name);
-        for (String e : new String[] {".json", ".svg", ".png"}) {
+        for (String e : new String[] {".json", ".svg", ".png", ".pdf"}) {
             Files.deleteIfExists(new File(dir(), n + e).toPath());
         }
     }
