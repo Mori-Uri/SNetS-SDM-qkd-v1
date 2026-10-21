@@ -149,6 +149,13 @@ public class QKDMesh extends Mesh {
                 generators.set(i, qkdGenerator);
             }
         }
+
+        // Part 34: key demand that follows the classical bit rate (simulation.qkdKeyDemand.mode = "byBitRate")
+        if (keyDemandPolicy.isByBitRateRequested()) {
+            List<Double> rates = new java.util.ArrayList<Double>();
+            for (Pair pair : getPairList()) for (RequestGenerator g : pair.getRequestGenerators()) rates.add(g.getBandwidth());
+            keyDemandPolicy.configureByBitRate(rates, keyDemandPolicy.getByBitRateExplicit());
+        }
     }
 
     public double getProtectedRequestProbability() {

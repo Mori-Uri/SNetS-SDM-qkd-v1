@@ -2427,9 +2427,9 @@
     { id: 'coresRep', name: 'Núcleos: diagrama da fibra + bloqueio por núcleo com causas', items: ['cores', 'coreCauses'] },
     { id: 'modRep', name: 'Modulação: por taxa + por enlace + slots por requisição', items: ['modBw100', 'modLink', 'slotsReq'] },
   ];
-  const RP = { preset: 'blockMaps', items: ['slotBlock', 'heatBlock'], cols: 1, gap: 16, title: '', letters: true, legendRight: true, lp: 'last', width: 1400, svg: null, busy: false };
-  try { const v = JSON.parse(localStorage.getItem('snets.fig.report') || 'null'); if (v && Array.isArray(v.items)) Object.assign(RP, v, { svg: null, busy: false }); } catch (e) { /* ignore */ }
-  const saveRP = () => { try { localStorage.setItem('snets.fig.report', JSON.stringify(Object.assign({}, RP, { svg: null, busy: false }))); } catch (e) { /* ignore */ } };
+  const RP = { preset: 'blockMaps', items: ['slotBlock', 'heatBlock'], cols: 0, gap: 16, title: '', letters: true, legendRight: true, lp: 'last', width: 2400, perCase: true, caseTitle: true, out: null, busy: false, v: 2 };
+  try { const v = JSON.parse(localStorage.getItem('snets.fig.report') || 'null'); if (v && Array.isArray(v.items)) Object.assign(RP, v.v === 2 ? v : { preset: v.preset, items: v.items, title: v.title, letters: v.letters, legendRight: v.legendRight }, { out: null, busy: false }); } catch (e) { /* ignore */ }
+  const saveRP = () => { try { localStorage.setItem('snets.fig.report', JSON.stringify(Object.assign({}, RP, { out: null, busy: false }))); } catch (e) { /* ignore */ } };
 
   /** Spec of one report item, with the cases of the studio. 'saved:<name>' opens a saved figure. */
   async function reportItemSpec(item, cases) {
@@ -2456,9 +2456,12 @@
     try { S.spec = spec; applyStyle(model); return { svg: R().render(model, spec.style) }; } finally { S.spec = keep; }
   }
 
-  async function buildReport() {
-    const cases = S.spec.cases;
-    if (!cases.length) throw new Error('Selecione um caso na seção 1.');
+  /**
+   * Builds one report image for the given cases (Parte 34: normally one case per image). The figures of a row get the
+   * same height and share the total width, so a spectrum map and a topology map stand side by side.
+   */
+  async function buildReport(cases) {
+    if (!cases || !cases.length) throw new Error('Selecione um caso na seção 1.');
     if (!RP.items.length) throw new Error('Adicione pelo menos uma figura ao relatório.');
     const parts = [];
     const notes = [];
@@ -2471,36 +2474,42 @@
     }
     if (!parts.length) throw new Error('Nenhuma figura do relatório tem dados. ' + notes.join(' · '));
     const NS = 'http://www.w3.org/2000/svg';
-    const cols = Math.max(1, Math.min(Number(RP.cols) || 1, parts.length));
-    const W = Math.max(400, Number(RP.width) || 1400);
+    const nCols = Number(RP.cols) > 0 ? Number(RP.cols) : parts.length;
+    const cols = Math.max(1, Math.min(nCols, parts.length));
+    const W = Math.max(400, Number(RP.width) || 2400);
     const gap = Math.max(0, Number(RP.gap) || 0);
-    const cellW = (W - gap * (cols - 1)) / cols;
     const st = S.spec.style;
     const font = st.font;
-    const titleH = RP.title ? 34 : 0;
+    const title = RP.caseTitle && cases.length === 1 ? (RP.title ? RP.title + ' · ' : '') + caseLabel(cases[0]) : RP.title;
+    const titleH = title ? 34 : 0;
     const letH = RP.letters ? 22 : 0;
-    // rows: height of the tallest scaled item in the row
-    const rowsH = [];
-    parts.forEach((p, i) => { const r = Math.floor(i / cols); p.sw = cellW; p.sh = p.h * cellW / p.w; rowsH[r] = Math.max(rowsH[r] || 0, p.sh + letH); });
-    const H = Math.round(titleH + rowsH.reduce((a, b) => a + b, 0) + gap * (rowsH.length - 1) + 4);
+    // rows: the figures of a row get the same height and fill the width (aspect ratio kept)
+    const rows = [];
+    for (let i = 0; i < parts.length; i += cols) rows.push(parts.slice(i, i + cols));
+    let y = titleH;
+    const placed = [];
+    rows.forEach((row) => {
+      const usable = W - gap * (row.length - 1);
+      const H = usable / row.reduce((a, p) => a + p.w / p.h, 0);
+      let x = 0;
+      for (const p of row) { const w = p.w * H / p.h; placed.push({ p, x, y, w, h: H }); x += w + gap; }
+      y += H + letH + gap;
+    });
+    const Ht = Math.round(y - gap + 4);
     const root = document.createElementNS(NS, 'svg');
     const set = (n, a) => { for (const k of Object.keys(a)) n.setAttribute(k, a[k]); return n; };
-    set(root, { xmlns: NS, width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, 'font-family': font });
-    root.appendChild(set(document.createElementNS(NS, 'rect'), { x: 0, y: 0, width: W, height: H, fill: st.bg || '#ffffff' }));
-    const text = (x, y, t, size, anchor) => {
-      const n = set(document.createElementNS(NS, 'text'), { x, y, 'font-size': size, 'font-weight': 700, fill: st.titleColor || '#000000', 'text-anchor': anchor || 'start' });
+    set(root, { xmlns: NS, width: W, height: Ht, viewBox: '0 0 ' + W + ' ' + Ht, 'font-family': font });
+    root.appendChild(set(document.createElementNS(NS, 'rect'), { x: 0, y: 0, width: W, height: Ht, fill: st.bg || '#ffffff' }));
+    const text = (x, yy, t, size, anchor) => {
+      const n = set(document.createElementNS(NS, 'text'), { x, y: yy, 'font-size': size, 'font-weight': 700, fill: st.titleColor || '#000000', 'text-anchor': anchor || 'start' });
       n.textContent = t; return n;
     };
-    if (RP.title) root.appendChild(text(W / 2, 24, RP.title, 20, 'middle'));
-    let y = titleH;
-    parts.forEach((p, i) => {
-      const c = i % cols, r = Math.floor(i / cols);
-      if (c === 0 && i > 0) y += rowsH[r - 1] + gap;
-      const x = c * (cellW + gap);
-      if (RP.letters) root.appendChild(text(x + 2, y + 16, '(' + String.fromCharCode(97 + i) + ')', 15));
-      const n = p.svg;
+    if (title) root.appendChild(text(W / 2, 24, title, 20, 'middle'));
+    placed.forEach((q, i) => {
+      if (RP.letters) root.appendChild(text(q.x + 2, q.y + 16, '(' + String.fromCharCode(97 + i) + ')', 15));
+      const n = q.p.svg;
       n.removeAttribute('style');
-      set(n, { x: x.toFixed(1), y: (y + letH).toFixed(1), width: p.sw.toFixed(1), height: p.sh.toFixed(1), preserveAspectRatio: 'xMidYMin meet' });
+      set(n, { x: q.x.toFixed(1), y: (q.y + letH).toFixed(1), width: q.w.toFixed(1), height: q.h.toFixed(1), preserveAspectRatio: 'xMidYMin meet' });
       root.appendChild(n);
     });
     return { svg: root, notes };
@@ -2512,38 +2521,42 @@
     return t ? t.name : it;
   }
 
-  /** Minimal PDF (one page, the report as a JPEG image) built in the browser. */
-  async function reportPdf(svgNode, scale) {
-    const png = await R().toPng(svgNode, scale);
-    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Falha ao gerar PDF')); i.src = png; });
-    const cv = document.createElement('canvas');
-    cv.width = img.naturalWidth; cv.height = img.naturalHeight;
-    const ctx = cv.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0);
-    const jpg = atob(cv.toDataURL('image/jpeg', 0.95).split(',')[1]);
-    const w = Number(svgNode.getAttribute('width')) * 0.75, h = Number(svgNode.getAttribute('height')) * 0.75;
+  /** Minimal PDF built in the browser: one page per SVG, each page the image (JPEG) of the report. */
+  async function reportPdf(svgNodes, scale) {
+    const list = Array.isArray(svgNodes) ? svgNodes : [svgNodes];
     const enc = (str) => { const a = new Uint8Array(str.length); for (let i = 0; i < str.length; i++) a[i] = str.charCodeAt(i) & 255; return a; };
+    const pages = [];
+    for (const svgNode of list) {
+      const png = await R().toPng(svgNode, scale);
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Falha ao gerar PDF')); i.src = png; });
+      const cv = document.createElement('canvas');
+      cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+      const ctx = cv.getContext('2d'); ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0);
+      pages.push({ jpg: atob(cv.toDataURL('image/jpeg', 0.95).split(',')[1]), pw: cv.width, ph: cv.height,
+        w: Number(svgNode.getAttribute('width')) * 0.75, h: Number(svgNode.getAttribute('height')) * 0.75 });
+    }
+    // objects: 1 catalog, 2 pages, then per page: page, image, content
+    const n = pages.length;
     const chunks = []; const offs = []; let len = 0;
     const push = (u8) => { chunks.push(u8); len += u8.length; };
     push(enc('%PDF-1.4\n%\xe2\xe3\xcf\xd3\n'));
-    const content = 'q ' + w.toFixed(2) + ' 0 0 ' + h.toFixed(2) + ' 0 0 cm /Im0 Do Q';
-    const objs = [
-      '<< /Type /Catalog /Pages 2 0 R >>',
-      '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + w.toFixed(2) + ' ' + h.toFixed(2) + '] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>',
-      null,
-      '<< /Length ' + content.length + ' >>\nstream\n' + content + '\nendstream',
-    ];
-    objs.forEach((o, i) => {
-      offs.push(len);
-      if (o === null) {
-        push(enc('4 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + cv.width + ' /Height ' + cv.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpg.length + ' >>\nstream\n'));
-        push(enc(jpg)); push(enc('\nendstream\nendobj\n'));
-      } else push(enc((i + 1) + ' 0 obj\n' + o + '\nendobj\n'));
+    const obj = (id, body) => { offs[id] = len; push(enc(id + ' 0 obj\n' + body + '\nendobj\n')); };
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, '<< /Type /Pages /Kids [' + pages.map((_, i) => (3 + 3 * i) + ' 0 R').join(' ') + '] /Count ' + n + ' >>');
+    pages.forEach((pg, i) => {
+      const pid = 3 + 3 * i, iid = pid + 1, cid = pid + 2;
+      obj(pid, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + pg.w.toFixed(2) + ' ' + pg.h.toFixed(2) + '] /Resources << /XObject << /Im0 ' + iid + ' 0 R >> >> /Contents ' + cid + ' 0 R >>');
+      offs[iid] = len;
+      push(enc(iid + ' 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + pg.pw + ' /Height ' + pg.ph + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + pg.jpg.length + ' >>\nstream\n'));
+      push(enc(pg.jpg)); push(enc('\nendstream\nendobj\n'));
+      const content = 'q ' + pg.w.toFixed(2) + ' 0 0 ' + pg.h.toFixed(2) + ' 0 0 cm /Im0 Do Q';
+      obj(cid, '<< /Length ' + content.length + ' >>\nstream\n' + content + '\nendstream');
     });
+    const total = 3 + 3 * n;
     const xref = len;
-    let x = 'xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n';
-    for (const o of offs) x += String(o).padStart(10, '0') + ' 00000 n \n';
-    x += 'trailer\n<< /Size ' + (objs.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+    let x = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
+    for (let id = 1; id < total; id++) x += String(offs[id]).padStart(10, '0') + ' 00000 n \n';
+    x += 'trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
     push(enc(x));
     return new Blob(chunks, { type: 'application/pdf' });
   }
@@ -2556,8 +2569,6 @@
     const box = el('div.stack-s');
     const preview = el('div');
     const notesBox = el('div');
-    const fname = () => ((RP.title || ('relatorio_' + (REPORT_PRESETS.find((p) => p.id === RP.preset) || { id: 'personalizado' }).id) + (S.spec.cases[0] ? '_' + caseLabel(S.spec.cases[0]) : ''))
-      .replace(/[^\w\-. ()+À-ÿ]+/g, '_').slice(0, 80)) || 'relatorio';
     const scaleSel = el('select.input', { style: { width: 'auto' } }, [[1, '1×'], [2, '2×'], [3, '3× (≈300 dpi)'], [4, '4×']].map(([v, l]) => el('option', { value: v }, l)));
     scaleSel.value = '3';
     const presetSel = el('select.input', el('option', { value: '' }, 'Personalizado'), REPORT_PRESETS.map((p) => el('option', { value: p.id }, p.name)));
@@ -2592,54 +2603,110 @@
     const titleIn = el('input.input', { type: 'text', value: RP.title, placeholder: 'sem título' });
     titleIn.addEventListener('change', () => { RP.title = titleIn.value; saveRP(); });
     const chk = (key, label) => { const c = el('input', { type: 'checkbox', checked: !!RP[key] }); c.addEventListener('change', () => { RP[key] = c.checked; saveRP(); }); return el('label.check.small', c, ' ' + label); };
-    const need = () => { if (!RP.svg) { App.toast('Clique em "Gerar relatório" primeiro.', 'warn'); return false; } return true; };
+    const need = () => { if (!RP.out || !RP.out.length) { App.toast('Clique em "Gerar relatório" primeiro.', 'warn'); return false; } return true; };
     const download = (href, name) => { const a = el('a', { href, download: name }); document.body.appendChild(a); a.click(); a.remove(); };
+    const safe = (t) => String(t).replace(/[^\w\-. ()+À-ÿ]+/g, '_').slice(0, 100);
+    const baseName = () => RP.title || ('relatorio_' + (REPORT_PRESETS.find((p) => p.id === RP.preset) || { id: 'personalizado' }).id);
+    const nameOf = (o) => safe(baseName() + (o.label ? '_' + o.label : '')) || 'relatorio';
+    const scale = () => Number(scaleSel.value);
+    const pause = () => new Promise((r) => setTimeout(r, 350));
     const gen = async () => {
       if (RP.busy) return;
       RP.busy = true;
       clear(preview).append(el('div.small.muted', 'Montando o relatório…'));
       clear(notesBox);
+      const out = [];
+      const notes = [];
       try {
-        const r = await buildReport();
-        RP.svg = r.svg;
-        const frame = el('div.fig-canvas', { style: { maxWidth: '100%' } });
-        const shown = r.svg.cloneNode(true);
-        shown.setAttribute('style', 'width:100%;height:auto;display:block');
-        frame.appendChild(shown);
-        clear(preview).append(frame, el('div.small.muted', { style: { marginTop: '6px' } }, r.svg.getAttribute('width') + ' × ' + r.svg.getAttribute('height') + ' px · ' + S.spec.cases.map(caseLabel).join(', ')));
-        if (r.notes.length) notesBox.append(el('div.notice.warn', 'Figuras sem dados (fora do relatório): ' + r.notes.join(' · ')));
+        // Parte 34: one image per case (default) or one image with all cases
+        const groups = RP.perCase ? S.spec.cases.map((c) => ({ label: caseLabel(c), cases: [c] })) : [{ label: '', cases: S.spec.cases }];
+        if (!groups.length) throw new Error('Selecione um ou mais casos na seção 1.');
+        for (let gi = 0; gi < groups.length; gi++) {
+          const g = groups[gi];
+          clear(preview).append(el('div.small.muted', 'Montando ' + (groups.length > 1 ? (gi + 1) + ' de ' + groups.length + ': ' + g.label : 'o relatório') + '…'));
+          try {
+            const r = await buildReport(g.cases);
+            out.push({ label: g.label, svg: r.svg });
+            if (r.notes.length) notes.push((g.label ? g.label + ': ' : '') + r.notes.join(' · '));
+          } catch (e) { notes.push((g.label ? g.label + ': ' : '') + (e.message || String(e))); }
+        }
+        RP.out = out;
+        clear(preview);
+        if (!out.length) throw new Error('Nenhum relatório gerado. ' + notes.join(' | '));
+        out.forEach((o, i) => {
+          const frame = el('div.fig-canvas', { style: { maxWidth: '100%' } });
+          const shown = o.svg.cloneNode(true);
+          shown.setAttribute('style', 'width:100%;height:auto;display:block');
+          frame.appendChild(shown);
+          const one = (fmt) => async () => {
+            try {
+              if (fmt === 'svg') App.downloadText(nameOf(o) + '.svg', R().serialize(o.svg), 'image/svg+xml');
+              else if (fmt === 'png') download(await R().toPng(o.svg, scale()), nameOf(o) + '.png');
+              else { const u = URL.createObjectURL(await reportPdf(o.svg, scale())); download(u, nameOf(o) + '.pdf'); setTimeout(() => URL.revokeObjectURL(u), 5000); }
+            } catch (e) { App.toast(e.message, 'err'); }
+          };
+          preview.append(el('div.stack-xs', { style: { marginBottom: '18px' } },
+            el('div.toolbar', { style: { margin: 0 } }, el('b', (out.length > 1 ? (i + 1) + '. ' : '') + (o.label || 'Todos os casos')),
+              el('span.small.muted', o.svg.getAttribute('width') + ' × ' + o.svg.getAttribute('height') + ' px'),
+              el('button.btn.small.ghost', { type: 'button', on: { click: one('svg') } }, 'SVG'),
+              el('button.btn.small.ghost', { type: 'button', on: { click: one('png') } }, 'PNG'),
+              el('button.btn.small.ghost', { type: 'button', on: { click: one('pdf') } }, 'PDF')),
+            frame));
+        });
+        if (notes.length) notesBox.append(el('div.notice.warn', 'Figuras sem dados (fora do relatório): ' + notes.join(' | ')));
       } catch (e) {
-        RP.svg = null;
         clear(preview).append(el('div.notice.err', e.message || String(e)));
       } finally { RP.busy = false; }
     };
+    const all = (fmt) => async () => {
+      if (!need()) return;
+      try {
+        for (const o of RP.out) {
+          if (fmt === 'svg') App.downloadText(nameOf(o) + '.svg', R().serialize(o.svg), 'image/svg+xml');
+          else if (fmt === 'png') download(await R().toPng(o.svg, scale()), nameOf(o) + '.png');
+          else { const u = URL.createObjectURL(await reportPdf(o.svg, scale())); download(u, nameOf(o) + '.pdf'); setTimeout(() => URL.revokeObjectURL(u), 8000); }
+          await pause();
+        }
+        if (RP.out.length > 1) App.toast(RP.out.length + ' arquivos baixados. Se o navegador perguntar, permita vários downloads; ou use "Gravar na pasta".', 'ok', 7000);
+      } catch (e) { App.toast(e.message, 'err'); }
+    };
+    const onePdf = async () => {
+      if (!need()) return;
+      try { const u = URL.createObjectURL(await reportPdf(RP.out.map((o) => o.svg), scale())); download(u, safe(baseName()) + '_todos.pdf'); setTimeout(() => URL.revokeObjectURL(u), 8000); } catch (e) { App.toast(e.message, 'err'); }
+    };
+    const saveAll = async () => {
+      if (!need()) return;
+      try {
+        let last = '';
+        for (const o of RP.out) {
+          const n = nameOf(o);
+          await App.api.saveFigureImage(n, 'svg', R().serialize(o.svg));
+          await App.api.saveFigureImage(n, 'png', await R().toPng(o.svg, scale()));
+          const d = await App.api.saveFigureImage(n, 'pdf', await blobToDataUrl(await reportPdf(o.svg, scale())));
+          last = d.file;
+        }
+        App.toast(RP.out.length + ' relatório(s) gravado(s) em SVG, PNG e PDF em ' + last.replace(/[\\/][^\\/]*$/, ''), 'ok', 7000);
+      } catch (e) { App.toast(e.message, 'err'); }
+    };
+    const colsSel = el('select.input', [[0, 'Todas lado a lado'], [1, '1 (uma embaixo da outra)'], [2, '2'], [3, '3']].map(([v, l]) => el('option', { value: v }, l)));
+    colsSel.value = String(RP.cols || 0);
+    colsSel.addEventListener('change', () => { RP.cols = Number(colsSel.value); saveRP(); });
     box.append(
-      el('p.small.muted', 'Junta várias figuras dos casos da seção 1 numa só imagem (SVG, PNG ou PDF), com as letras (a), (b)… Cada figura usa o modelo ou a figura salva escolhida, com os casos atuais; o estilo de cada uma é o do modelo (ou o da figura salva). Os mapas de calor ficam com a legenda no canto superior direito.'),
+      el('p.small.muted', 'Junta as figuras escolhidas numa imagem (SVG, PNG ou PDF), com as letras (a), (b)… Por padrão gera uma imagem para cada caso da seção 1, com as figuras daquele caso lado a lado (mesma altura). Cada figura usa o modelo ou a figura salva escolhida; os mapas de calor ficam com a legenda à direita, no alto.'),
       field('Relatório pronto', presetSel),
-      el('div.flabel', 'Figuras (de cima para baixo)'), list,
-      el('div.fields.two', field('Colunas', num('cols', 1, 3)), field('Largura total (px)', num('width', 400, 4000)), field('Espaço entre figuras (px)', num('gap', 0, 200)), field('Título', titleIn)),
+      el('div.flabel', 'Figuras (na ordem: da esquerda para a direita, depois a linha de baixo)'), list,
+      el('div.fields.two', field('Colunas', colsSel), field('Largura total (px)', num('width', 400, 6000)), field('Espaço entre figuras (px)', num('gap', 0, 200)), field('Título', titleIn)),
       field('Ponto de carga', (() => { const sl = el('select.input', el('option', { value: 'last' }, 'O último ponto em todas as figuras'), el('option', { value: 'fig' }, 'O de cada figura (topologia: um mapa por ponto)')); sl.value = RP.lp || 'last'; sl.addEventListener('change', () => { RP.lp = sl.value; saveRP(); }); return sl; })()),
-      el('div.checks', chk('letters', 'Letras (a), (b)…'), chk('legendRight', 'Legenda dos mapas à direita, no alto')),
+      el('div.checks', chk('perCase', 'Uma imagem para cada caso'), chk('caseTitle', 'Nome do caso como título'), chk('letters', 'Letras (a), (b)…'), chk('legendRight', 'Legenda dos mapas à direita, no alto')),
       el('div.toolbar',
         el('button.btn.small.primary', { type: 'button', on: { click: gen } }, 'Gerar relatório'),
         el('span.sep'),
-        el('button.btn.small', { type: 'button', on: { click: () => { if (need()) App.downloadText(fname() + '.svg', R().serialize(RP.svg), 'image/svg+xml'); } } }, 'Baixar SVG'),
         scaleSel,
-        el('button.btn.small', { type: 'button', on: { click: async () => { if (!need()) return; try { download(await R().toPng(RP.svg, Number(scaleSel.value)), fname() + '.png'); } catch (e) { App.toast(e.message, 'err'); } } } }, 'Baixar PNG'),
-        el('button.btn.small', { type: 'button', title: 'PDF de uma página com o relatório como imagem na resolução escolhida', on: { click: async () => {
-          if (!need()) return;
-          try { const b = await reportPdf(RP.svg, Number(scaleSel.value)); const u = URL.createObjectURL(b); download(u, fname() + '.pdf'); setTimeout(() => URL.revokeObjectURL(u), 5000); } catch (e) { App.toast(e.message, 'err'); }
-        } } }, 'Baixar PDF'),
-        el('button.btn.small', { type: 'button', title: 'Grava SVG, PNG e PDF em launcher/figures', on: { click: async () => {
-          if (!need()) return;
-          try {
-            const n = fname();
-            await App.api.saveFigureImage(n, 'svg', R().serialize(RP.svg));
-            await App.api.saveFigureImage(n, 'png', await R().toPng(RP.svg, Number(scaleSel.value)));
-            const d = await App.api.saveFigureImage(n, 'pdf', await blobToDataUrl(await reportPdf(RP.svg, Number(scaleSel.value))));
-            App.toast('Relatório gravado: ' + d.file.replace(/\.pdf$/, '.{svg,png,pdf}'), 'ok', 6000);
-          } catch (e) { App.toast(e.message, 'err'); }
-        } } }, 'Gravar na pasta')),
+        el('button.btn.small', { type: 'button', title: 'Um arquivo por imagem', on: { click: all('svg') } }, 'Baixar SVGs'),
+        el('button.btn.small', { type: 'button', title: 'Um arquivo por imagem', on: { click: all('png') } }, 'Baixar PNGs'),
+        el('button.btn.small', { type: 'button', title: 'Um PDF por imagem', on: { click: all('pdf') } }, 'Baixar PDFs'),
+        el('button.btn.small', { type: 'button', title: 'Um só PDF, uma página por caso', on: { click: onePdf } }, 'PDF único (1 página por caso)'),
+        el('button.btn.small', { type: 'button', title: 'Grava SVG, PNG e PDF de cada imagem em launcher/figures (sem perguntas do navegador)', on: { click: saveAll } }, 'Gravar todos na pasta')),
       notesBox, preview);
     return box;
   }

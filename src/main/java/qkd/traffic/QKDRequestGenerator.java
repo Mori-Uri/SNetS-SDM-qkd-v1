@@ -124,6 +124,11 @@ public class QKDRequestGenerator extends RequestGenerator {
             keyDemandPolicy.draw();
             return fixedKeyDemand;
         }
+        if (keyDemandPolicy.isByBitRate()) {
+            // Part 34: the demand follows the bit rate; the draw keeps the QKD random stream aligned
+            keyDemandPolicy.draw();
+            return keyDemandPolicy.forBitRate(getBandwidth());
+        }
         return keyDemandPolicy.draw();
     }
 

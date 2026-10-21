@@ -306,6 +306,44 @@
         intervals.classList.toggle('invalid', !ok);
         if (ok) { App.setValue('simulation', ['qkdKeyDemand'], Object.assign({ keySizeBits: 256, randomSeed: 2024 }, kd || {}, { updateIntervalsMicroseconds: arr })); App.renderTab(); }
       });
+      // Parte 34: how the demand is chosen (uniform draw or following the classical bit rate)
+      const modeSel = el('select.input',
+        el('option', { value: 'uniform' }, 'Sorteio uniforme entre os intervalos'),
+        el('option', { value: 'byBitRate' }, 'Pela taxa da requisição clássica (mesmas proporções)'));
+      modeSel.value = isByBitRate() ? 'byBitRate' : 'uniform';
+      modeSel.addEventListener('change', () => {
+        const cur = Object.assign({ keySizeBits: 256, updateIntervalsMicroseconds: [64.0, 128.0, 256.0], randomSeed: 2024 }, isPlainObject(sim.qkdKeyDemand) ? sim.qkdKeyDemand : {});
+        if (modeSel.value === 'byBitRate') cur.mode = 'byBitRate'; else { delete cur.mode; delete cur.keyRateMbpsByBitRate; }
+        App.setValue('simulation', ['qkdKeyDemand'], cur); App.renderTab();
+      });
+      let bbBox = null;
+      if (isByBitRate()) {
+        const rows = keyByBitRateTable();
+        const setExplicit = (r, v) => {
+          const cur = Object.assign({}, sim.qkdKeyDemand);
+          const m = Object.assign({}, isPlainObject(cur.keyRateMbpsByBitRate) ? cur.keyRateMbpsByBitRate : {});
+          for (const k of Object.keys(m)) if (Math.abs(Number(String(k).replace(',', '.')) * 1e9 - r.bps) <= 1e-6 * r.bps) delete m[k];
+          if (v !== null && v !== r.auto) m[String(r.gbps)] = v;
+          if (Object.keys(m).length) cur.keyRateMbpsByBitRate = m; else delete cur.keyRateMbpsByBitRate;
+          App.setValue('simulation', ['qkdKeyDemand'], cur); App.renderTab();
+        };
+        const keyShare = new Map();
+        for (const r of rows) keyShare.set(r.mbps, (keyShare.get(r.mbps) || 0) + r.share);
+        const anyEx = rows.some((r) => r.explicit);
+        bbBox = el('div.stack-xs', { style: { marginTop: '10px' } },
+          rows.length ? el('div.table-wrap', el('table.grid.data',
+            el('thead', el('tr', el('th', 'Taxa clássica (Gb/s)'), el('th', 'Parcela das requisições'), el('th', 'Demanda de chave (Mbit/s)'), el('th', ''))),
+            el('tbody', rows.map((r) => {
+              const i = el('input.input.num', { type: 'text', value: String(r.mbps).replace('.', ','), style: { width: '90px' } });
+              i.addEventListener('change', () => { const v = parseNumber(i.value); if (v > 0) setExplicit(r, v); else i.classList.add('invalid'); });
+              return el('tr', el('td.num', fmtNum(r.gbps, 0)), el('td.num', fmtNum(100 * r.share, 1) + ' %'), el('td', i),
+                el('td.small.muted', r.explicit ? el('button.btn.small.ghost', { type: 'button', on: { click: () => setExplicit(r, null) } }, 'automático (' + fmtNum(r.auto, 3) + ')') : 'automático'));
+            })))) : el('p.small.warn', 'O arquivo traffic não tem geradores com bitRate.'),
+          el('p.small.muted', 'Resultado: ' + [...keyShare.entries()].sort((a, b) => a[0] - b[0]).map(([k, v]) => fmtNum(k, 3) + ' Mbit/s em ' + fmtNum(100 * v, 1) + ' %').join(' · ') + ' das requisições protegidas (a fração protegida é a mesma para todas as taxas, salvo qkdProtectedProbability por gerador).'),
+          el('p.small.muted', 'Regra automática: as taxas clássicas, da menor para a maior, recebem as taxas de chave dos intervalos, da menor para a maior. Com mais taxas clássicas do que de chave, taxas vizinhas dividem a mesma chave; edite a tabela para outra combinação (grava simulation.qkdKeyDemand.keyRateMbpsByBitRate). Geradores com keyRateMbps continuam usando o valor fixo.'),
+          anyEx ? el('div', el('button.btn.small.ghost', { type: 'button', on: { click: () => { const cur = Object.assign({}, sim.qkdKeyDemand); delete cur.keyRateMbpsByBitRate; App.setValue('simulation', ['qkdKeyDemand'], cur); App.renderTab(); } } }, 'Voltar tudo ao automático')) : null,
+          tr.anyKeyField ? el('p.small.warn', 'Atenção: há geradores com keyRateMbps no arquivo traffic; eles não seguem esta tabela. Para usar a tabela em todos, marque "Não fixar" no painel de tráfego QKD e aplique.') : null);
+      }
       const exact = el('input', { type: 'checkbox', checked: !!sim.qkdExactRequestCount });
       exact.addEventListener('change', () => App.setValue('simulation', ['qkdExactRequestCount'], exact.checked));
       const met = el('input', { type: 'checkbox', checked: !(isPlainObject(sim.activeMetrics) && sim.activeMetrics.QKDMetrics === false) });
@@ -317,7 +355,9 @@
           simPct(['qkdProtectedRequestProbability'], 'Fração protegida padrão (%)', 'de 0 a 100 %; vale para os geradores sem qkdProtectedProbability'),
           simNum(['qkdKeyDemand', 'keySizeBits'], 'Tamanho da chave', 'bits', (v) => v > 0 && Number.isInteger(v)),
           field('Intervalos de renovação da chave', intervals, 'µs; ' + (rates.length ? rates.map((r) => fmtNum(r, 3)).join(' / ') + ' Mbit/s' : '—')),
-          simNum(['qkdWarmupFraction'], 'Warm-up das métricas QKD', 'fração das chegadas', (v) => v >= 0 && v < 1)),
+          simNum(['qkdWarmupFraction'], 'Warm-up das métricas QKD', 'fração das chegadas', (v) => v >= 0 && v < 1),
+          field('Escolha da demanda (sem keyRateMbps)', modeSel, 'simulation.qkdKeyDemand.mode')),
+        bbBox,
         el('div.checks', { style: { marginTop: '8px' } },
           el('label.check', exact, ' Número exato de requisições (sem a "cauda" de 1 chegada por gerador)'),
           el('label.check', met, ' Gerar QKDMetrics.csv (bloqueio QKD por causa, SKR, QBER, Q-TRx, nós confiáveis, por par)')),
@@ -344,6 +384,41 @@
 
   // ------------------------------------------------------------------ traffic
 
+  /**
+   * Parte 34: table of the "byBitRate" key demand mode (same rule as QKDKeyDemandPolicy.configureByBitRate):
+   * distinct classical bit rates sorted and paired by rank with the sorted key rates; the explicit table
+   * keyRateMbpsByBitRate (Gb/s -> Mbit/s) overrides it. share = fraction of the arrivals with that bit rate.
+   */
+  function keyByBitRateTable() {
+    const tr = st().model.traffic, sim = st().model.simulation || {};
+    const gens = isPlainObject(tr) && Array.isArray(tr.requestGenerators) ? tr.requestGenerators : [];
+    const kd = isPlainObject(sim.qkdKeyDemand) ? sim.qkdKeyDemand : {};
+    const bits = Number(kd.keySizeBits) || 256;
+    const keys = [...new Set((Array.isArray(kd.updateIntervalsMicroseconds) && kd.updateIntervalsMicroseconds.length ? kd.updateIntervalsMicroseconds : [64, 128, 256]).map((us) => bits / Number(us)))].sort((a, b) => a - b);
+    const lamOf = new Map();
+    let tot = 0;
+    for (const g of gens) {
+      const r = Number(g.bitRate !== undefined ? g.bitRate : g.bandwidth);
+      if (!(r > 0)) continue;
+      const l = Number(g.arrivalRate) || 0;
+      lamOf.set(r, (lamOf.get(r) || 0) + l); tot += l;
+    }
+    const rates = [...lamOf.keys()].sort((a, b) => a - b);
+    const n = rates.length, nk = keys.length;
+    const ex = isPlainObject(kd.keyRateMbpsByBitRate) ? kd.keyRateMbpsByBitRate : {};
+    return rates.map((r, j) => {
+      const k = nk === 1 ? 0 : n === 1 ? Math.floor(nk / 2) : n <= nk ? Math.round(j * (nk - 1) / (n - 1)) : Math.floor(j * nk / n);
+      const auto = keys[Math.min(nk - 1, k)];
+      const gb = r / 1e9;
+      const exKey = Object.keys(ex).find((x) => Math.abs(Number(String(x).replace(',', '.')) * 1e9 - r) <= 1e-6 * r);
+      return { bps: r, gbps: gb, share: tot ? lamOf.get(r) / tot : 0, auto, mbps: exKey !== undefined ? Number(ex[exKey]) : auto, explicit: exKey !== undefined };
+    });
+  }
+  function isByBitRate() {
+    const sim = st().model.simulation || {};
+    return isPlainObject(sim.qkdKeyDemand) && String(sim.qkdKeyDemand.mode || '').toLowerCase() === 'bybitrate';
+  }
+
   function trafficQkdSummary() {
     const tr = st().model.traffic, sim = st().model.simulation || {};
     const gens = isPlainObject(tr) && Array.isArray(tr.requestGenerators) ? tr.requestGenerators : [];
@@ -353,6 +428,8 @@
       ? kd.updateIntervalsMicroseconds.reduce((s, us) => s + (kd.keySizeBits || 256) / us, 0) / kd.updateIntervalsMicroseconds.length : NaN;
     let lam = 0, lamP = 0, keyW = 0, withFields = 0, erl = 0, erlInc = 0;
     const probs = new Map(), keys = new Map();
+    const bb = isByBitRate() ? keyByBitRateTable() : null;
+    const keyOfRate = (g) => { const r = Number(g.bitRate !== undefined ? g.bitRate : g.bandwidth); const row = bb && bb.find((x) => x.bps === r); return row ? row.mbps : policyMean; };
     for (const g of gens) {
       const l = Number(g.arrivalRate) || 0;
       const mu = Number(g.holdRate) || 1;
@@ -360,7 +437,7 @@
       if (g.qkdProtectedProbability !== undefined) probs.set(Number(g.qkdProtectedProbability), (probs.get(Number(g.qkdProtectedProbability)) || 0) + 1);
       if (g.keyRateMbps !== undefined) keys.set(Number(g.keyRateMbps), (keys.get(Number(g.keyRateMbps)) || 0) + 1);
       const p = g.qkdProtectedProbability !== undefined ? Number(g.qkdProtectedProbability) : globalP;
-      const k = g.keyRateMbps !== undefined ? Number(g.keyRateMbps) : policyMean;
+      const k = g.keyRateMbps !== undefined ? Number(g.keyRateMbps) : bb ? keyOfRate(g) : policyMean;
       if (g.qkdProtectedProbability !== undefined || g.keyRateMbps !== undefined) withFields++;
       lam += l; lamP += l * p; keyW += l * p * k;
     }
@@ -395,6 +472,7 @@
     ['Fração padrão (simulation)', 'qkdProtectedRequestProbability, na aba Simulação: vale para os geradores que não têm o campo próprio.'],
     ['Demanda de chave (keyRateMbps)', 'Taxa de chave secreta que a sessão QKD precisa entregar, em Mbit/s, enquanto a conexão estiver ativa. A sessão só é aceita se a taxa de chave segura (SKR) de todos os trechos da rota QKD for pelo menos esta demanda.', 'Ex.: chave AES de 256 bits renovada a cada 128 µs = 256/128 = 2 Mbit/s.'],
     ['Política qkdKeyDemand (sem keyRateMbps)', 'A demanda é sorteada para cada requisição protegida: tamanho da chave ÷ intervalo de renovação, com o intervalo escolhido ao acaso da lista do arquivo simulation.', 'Padrão: 256 bits e 64, 128 ou 256 µs → 4, 2 ou 1 Mbit/s.'],
+    ['Demanda pela taxa clássica (mode = byBitRate)', 'Em vez de sortear, cada requisição protegida pede a taxa de chave que corresponde à sua taxa clássica: a menor taxa clássica recebe a menor taxa de chave, e assim por diante. Como a requisição protegida é uma requisição clássica sorteada, as demandas de chave ficam nas mesmas proporções das taxas clássicas.', 'Ex.: 100/200/400 Gb/s → 1/2/4 Mbit/s. Ajuste na aba QKD.'],
     ['Requisições protegidas (esperado)', 'Média das frações protegidas ponderada pela carga de cada gerador: a porcentagem das requisições da simulação que devem pedir QKD.'],
     ['Lista QKD dedicada', 'Geradores extras com fração 1, para estudar só pares escolhidos. Eles somam carga à rede: cada requisição também ocupa espectro clássico.'],
   ];
@@ -488,7 +566,7 @@
       el('div.stack-s', { style: { margin: '12px 0 0' } },
         el('h3', 'Demanda de chave (vale para as duas ações abaixo)'),
         el('div.fields', field('Demanda fixa por requisição', inp('key'), 'Mbit/s → campo keyRateMbps de cada gerador')),
-        el('label.check', usePolicy, ' Não fixar: usar a política qkdKeyDemand da aba QKD (tamanho da chave ÷ intervalo sorteado; padrão 1, 2 ou 4 Mbit/s por requisição)')),
+        el('label.check', usePolicy, ' Não fixar: usar a política qkdKeyDemand da aba QKD (sorteio de 1, 2 ou 4 Mbit/s, ou pela taxa clássica da requisição se o modo for "byBitRate")')),
       el('div.table-wrap', { style: { margin: '12px 0' } }, el('table.grid.data',
         el('thead', el('tr', el('th', 'Taxa'), el('th.num', 'Geradores'), el('th.num', 'Com campos QKD'), el('th.num', 'Fração protegida'), el('th.num', 'Chave (Mbit/s)'))),
         el('tbody', [...byRate.entries()].sort((a, b) => a[0] - b[0]).map(([r, e]) => el('tr',

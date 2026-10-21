@@ -61,6 +61,7 @@ public final class QKDMeshFactory {
                     keyConfig.getKeySizeBits(),
                     keyConfig.getUpdateIntervalsMicroseconds(),
                     keyConfig.getRandomSeed() + offset);
+            if (keyConfig.isByBitRate()) keyDemandPolicy.requestByBitRate(keyConfig.getKeyRateMbpsByBitRate());
 
             QKDMesh qkdMesh = new QKDMesh(
                     networkConfig,

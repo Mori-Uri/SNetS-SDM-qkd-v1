@@ -277,6 +277,15 @@ public class SimulationConfig {
         private int keySizeBits;
         private double[] updateIntervalsMicroseconds;
         private long randomSeed;
+        /**
+         * Part 34: how the demand of a protected request is chosen when its generator has no keyRateMbps.
+         * "uniform" (default, also when absent): one of the intervals at random. "byBitRate": the demand follows
+         * the bit rate of the request (the smallest classical rate gets the smallest key rate, and so on), so the
+         * key demands keep the same proportions as the classical bit rates.
+         */
+        private String mode;
+        /** Part 34, mode "byBitRate": optional explicit table classical bit rate (Gb/s, as text) -> key rate (Mbit/s). */
+        private java.util.Map<String, Double> keyRateMbpsByBitRate;
 
         public QKDKeyDemandConfig() {
             keySizeBits = 256;
@@ -314,6 +323,26 @@ public class SimulationConfig {
             return randomSeed;
         }
 
+        public String getMode() {
+            return mode == null || mode.trim().isEmpty() ? "uniform" : mode.trim();
+        }
+
+        public void setMode(String mode) {
+            this.mode = mode;
+        }
+
+        public boolean isByBitRate() {
+            return "byBitRate".equalsIgnoreCase(getMode());
+        }
+
+        public java.util.Map<String, Double> getKeyRateMbpsByBitRate() {
+            return keyRateMbpsByBitRate;
+        }
+
+        public void setKeyRateMbpsByBitRate(java.util.Map<String, Double> m) {
+            this.keyRateMbpsByBitRate = m;
+        }
+
         public void setRandomSeed(long randomSeed) {
             this.randomSeed = randomSeed;
         }
@@ -332,6 +361,23 @@ public class SimulationConfig {
                 if (!Double.isFinite(interval) || interval <= 0.0) {
                     throw new IllegalArgumentException(
                             "simulation.qkdKeyDemand update intervals must be finite and > 0");
+                }
+            }
+            String m = getMode();
+            if (!"uniform".equalsIgnoreCase(m) && !"byBitRate".equalsIgnoreCase(m)) {
+                throw new IllegalArgumentException(
+                        "simulation.qkdKeyDemand.mode must be \"uniform\" or \"byBitRate\" (found \"" + m + "\")");
+            }
+            if (keyRateMbpsByBitRate != null) {
+                for (java.util.Map.Entry<String, Double> e : keyRateMbpsByBitRate.entrySet()) {
+                    double gb;
+                    try { gb = Double.parseDouble(e.getKey().trim().replace(',', '.')); }
+                    catch (NumberFormatException ex) { gb = Double.NaN; }
+                    if (!(gb > 0) || e.getValue() == null || !(e.getValue() > 0) || e.getValue().isInfinite()) {
+                        throw new IllegalArgumentException(
+                                "simulation.qkdKeyDemand.keyRateMbpsByBitRate: \"" + e.getKey() + "\": " + e.getValue()
+                                + " (the key must be a bit rate in Gb/s and the value a key rate in Mbit/s, both > 0)");
+                    }
                 }
             }
         }

@@ -255,3 +255,13 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
   - modulação dos circuitos em cada enlace.
 - **Relatório:** junta várias figuras dos casos numa só imagem, com as letras (a), (b)…, e exporta em SVG, PNG ou PDF. Exemplo: o mapa de espectro com o mapa da topologia, com a legenda à direita no alto. Há relatórios prontos e eles podem ser personalizados. O "Gravar na pasta" grava também o PDF.
 - **Simulador:** precisa do jar da Parte 33.
+
+## Versão 1.13.0
+
+- **Relatório por caso:** gera uma imagem para cada caso escolhido, com as figuras daquele caso lado a lado, na mesma altura. Por exemplo, o mapa de espectro à esquerda e a topologia à direita. Também dá para empilhar as figuras: em "Colunas", escolha 1.
+  - Cada imagem tem botões próprios de SVG, PNG e PDF.
+  - Há também "Baixar SVGs/PNGs/PDFs", que baixa um arquivo por caso, e "PDF único", com uma página por caso.
+  - "Gravar todos na pasta" grava tudo em `launcher/figures`.
+- **Aba QKD, "Escolha da demanda":** a demanda de chave pode ser sorteada ao acaso entre os intervalos, como antes, ou seguir a taxa clássica da requisição (`qkdKeyDemand.mode = "byBitRate"`).
+  - Uma tabela mostra que chave cada taxa clássica recebe e a parcela de cada taxa nas requisições, e pode ser editada.
+- **Simulador:** precisa do jar da Parte 34.
