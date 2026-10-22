@@ -192,3 +192,9 @@ physicalLayer.before_p26
 /simulations/QKD_Test6/**/*.txt
 /simulations/QKD_Test5/**/savestate/
 /simulations/QKD_Test6/**/savestate/
+/simulations/QKD_Test7/**/*.csv
+/simulations/QKD_Test7/**/*.txt
+/simulations/QKD_Test7/**/savestate/
+/simulations/QKD_Test8/**/*.csv
+/simulations/QKD_Test8/**/*.txt
+/simulations/QKD_Test8/**/savestate/

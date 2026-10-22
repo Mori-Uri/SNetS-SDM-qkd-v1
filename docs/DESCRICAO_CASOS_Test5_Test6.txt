@@ -1,0 +1,298 @@
+DESCRIÇÃO DOS CASOS DOS ESTUDOS QKD_Test5 E QKD_Test6
+======================================================
+
+SNetS-SDM-QKD, simulador da Parte 36 em diante. Rode tudo com o jar atual: os casos
+com QKD rodados antes da correção do QABNE (Parte 36) precisam ser rodados de novo.
+
+Este texto explica:
+  - o que é igual em todos os casos;
+  - quais casos servem de referência;
+  - o que cada caso muda na simulação e que impacto se espera dessa mudança.
+
+Os casos foram gerados por launcher/.work/gen/make_tests.py. Cada pasta tem também
+um LEIAME_CASOS.md mais curto.
+
+
+1. O QUE É IGUAL EM TODOS OS CASOS
+----------------------------------
+
+Simulação (arquivo simulation)
+  - 30 000 requisições por ponto de carga, 8 pontos e 3 replicações.
+  - Sementes fixas iguais em todos os casos:
+      trafficRandomSeed = 13000
+      qkdProtectionRandomSeed = 1300
+      qkdKeyDemand.randomSeed = 130
+    Com isso, todos os casos veem a mesma sequência de chegadas e durações. A
+    diferença entre dois casos vem da configuração, não do sorteio.
+  - Algoritmos:
+      integratedRmlsa = spcsav2 (rmlsaType 1)
+      routing = djk, kRouting = newksp (k = 3, no arquivo others)
+      modulationSelection = modulationbyqotv2
+      powerAssignment = cpsd
+      grooming = notrafficgrooming
+      reallocation = fsalfav1
+  - Algoritmo de núcleo e espectro:
+      casos clássicos (Classico e C_1Block): csbasdm (o ABNE clássico);
+      casos com QKD, inclusive Q25_R0: qabne (o ABNE ciente do núcleo
+      quântico, que só usa os núcleos clássicos).
+  - Todas as métricas ligadas, inclusive QKDMetrics, SlotUtilization e
+    SlotBlocking.
+
+Rede (arquivo network)
+  - Fibra de 7 núcleos (núcleo 0 central, 1 a 6 em anel), 320 slots de 12,5 GHz
+    por núcleo e banda de guarda de 1 slot.
+  - QKD (quando ligado):
+      núcleo quântico = 1, um núcleo de borda com 3 vizinhos, reservado;
+      qchGranularity = link: um QCh por enlace, compartilhado pelas sessões
+        até somar a SKR dele; quando falta capacidade, abre outro QCh;
+      qchSharing = shared;
+      pichMode = segment.
+
+Camada física (physicalLayer e qkdPhysicalLayer.json)
+  - Clássica: QoT, ASE, NLI e crosstalk ligados, nos mesmos valores de antes.
+  - QKD: BB84 com estados-isca, mu = 0,7, detector com 30 % de eficiência,
+    atenuação mínima de 0,18 dB/km em 1550 nm.
+  - SKR de um trecho sem crosstalk, em 1550 nm:
+       5 km = 219 Mbit/s     25 km = 94 Mbit/s     50 km = 33 Mbit/s
+      75 km = 11,7 Mbit/s   100 km = 4,1 Mbit/s
+
+Tráfego (arquivo traffic)
+  - Todos os pares origem–destino, com taxas de 100, 200, 300, 400 e 500 Gb/s na
+    proporção 5:4:3:2:1 (33 %, 27 %, 20 %, 13 % e 7 % das requisições).
+  - holdRate = 1.
+  - A "fração protegida" (qkdProtectedProbability) é a chance de cada requisição
+    pedir também uma sessão QKD. A carga em Erlangs é a mesma em todos os casos.
+  - Uma requisição protegida só é aceita se o circuito clássico E a sessão QKD
+    forem provisionados.
+
+Cargas
+  - Test5 (Metropolitana): 1300, 1600, 1900, 2200, 2500, 2800, 3100 e 3400
+    Erlangs.
+  - Test6 (NSFNet): 150, 280, 410, 540, 670, 800, 930 e 1060 Erlangs.
+  - As duas foram calibradas para o bloqueio ir de cerca de 0,1 % no 1º ponto a
+    cerca de 10 % no último.
+
+
+2. AS DUAS TOPOLOGIAS E O QTND
+------------------------------
+
+QTND é a distância máxima entre nós confiáveis (trusted nodes). Cada enlace é
+dividido em trechos de no máximo QTND km, a partir da origem, com o resto no
+último trecho. Em cada nó confiável a chave é regenerada, o que exige um par de
+transceptores quânticos (Q-TRx). Por isso:
+  - QTND menor: trechos curtos e SKR alta, mas mais nós confiáveis e Q-TRx
+    (mais custo);
+  - QTND maior: menos equipamento, mas SKR baixa, o que exige mais QChs (espectro
+    do núcleo quântico e Q-TRx) para a mesma demanda de chave.
+
+Test5: Metropolitana (8 nós, 11 enlaces bidirecionais de 20 a 50 km)
+  Q5   QTND  5 km ->  64 nós confiáveis, 75 trechos. SKR de cerca de 219 Mbit/s
+       por QCh. O máximo de equipamento.
+  Q25  QTND 25 km ->   8 nós confiáveis, 19 trechos. SKR de cerca de 94 Mbit/s
+       (o trecho mais longo tem 25 km).
+  Q50  QTND 50 km ->   0 nós confiáveis: nenhum enlace passa de 50 km. A SKR
+       depende do enlace (33 Mbit/s a 50 km, mais nos enlaces curtos).
+
+Test6: NSFNet (14 nós, 22 enlaces bidirecionais de 300 a 1800 km)
+  Q25  QTND  25 km -> 786 nós confiáveis (muitos). SKR de cerca de 94 Mbit/s.
+  Q50  QTND  50 km -> 382 nós confiáveis (intermediário). SKR de cerca de 33 Mbit/s.
+  Q75  QTND  75 km -> 249 nós confiáveis (intermediário). SKR de cerca de 11,7 Mbit/s.
+  Q100 QTND 100 km -> 183 nós confiáveis (poucos). SKR de cerca de 4,1 Mbit/s,
+       praticamente igual à maior demanda sorteada (4 Mbit/s): cada sessão de
+       4 Mbit/s ocupa um QCh inteiro, ou quase, em cada enlace.
+  Em enlaces de centenas de km não existe "sem nós confiáveis": com 100 km de
+  QTND a SKR já está no limite da demanda.
+
+
+3. CASOS DE REFERÊNCIA
+----------------------
+
+Classico
+  QKD desligado, 7 núcleos clássicos, csbasdm.
+  É a rede como ela é hoje, sem QKD. Serve de teto de desempenho clássico.
+
+C_1Block
+  QKD desligado, núcleo 1 DESATIVADO (network.disabledCores = [1]), csbasdm.
+  Tem a mesma capacidade clássica dos casos com QKD (6 núcleos).
+  Classico x C_1Block mostra quanto custa só perder um núcleo, sem QKD e sem
+  trocar o algoritmo.
+
+Q25_R0
+  QKD ligado, núcleo 1 reservado, 0 % de requisições protegidas, qabne.
+  É a referência clássica com o MESMO algoritmo dos casos QKD.
+    - C_1Block x Q25_R0: diferença entre csbasdm e qabne com 6 núcleos (efeito
+      do algoritmo).
+    - Q25_R0 x Q*_R25/50/100: efeito de proteger requisições com QKD (sessões,
+      QChs, PICh, proteção das sessões ativas). Nada mais muda.
+  Com 0 %, não há sessões QKD; o QTND não importa (só aparece no planejamento).
+
+Q<QTND>_R<fração> — os casos base
+  Exemplo: Q25_R25 = QTND 25 km e 25 % das requisições protegidas.
+  Configuração da base:
+    - chave sorteada entre 1, 2 e 4 Mbit/s (média de 2,33 Mbit/s);
+    - PICh 0 (não modelado);
+    - comprimento de onda fixed (todo QCh em 1550 nm);
+    - crosstalk sobre o QCh ligado;
+    - sem rotas QKD alternativas;
+    - QTx/QRx ilimitados;
+    - núcleo quântico 1.
+  Cada base é a referência das suas variações (seção 5).
+  Entre bases:
+    - mesma QTND, frações diferentes (R10, R25, R50, R100): efeito da fração
+      protegida;
+    - mesma fração, QTND diferentes (Q5/Q25/Q50 ou Q25/Q50/Q75/Q100): efeito do
+      QTND, isto é, do posicionamento dos nós confiáveis.
+  R10 existe só com Q25, como ponto extra de fração baixa.
+
+
+4. CASO DE POSIÇÃO DO NÚCLEO QUÂNTICO
+-------------------------------------
+
+Q25_R25_C0 (referência: Q25_R25)
+  Muda: network.qkd.quantumCoreId = 0 (núcleo central, 6 vizinhos). O núcleo 1
+  passa a ser clássico.
+  Impacto esperado:
+    - o QCh recebe crosstalk de 6 núcleos clássicos em vez de 3 (QBER maior, SKR
+      menor, possivelmente mais QChs);
+    - a parte clássica também muda: o qabne usa os núcleos 1–6, e o núcleo central
+      perde a política própria do ABNE;
+    - mostra por que o núcleo quântico deve ficar na borda.
+
+
+5. VARIAÇÕES (cada uma muda UMA coisa em relação ao seu caso base)
+-----------------------------------------------------------------
+
+Cada base Q<QTND>_R<fração> tem estas variações. Compare sempre a variação com a
+sua base: mesmo QTND, mesma fração, mesmas sementes.
+
+_fixed  (chave fixa em 2 Mbit/s)
+  Muda: traffic.keyRateMbps = 2 em todos os geradores (antes: sorteio 1/2/4).
+  Impacto: tira a variabilidade da demanda, e a média cai de 2,33 para 2 Mbit/s.
+  Mostra se a variação da demanda pesa no uso de QChs/Q-TRx e no bloqueio QKD.
+  Diferença pequena, a não ser quando a SKR está perto da demanda (Test6
+  Q75/Q100).
+
+_fixed10  (chave fixa em 10 Mbit/s)
+  Muda: traffic.keyRateMbps = 10.
+  Impacto: demanda alta. No modo link, a sessão usa a capacidade de chave do QCh;
+  quando ela acaba, abre outros QChs. Portanto:
+    - mais QChs ativos e mais Q-TRx (mais custo);
+    - mais espectro do núcleo quântico;
+    - mais bloqueio QKD quando o núcleo quântico ou os QTx/QRx se esgotam.
+  Efeito pequeno com SKR alta (Test5 Q5/Q25). Forte com SKR baixa: no Test6 Q100,
+  cada sessão precisa de 3 QChs por enlace; no Q75, de 1.
+  Este é o caso que mostra o "custo da chave".
+
+_bitrate  (chave pela taxa clássica)
+  Muda: simulation.qkdKeyDemand.mode = "byBitRate", sem keyRateMbps.
+  Regra (5 taxas, 3 chaves):
+    100 e 200 Gb/s -> 1 Mbit/s  (60 % das protegidas)
+    300 e 400 Gb/s -> 2 Mbit/s  (33 %)
+    500 Gb/s       -> 4 Mbit/s  (7 %)
+  A média cai para 1,53 Mbit/s.
+  Impacto: demanda menor e associada ao tamanho da requisição. As requisições
+  grandes, que já bloqueiam mais no clássico, pedem mais chave. É o cenário
+  "chave proporcional ao tráfego".
+
+_PICh1  (PICh de 1 slot)
+  Muda: network.qkd.pichSlots = 1.
+  O PICh é o canal clássico público do BB84 (bases, correção de erros,
+  amplificação de privacidade). Em cada enlace da rota QKD ele ocupa 1 slot num
+  núcleo clássico (o de menor índice com espaço, first fit) e é compartilhado
+  pelas sessões. A potência dele não entra no crosstalk.
+  Impacto:
+    - tira espectro do tráfego clássico (um pouco mais de bloqueio clássico);
+    - pode bloquear sessões por falta de PICh;
+    - entra no custo (PIChs abertos).
+  Dá realismo: na base, o PICh não é modelado.
+
+_grid  (comprimento de onda do slot)
+  Muda: network.qkd.wavelengthPolicy = "grid" (antes: fixed, tudo em 1550 nm).
+  Impacto: cada QCh usa o lambda do slot, com atenuação alfa(lambda) maior longe
+  de 1550 nm. QChs fora do mínimo têm SKR menor, o que pede mais QChs para a
+  mesma demanda.
+  Efeito pequeno com trechos curtos (Test5). Maior com trechos longos (Test6
+  Q75/Q100), onde a margem de SKR é pequena.
+
+_XToff  (sem crosstalk sobre o QCh)
+  Muda: qkdPhysicalLayer.json -> crosstalk.intercoreCrosstalkEnabled = false.
+  Impacto: tira o ruído que os circuitos clássicos dos núcleos vizinhos põem no
+  detector do QCh. QBER e SKR melhoram.
+  Base x _XToff = penalidade da coexistência quântico-clássica na MCF. Esperado
+  pequeno com o núcleo quântico na borda (no Test4: SKR média de 95,49 contra
+  95,53 Mbit/s). Pode crescer com trechos longos e carga alta.
+
+_ALT3  (rotas QKD alternativas)
+  Muda: network.qkd.alternativeRoutes = 3.
+  Se a sessão QKD falha na rota do circuito clássico (sem QCh, sem PICh, SKR
+  baixa), ela tenta até 3 rotas alternativas.
+  Impacto: menos bloqueio QKD, ao preço de rotas QKD mais longas (mais trechos,
+  mais Q-TRx e mais QChs). A métrica "Alternative QKD route ratio" mostra quantas
+  sessões usaram rota alternativa.
+
+_QTRx<n>  (equipamento limitado)
+  Muda: network.qkd.qTransmittersPerNode = qReceiversPerNode = n. Os nós
+  confiáveis seguem o mesmo limite.
+    Test5: n = 4 em todos os QTND.
+    Test6: n = 4 (Q25), 4 (Q50), 8 (Q75), 16 (Q100).
+  Os valores ficam perto da metade do pico de uso medido nas simulações de
+  calibração. QTND longo pede muito mais Q-TRx por nó.
+  Impacto: representa um orçamento de equipamento. Aparece como "QKD blocking
+  probability by lack of QTx/QRx" e limita o custo de equipamento. Compare com a
+  base nos gráficos de custo x bloqueio.
+
+
+6. COMO COMPARAR (sugestão)
+---------------------------
+
+1. Referências primeiro:
+     Classico x C_1Block x Q25_R0
+   Modelo de gráfico: "Bloqueio de circuitos x carga".
+2. Efeito da fração protegida, por QTND:
+     Q25_R0, Q25_R10, Q25_R25, Q25_R50, Q25_R100
+   Modelos: "Bloqueio total, das clássicas e das protegidas por QKD x carga" e as
+   causas do bloqueio QKD.
+3. Efeito do QTND (custo x desempenho), com a mesma fração:
+     Q5/Q25/Q50 (Test5) ou Q25/Q50/Q75/Q100 (Test6)
+   Modelos do grupo "Custo QKD":
+     - "Custo de equipamento x QTND";
+     - "SKR por Q-TRx x QTND" (a métrica do artigo-base);
+     - "Custo x bloqueio QKD".
+4. Cada variação contra a sua base, por exemplo Q50_R25 x Q50_R25_fixed10.
+   Use os relatórios por caso (espectro + topologia lado a lado) para ver onde o
+   bloqueio acontece.
+5. Test5 x Test6: o mesmo estudo numa rede metropolitana (enlaces curtos, SKR
+   folgada) e numa de longa distância (muitos nós confiáveis, SKR no limite).
+
+
+7. LISTA DOS CASOS
+------------------
+
+QKD_Test5 (Metropolitana) — 94 casos
+  Referências: Classico, C_1Block, Q25_R0, Q25_R25_C0
+  Q5_R25    + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q5_R50    + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q5_R100   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q25_R25   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q25_R50   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q25_R100  + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q50_R25   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q50_R50   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q50_R100  + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q25_R10   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+
+QKD_Test6 (NSFNet) — 121 casos
+  Referências: Classico, C_1Block, Q25_R0, Q25_R25_C0
+  Q25_R25   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q25_R50   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q25_R100  + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q50_R25   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q50_R50   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q50_R100  + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4
+  Q75_R25   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx8
+  Q75_R50   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx8
+  Q75_R100  + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx8
+  Q100_R25  + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx16
+  Q100_R50  + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx16
+  Q100_R100 + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx16
+  Q25_R10   + _fixed _fixed10 _bitrate _PICh1 _grid _XToff _ALT3 _QTRx4

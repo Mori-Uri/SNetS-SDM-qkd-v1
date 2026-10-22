@@ -1,0 +1,117 @@
+DESCRIÇÃO DOS CASOS DOS ESTUDOS QKD_Test7 E QKD_Test8
+======================================================
+
+Versão reduzida do Test5/Test6. Em vez de cruzar todos os fatores, cada estudo tem
+UM cenário QKD de referência, e cada caso muda UMA coisa em relação a ele.
+
+  QKD_Test7  Metropolitana (8 nós, enlaces de 20 a 50 km)
+             15 casos, referência Q25_R25.
+  QKD_Test8  NSFNet (14 nós, enlaces de 300 a 1800 km)
+             17 casos, referência Q50_R25.
+
+São 32 casos no total, contra 215 no Test5/Test6. Requisições, cargas, sementes,
+algoritmos, camada física e tráfego são os mesmos do Test5/Test6:
+  - 30 000 requisições por ponto, 8 pontos de carga, 3 replicações.
+  - Test7: 1300 a 3400 Erlangs, de 300 em 300.
+  - Test8: 150 a 1060 Erlangs, de 130 em 130.
+  - Os clássicos usam csbasdm; os casos com QKD usam qabne.
+  - Simulador da Parte 36 em diante (com o QABNE corrigido).
+Os detalhes de cada parâmetro estão em docs/DESCRICAO_CASOS_Test5_Test6.txt.
+Os casos foram gerados por launcher/.work/gen/make_tests78.py.
+
+
+1. CENÁRIO DE REFERÊNCIA
+------------------------
+
+Test7: Q25_R25
+  QTND de 25 km (8 nós confiáveis, SKR de cerca de 94 Mbit/s), 25 % das
+  requisições protegidas.
+
+Test8: Q50_R25
+  QTND de 50 km (382 nós confiáveis, SKR de cerca de 33 Mbit/s), 25 %
+  protegidas. Escolhi 50 km por ser o valor intermediário: há folga de SKR para
+  a demanda, sem o exagero de nós confiáveis do QTND 25.
+
+Nos dois:
+  - núcleo quântico 1 (borda);
+  - chave sorteada entre 1, 2 e 4 Mbit/s;
+  - PICh 0, comprimento de onda fixed, crosstalk sobre o QCh ligado;
+  - sem rotas alternativas, QTx/QRx ilimitados.
+
+
+2. REFERÊNCIAS CLÁSSICAS (as mesmas do Test5/Test6)
+---------------------------------------------------
+
+Classico         QKD desligado, 7 núcleos, csbasdm: a rede sem QKD.
+C_1Block         QKD desligado, núcleo 1 desativado (6 núcleos), csbasdm: o custo
+                 de perder um núcleo.
+Q25_R0 / Q50_R0  QKD ligado, núcleo 1 reservado, 0 % protegidas, qabne: a
+                 referência clássica com o mesmo algoritmo dos casos QKD.
+                 Q*_R0 x Q*_R25 = efeito de proteger requisições com QKD.
+
+
+3. VARIAÇÕES DA REFERÊNCIA (cada uma muda só uma coisa)
+-------------------------------------------------------
+
+Fração protegida
+  Q*_R50, Q*_R100   50 % e 100 % das requisições protegidas.
+                    Junto com R0 e R25, dá a curva do efeito da fração.
+                    (O R10 do Test5 saiu: entre 0 % e 25 % pouco se aprende.)
+
+QTND (posição dos nós confiáveis), sempre com 25 % protegidas
+  Test7: Q5_R25 (64 nós confiáveis, SKR de 219 Mbit/s)
+         Q50_R25 (0 nós confiáveis, SKR de 33 a 115 Mbit/s conforme o enlace)
+  Test8: Q25_R25 (786 nós confiáveis, muitos)
+         Q75_R25 (249)
+         Q100_R25 (183, poucos; SKR de 4,1 Mbit/s, no limite da demanda)
+  Mostra o compromisso custo x SKR: gráficos "Custo de equipamento x QTND",
+  "SKR por Q-TRx x QTND" e "Custo x bloqueio QKD".
+
+Demanda de chave
+  _fixed10   10 Mbit/s fixos. A demanda alta exige mais QChs e Q-TRx (o "custo
+             da chave").
+  _bitrate   Chave pela taxa clássica (100–200 Gb/s → 1 Mbit/s, 300–400 → 2,
+             500 → 4). Média de 1,53 Mbit/s, ligada ao tamanho da requisição.
+  (O _fixed de 2 Mbit/s saiu: média quase igual à da referência, 2 contra 2,33
+  Mbit/s, e efeito pequeno.)
+
+Recursos e camada física
+  _PICh1     PICh de 1 slot por enlace num núcleo clássico. Tira espectro do
+             clássico e pode bloquear sessões por falta de PICh.
+  _XToff     Sem crosstalk dos canais clássicos sobre o QCh: a penalidade da
+             coexistência na MCF.
+  _ALT3      Até 3 rotas QKD alternativas: menos bloqueio QKD, rotas mais longas.
+  _QTRx4     No máximo 4 QTx e 4 QRx por nó: orçamento de equipamento (bloqueio
+             por falta de QTx/QRx, custo limitado).
+  _C0        Núcleo quântico no centro (6 vizinhos, em vez de 3): mais crosstalk
+             sobre o QCh, e o núcleo 1 passa a ser clássico.
+  _grid      (só no Test8) Comprimento de onda do QCh = λ do slot, com
+             atenuação α(λ). Só faz diferença com trechos longos, onde a margem
+             de SKR é pequena; na Metropolitana o efeito seria desprezível, por
+             isso não está no Test7.
+
+
+4. LISTA DOS CASOS
+------------------
+
+QKD_Test7 (Metropolitana), 15 casos:
+  Classico, C_1Block, Q25_R0,
+  Q25_R25 (referência), Q25_R50, Q25_R100,
+  Q5_R25, Q50_R25,
+  Q25_R25_fixed10, Q25_R25_bitrate, Q25_R25_PICh1, Q25_R25_XToff,
+  Q25_R25_ALT3, Q25_R25_QTRx4, Q25_R25_C0
+
+QKD_Test8 (NSFNet), 17 casos:
+  Classico, C_1Block, Q50_R0,
+  Q50_R25 (referência), Q50_R50, Q50_R100,
+  Q25_R25, Q75_R25, Q100_R25,
+  Q50_R25_fixed10, Q50_R25_bitrate, Q50_R25_PICh1, Q50_R25_XToff,
+  Q50_R25_ALT3, Q50_R25_QTRx4, Q50_R25_C0, Q50_R25_grid
+
+
+5. ORDEM SUGERIDA PARA RODAR E COMPARAR
+---------------------------------------
+
+1. Classico, C_1Block, Q*_R0 e a referência: a base de toda comparação.
+2. Frações (R50, R100) e QTND: os resultados principais.
+3. As demais variações, cada uma comparada com a referência.

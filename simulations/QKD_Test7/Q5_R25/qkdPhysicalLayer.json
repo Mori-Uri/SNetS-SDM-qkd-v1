@@ -1,0 +1,27 @@
+{
+  "source": {
+    "meanPhotonNumber": 0.7,
+    "pulseIntervalPs": 250.0,
+    "qchPowerDbm": -80.0,
+    "qchBandwidthGHz": 12.5
+  },
+  "protocol": {
+    "errorCorrectionInefficiency": 1.16,
+    "misalignmentError": 0.015
+  },
+  "detector": {
+    "detectorEfficiency": 0.3,
+    "darkCountProbability": 1.0E-8,
+    "detectorGateWindowPs": 100.0,
+    "receiverOpticalEfficiency": 1.0
+  },
+  "fiber": {
+    "attenuationFloorDbPerKm": 0.18,
+    "attenuationQuadraticDbPerKmNm2": 8.0E-6,
+    "attenuationCenterNm": 1550.0
+  },
+  "crosstalk": {
+    "intercoreCrosstalkEnabled": true,
+    "receiverTransferModel": "receiver_referenced"
+  }
+}

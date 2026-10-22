@@ -290,3 +290,17 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
   - custo × bloqueio.
 
   Os pesos de cada equipamento ficam em "Pesos do custo".
+
+## Versão 1.15.0
+
+- **Gráficos por núcleo.** O núcleo quântico e os núcleos desativados ficam vazios: não recebem circuitos clássicos.
+  - Antes eles apareciam com 100 % de bloqueio. Quando o spcsav2 não acha faixa em nenhuma modulação, ele grava um
+    núcleo sorteado no circuito, e o sorteio podia cair nesses núcleos.
+  - "Bloqueio por núcleo" e o diagrama da fibra passam a usar o BlockingDetails.csv. O cálculo original do SNetS
+    continua disponível no modelo "Bloqueio por núcleo (cálculo original do SNetS)".
+- **Causas de bloqueio** com nomes que explicam o que medem:
+  - "Outros (sem causa física identificada)";
+  - "Havia faixa em núcleo não tentado pelo algoritmo".
+
+  A ajuda da métrica descreve cada causa.
+- **Simulador:** precisa do jar da Parte 37.

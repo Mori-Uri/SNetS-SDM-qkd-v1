@@ -45,6 +45,8 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
     public static final String C_RX = "Lack of receivers";
     public static final String C_SPECTRUM = "Lack of free spectrum";
     public static final String C_OTHER = "Other";
+    /** Part 37: no core was tried with a fitting band, but another (usable) core had a free contiguous band. */
+    public static final String C_OTHER_CORE = "Free band in a core not tried";
     public static final String C_QKD_PROTECT = "QKD session protection";
     public static final String C_QKD_SPECTRUM = "QKD QCh spectrum";
     public static final String C_QKD_SKR = "QKD SKR";
@@ -52,7 +54,7 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
     public static final String C_QKD_QTRX = "QKD QTx/QRx";
     public static final String C_QKD_OTHER = "QKD other";
 
-    public static final String[] CAUSES = {C_FRAG, C_QOTN, C_QOTO, C_XT, C_XTO, C_TX, C_RX, C_SPECTRUM, C_OTHER,
+    public static final String[] CAUSES = {C_FRAG, C_QOTN, C_QOTO, C_XT, C_XTO, C_TX, C_RX, C_SPECTRUM, C_OTHER_CORE, C_OTHER,
             C_QKD_PROTECT, C_QKD_SPECTRUM, C_QKD_SKR, C_QKD_PICH, C_QKD_QTRX, C_QKD_OTHER};
 
     /*
@@ -279,7 +281,11 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
             }
         }
         Circuit ref = blockedCircuit != null ? blockedCircuit : any;
-        int core = ref == null ? -1 : rawCore(ref);
+        // Part 37: when the algorithm found no band for any modulation (spectrum null), spcsav2 stores a random
+        // core in the circuit just to fill it; that core was never chosen, so the request is not attributed to a
+        // core and its cause is diagnosed over all usable cores instead of on that random core.
+        boolean noBand = blockedCircuit != null && blockedCircuit.getSpectrumAssigned() == null;
+        int core = ref == null || noBand ? -1 : rawCore(ref);
         if (core >= 0) genPerCore.put(core, genPerCore.containsKey(core) ? genPerCore.get(core) + 1 : 1L);
 
         // A QKD rejection only explains the block when the classical diagnosis found
@@ -291,7 +297,7 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         lastObservedCause = null;
         if (!success) {
             blocked[cls]++;
-            cause = qkdCause != null ? qkdCause : classicalCause(cp, blockedCircuit);
+            cause = qkdCause != null ? qkdCause : noBand ? noBandCause(cp, blockedCircuit) : classicalCause(cp, blockedCircuit);
             lastObservedCause = cause;
             blockedByCause.get(cause)[cls]++;
             String diag;
@@ -363,12 +369,12 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         Link first = route.getLinkList().get(0);
         int best = 0; // 0 no slots, 1 continuity, 2 contiguity, 3 available
         for (Core core : first.getCores()) {
-            if (core.isQkdReserved()) continue;
+            if (core.isQkdReserved() || core.isDisabled()) continue;
             int id = core.getId();
             boolean eachLink = true;
             for (Link l : route.getLinkList()) {
                 Core lc = l.getCore(id);
-                if (lc == null || lc.isQkdReserved()) { eachLink = false; break; }
+                if (lc == null || lc.isQkdReserved() || lc.isDisabled()) { eachLink = false; break; }
                 int free = 0;
                 for (int[] b : lc.getFreeSpectrumBands(gb)) free += b[1] - b[0] + 1;
                 if (free < need) { eachLink = false; break; }
@@ -397,6 +403,21 @@ public final class BlockingDetailRecorder implements java.io.Serializable {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    /**
+     * Part 37: cause of a block in which the algorithm found no band for any modulation. Lack of transmitters or
+     * receivers keeps its SNetS cause; otherwise the spectrum of all usable cores of the route decides.
+     */
+    private static String noBandCause(ControlPlane cp, Circuit c) {
+        if (c.getBlockCause() == Circuit.BY_LACK_TX) return C_TX;
+        if (c.getBlockCause() == Circuit.BY_LACK_RX) return C_RX;
+        String d;
+        try { d = spectrumDiagnosis(cp, c); } catch (RuntimeException e) { return C_OTHER; }
+        if (D_NO_SLOTS.equals(d)) return C_SPECTRUM;
+        if (D_CONTINUITY.equals(d) || D_CONTIGUITY.equals(d)) return C_FRAG;
+        if (D_AVAILABLE.equals(d)) return C_OTHER_CORE;
+        return C_OTHER;
     }
 
     private static String classicalCause(ControlPlane cp, Circuit c) {

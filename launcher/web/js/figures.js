@@ -310,7 +310,7 @@
     [/by crosstalk$/i, 'XT', '#00B050'],
     [/lack of transmitters/i, 'Falta de Tx', '#A5A5A5'],
     [/lack of receivers/i, 'Falta de Rx', '#7F7F7F'],
-    [/by other/i, 'Outros', '#000000'],
+    [/by other/i, 'Outros (sem causa identificada)', '#000000'],
     [/QKD blocking probability by classical/i, 'Recursos clássicos', '#4472C4'],
     [/QKD blocking probability by QCh spectrum/i, 'Espectro do QCh', '#ED7D31'],
     [/QKD blocking probability by SKR/i, 'SKR insuficiente', '#70AD47'],
@@ -322,7 +322,8 @@
     'Fragmentation': ['Fragmentação', '#C00000'], 'QoTN': ['QoTN', '#FFC000'], 'QoTO': ['QoTO', '#7030A0'],
     'Crosstalk': ['XT', '#00B050'], 'Crosstalk in other': ['XTO', '#0070C0'],
     'Lack of transmitters': ['Falta de Tx', '#A5A5A5'], 'Lack of receivers': ['Falta de Rx', '#7F7F7F'],
-    'Lack of free spectrum': ['Falta de espectro livre', '#404040'], 'Other': ['Outros', '#000000'],
+    'Lack of free spectrum': ['Falta de espectro livre', '#404040'], 'Other': ['Outros (sem causa física identificada)', '#000000'],
+    'Free band in a core not tried': ['Havia faixa em núcleo não tentado pelo algoritmo', '#8C564B'],
     'QKD session protection': ['QKD: proteção de sessões ativas', '#9DC3E6'], 'QKD QCh spectrum': ['QKD: espectro do QCh', '#ED7D31'],
     'QKD SKR': ['QKD: SKR insuficiente', '#A9D18E'], 'QKD PICh': ['QKD: PICh', '#F4B183'], 'QKD QTx/QRx': ['QKD: falta de QTx/QRx', '#5B9BD5'], 'QKD other': ['QKD: outros', '#D9D9D9'],
     'Spectrum: free band available': ['Havia faixa livre (bloqueio por QoT/XT ou proteção QKD)', '#7030A0'],
@@ -415,7 +416,10 @@
     { id: 'diagSpectrum100', group: 'Causas de bloqueio', name: 'Diagnóstico do espectro em 100 %', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability by spectrum diagnosis', itemsFrom: 'dim', dim: 'Cause', xAxis: 'cases', stacked: true, normalize: true, y: '' },
     { id: 'diagSpectrumLoad', group: 'Causas de bloqueio', name: 'Diagnóstico do espectro × carga (uma linha por diagnóstico)', type: 'line', file: 'BlockingDetails', metric: 'Blocking probability by spectrum diagnosis', seriesBy: 'dim:Cause', y: 'Probabilidade de Bloqueio', x: 'Carga (Erlangs)', xMode: 'erl' },
     // ---- Núcleos
-    { id: 'coreBars', group: 'Núcleos', name: 'Bloqueio por núcleo', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability per core \d+$/i, xAxis: 'items', y: 'Probabilidade de Bloqueio' },
+    { id: 'coreBars', group: 'Núcleos', name: 'Bloqueio por núcleo', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability per core', itemsFrom: 'dim', dim: 'Core', xAxis: 'items', y: 'Probabilidade de Bloqueio do núcleo', x: 'Núcleo',
+      desc: 'Bloqueadas com candidato no núcleo ÷ requisições com candidato no núcleo (BlockingDetails.csv). Requisições em que o algoritmo não achou faixa em nenhuma modulação não são atribuídas a núcleo nenhum (simulador da Parte 37). O núcleo quântico e os desativados ficam vazios: não recebem circuitos clássicos.' },
+    { id: 'coreBarsSnets', group: 'Núcleos', name: 'Bloqueio por núcleo (cálculo original do SNetS)', type: 'bars', file: 'BlockingProbability', itemsFrom: 'metrics', itemsRe: /^blocking probability per core \d+$/i, xAxis: 'items', y: 'Probabilidade de Bloqueio',
+      desc: 'Métrica clássica do SNetS (BlockingProbability.csv). Quando o spcsav2 não acha faixa em nenhuma modulação, ele grava um núcleo sorteado no circuito; esse sorteio pode cair no núcleo quântico ou num desativado, que então aparece com 100 % de bloqueio. Por isso esses núcleos ficam vazios aqui; para a comparação entre núcleos, prefira o modelo "Bloqueio por núcleo".' },
     { id: 'coreCauses', group: 'Núcleos', name: 'Bloqueio por núcleo, com as causas', type: 'bars', file: 'BlockingDetails', metric: 'Blocking probability per core by cause', itemsFrom: 'dim', dim: 'Core', seriesDim: 'Cause', xAxis: 'items', stacked: true, y: 'Probabilidade de Bloqueio do núcleo', x: 'Núcleo' },
     { id: 'coreCausesShare', group: 'Núcleos', name: 'Parcela do bloqueio total em cada núcleo, por causa', type: 'bars', file: 'BlockingDetails', metric: 'Share of all requests blocked per core by cause', itemsFrom: 'dim', dim: 'Core', seriesDim: 'Cause', xAxis: 'items', stacked: true, y: 'Requisições bloqueadas / todas as requisições', x: 'Núcleo' },
     { id: 'coreUtilBars', group: 'Núcleos', name: 'Utilização por núcleo', type: 'bars', file: 'SpectrumUtilization', metric: 'Utilization per Core', itemsFrom: 'dim', dim: 'Core', xAxis: 'items', y: 'Utilização do núcleo', x: 'Núcleo' },
@@ -637,6 +641,7 @@
     const avail = parsed.filter((x) => x.p);
     if (!avail.length) return { empty: 'Nenhum dos casos selecionados tem o arquivo ' + spec.file + '.csv.' + fileHint(spec.file) };
     const missing = parsed.filter((x) => !x.p).map((x) => caseLabel(x.c));
+    for (const x of avail) EXCL.set(x.p, await excludedCores(x.c.path));
     const m = spec.type === 'line' ? await buildLine(spec, avail) : buildBars(spec, avail);
     m.missing = missing;
     return m;
@@ -719,6 +724,26 @@
     return spec.metric ? [spec.metric] : p.metrics.slice(0, 1);
   }
 
+  /**
+   * 1.15.0: cores that carry no classical circuit in a case (the quantum core and the disabled cores). Their
+   * "blocking per core" only reflects requests that spcsav2 attaches to a random core when no core had a band
+   * (100 % blocked by construction), so the per-core charts leave them empty.
+   */
+  const EXCL = new WeakMap();
+  async function excludedCores(path) {
+    const cd = await caseData(path);
+    const n = cd.files.network || {};
+    const out = new Set((Array.isArray(n.disabledCores) ? n.disabledCores : []).map(String));
+    if (App.isPlainObject(n.qkd) && n.qkd.enabled) out.add(String(n.qkd.quantumCoreId));
+    return out;
+  }
+  function coreOfItem(spec, item, dimName) {
+    if (dimName === 'Core' && /^\d+$/.test(item)) return String(item);
+    const m = /per core (\d+)$/i.exec(String(item));
+    return m ? m[1] : null;
+  }
+  const NOVAL = { mean: NaN, n: 0 };
+
   function buildBars(spec, avail) {
     const B = spec.bars;
     // union of items keeping first-seen order
@@ -728,6 +753,8 @@
     if (B.itemsFrom === 'dim' && B.items && B.items.length) selItems = items.filter((i) => B.items.includes(i));
     if (B.itemsFrom === 'dim' && B.seriesDim && B.seriesDim !== B.dim) return buildMatrixBars(spec, avail, selItems, avail.map(({ p }) => lpResolve(B.lp, p.lps)));
     const valueOf = (p, item) => {
+      const ck = coreOfItem(spec, item, B.itemsFrom === 'dim' ? B.dim : '');
+      if (ck !== null && EXCL.has(p) && EXCL.get(p).has(ck) && /block/i.test(spec.metric + ' ' + item)) return NOVAL;
       const lp = lpResolve(B.lp, p.lps);
       const reps = B.itemsFrom === 'dim' ? repsAt(p, spec.metric, lp, spec.filters, B.dim, item) : repsAt(p, item, lp, spec.filters);
       return stats(reps);
@@ -800,6 +827,12 @@
       for (const v of dimValues(p, spec.metric)[di] || []) if (v !== 'all' && v !== '' && !sVals.includes(v)) sVals.push(v);
     }
     const value = (p, item, sv) => {
+      const ck = coreOfItem(spec, item, B.dim);
+      if (ck !== null && EXCL.has(p) && EXCL.get(p).has(ck) && /block/i.test(spec.metric)) return NOVAL;
+      // 1.15.0: a series value missing in this file (e.g. QKD causes in a classical case) has no value; before, the
+      // filter fell back to the first value of the dimension and repeated it
+      const di = p.dims.indexOf(sd);
+      if (di >= 0 && !(dimValues(p, spec.metric)[di] || []).includes(sv)) return NOVAL;
       const f = Object.assign({}, spec.filters, { [sd]: sv });
       return stats(repsAt(p, spec.metric, lpResolve(B.lp, p.lps), f, B.dim, item));
     };
@@ -1211,12 +1244,19 @@
       const qCore = App.isPlainObject(netf.qkd) && netf.qkd.enabled ? Number(netf.qkd.quantumCoreId) : null;
       const disSet = new Set((Array.isArray(netf.disabledCores) ? netf.disabledCores : []).map(Number).filter((v) => v !== qCore));
       const util = {}, block = {};
+      // 1.15.0: the blocking of the per-core view comes from BlockingDetails (the cores really chosen) when it exists
+      let bdc = null;
+      try { bdc = await getCsv(c.path, 'BlockingDetails'); } catch (e) { bdc = null; }
+      if (!(bdc && bdc.ok && bdc.byMetric.has('Blocking probability per core'))) bdc = null;
       for (const core of cores) {
         if (up && up.ok && up.byMetric.has(C.utilMetric)) {
           const lp = lpResolve(C.lp, up.lps);
           util[core.id] = stats(repsAt(up, C.utilMetric, lp, { Link: 'all' }, 'Core', String(core.id))).mean;
         }
-        if (bp && bp.ok) {
+        if (qCore === Number(core.id) || disSet.has(Number(core.id))) continue; // no classical circuit there
+        if (bdc) {
+          block[core.id] = stats(repsAt(bdc, 'Blocking probability per core', lpResolve(C.lp, bdc.lps), null, 'Core', String(core.id))).mean;
+        } else if (bp && bp.ok) {
           const mname = C.blockPrefix + ' ' + core.id;
           if (bp.byMetric.has(mname)) block[core.id] = stats(repsAt(bp, mname, lpResolve(C.lp, bp.lps), spec.filters)).mean;
         }
