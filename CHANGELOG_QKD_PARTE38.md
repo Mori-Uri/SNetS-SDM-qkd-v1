@@ -15,3 +15,11 @@ Arquivos:
 - launcher/README.md, launcher/snets-launcher.jar.
 
 Figuras salvas antes continuam abrindo (campos novos com valores padrão).
+
+## 1.16.1 e 1.16.2
+
+- 1.16.1: a causa "Free band in a core not tried" aparece na legenda como "Núcleo não tentado"; a explicação
+  detalhada fica em "Como ler este gráfico" (metricinfo.js).
+- 1.16.2 (figures.js): ajustes guardados por modelo de gráfico (localStorage snets.fig.templates, botão "Padrão do
+  modelo"); slots.oneWay (só um sentido de cada enlace) no estúdio e no relatório; sentidos dos mapas da topologia no
+  relatório.

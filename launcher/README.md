@@ -333,3 +333,13 @@ Estúdio de gráficos:
 - A causa "Free band in a core not tried" aparece na legenda como **Núcleo não tentado** (antes "Havia faixa em núcleo
   não tentado pelo algoritmo"). A explicação completa (rodízio de núcleos do csbasdm/qabne, exemplo, como o
   simulador classifica e como ler) fica em "Como ler este gráfico". O nome pode ser trocado na seção 3 do estúdio.
+
+## Versão 1.16.2
+
+- **Ajustes guardados por modelo de gráfico**: tamanho, legenda, eixos, cores, rótulos, dados escolhidos etc. ficam
+  guardados para cada modelo. Ao trocar de modelo e voltar, os ajustes reaparecem (com os casos atuais). Ficam no
+  navegador, então valem também depois de fechar o launcher. O botão "Padrão do modelo" (ao lado da escolha do
+  modelo) esquece os ajustes daquele modelo.
+- **Relatório**: opção "Mapas do espectro: só um sentido de cada enlace (a < b)" e escolha dos sentidos nos mapas da
+  topologia (os dois, maior dos dois ou média). No estúdio, os mapas do espectro ganharam a caixa "Só um sentido de
+  cada enlace", que vale mesmo quando a lista de enlaces muda de caso.

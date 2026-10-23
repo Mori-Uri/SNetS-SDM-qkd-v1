@@ -147,6 +147,17 @@
     return cmp(pa[1], pb[1]) || cmp(pa[2], pb[2]);
   }
 
+  /** 1.16.2: one direction of each link: keeps <a-b> with a < b (and a link whose reverse is not in the list). */
+  function oneWay(links) {
+    const set = new Set(links);
+    return links.filter((l) => {
+      const m = /^<([^<>]+?)-([^<>]+)>$/.exec(l);
+      if (!m) return true;
+      const r = '<' + m[2] + '-' + m[1] + '>';
+      return !set.has(r) || linkCompare(l, r) < 0;
+    });
+  }
+
   function finishParsed(p) {
     if (!p.ok) return p;
     p.metrics = [];
@@ -530,7 +541,7 @@
       },
       cores: { lp: -1, utilFile: 'SpectrumUtilization', utilMetric: 'Utilization per Core', blockFile: 'BlockingProbability', blockPrefix: 'Blocking probability per core', normBlock: false },
       topo: { lps: [], range: 'shared', block: !!t.topoBlock, blockFile: 'BlockingDetails', blockMetric: 'Link blocking probability', blockClasses: 'split' },
-      slots: { lp: -1, links: [], cores: [], from: 1, to: 0, order: 'name', caseLayout: 'stack', blockMode: t.blockMode || 'ratio', blockCause: t.blockCause || 'all', onlyBlocked: false, summary: true },
+      slots: { lp: -1, links: [], cores: [], oneWay: false, from: 1, to: 0, order: 'name', caseLayout: 'stack', blockMode: t.blockMode || 'ratio', blockCause: t.blockCause || 'all', onlyBlocked: false, summary: true },
       scatter: { xFile: t.xFile || 'SpectrumUtilization', xMetric: t.xMetric || 'Utilization Per Link', yFile: t.yFile || 'BlockingDetails', yMetric: t.yMetric || 'Link blocking probability',
         by: t.by || 'Link', lp: -1, fx: {}, fy: {}, trend: true, pooled: false },
       labels: {}, seriesStyle: {}, seriesOrder: [], style,
@@ -550,6 +561,43 @@
 
   function persistDraft() {
     try { localStorage.setItem(draftKey(), JSON.stringify({ spec: S.spec, savedName: S.savedName })); } catch (e) { /* ignore */ }
+    rememberTemplate();
+  }
+
+  /**
+   * 1.16.2: settings of each chart model (style, data choices, labels, colours…) kept while you switch models: going
+   * back to a model brings back what was set there. The cases are not part of it (the current ones are kept).
+   * Kept in this browser, so they also survive closing the launcher; "Padrão do modelo" forgets them.
+   */
+  const TMPL_KEY = 'snets.fig.templates';
+  let tmplMem = null;
+  function tmplStore() {
+    if (tmplMem) return tmplMem;
+    tmplMem = {};
+    try { tmplMem = JSON.parse(localStorage.getItem(TMPL_KEY) || '{}') || {}; } catch (e) { tmplMem = {}; }
+    return tmplMem;
+  }
+  const writeTemplates = App.debounce(() => { try { localStorage.setItem(TMPL_KEY, JSON.stringify(tmplStore())); } catch (e) { /* in memory only */ } }, 400);
+  function rememberTemplate() {
+    if (!S.spec || !S.spec.template) return;
+    const copy = JSON.parse(JSON.stringify(S.spec));
+    delete copy.cases;
+    tmplStore()[S.spec.template] = copy;
+    writeTemplates();
+  }
+  function recalledSpec(id, cases) {
+    const m = tmplStore()[id];
+    if (!m) return null;
+    try {
+      const spec = upgrade(JSON.parse(JSON.stringify(Object.assign({}, m, { cases: [] }))));
+      spec.template = id;
+      spec.cases = cases;
+      return spec;
+    } catch (e) { return null; }
+  }
+  function forgetTemplate(id) {
+    delete tmplStore()[id];
+    writeTemplates();
   }
   function loadDraft() {
     try {
@@ -957,6 +1005,7 @@
       let links = p.links.slice();
       if (T.order === 'name') links.sort(linkCompare);
       if (T.links && T.links.length) links = links.filter((l) => T.links.includes(l));
+      if (T.oneWay) links = oneWay(links);
       let cores = p.cores.slice();
       if (T.cores && T.cores.length) cores = cores.filter((k) => T.cores.includes(k));
       const from = Math.max(1, Math.min(p.nSlots, Math.round(Number(T.from) || 1)));
@@ -1012,6 +1061,7 @@
       let links = p.links.slice();
       if (T.order === 'name') links.sort(linkCompare);
       if (T.links && T.links.length) links = links.filter((l) => T.links.includes(l));
+      if (T.oneWay) links = oneWay(links);
       let cores = p.cores.slice();
       if (T.cores && T.cores.length) cores = cores.filter((k) => T.cores.includes(k));
       const from = Math.max(1, Math.min(p.nSlots, Math.round(Number(T.from) || 1)));
@@ -1116,6 +1166,7 @@
       const lp = lpResolve(T.lp, p.lps);
       let links = p.links.slice();
       if (T.links && T.links.length) links = links.filter((l) => T.links.includes(l));
+      if (T.oneWay) links = oneWay(links);
       let cores = p.cores.slice();
       if (T.cores && T.cores.length) cores = cores.filter((k) => T.cores.includes(k));
       const from = Math.max(1, Math.min(p.nSlots, Math.round(Number(T.from) || 1)));
@@ -1814,6 +1865,9 @@
     const box = el('div.stack-s');
     const chooseTemplate = (id) => {
       const keepCases = spec.cases;
+      rememberTemplate();
+      const back = recalledSpec(id, keepCases);
+      if (back) { S.spec = back; S.savedName = ''; changedData(); return; }
       const keepStyle = { width: spec.style.width, font: spec.style.font, fontSize: spec.style.fontSize, decimal: spec.style.decimal, palette: spec.style.palette, bg: spec.style.bg };
       S.spec = newSpec(id, []);
       S.spec.cases = keepCases;
@@ -1826,7 +1880,17 @@
       TEMPLATE_GROUPS.map((g) => ({ label: g, items: TEMPLATES.filter((t) => t.group === g).map((t) => ({ value: t.id, label: t.name, title: t.desc || t.name })) })),
       spec.template, chooseTemplate);
     const tdesc = (TEMPLATES.find((t) => t.id === spec.template) || {}).desc;
-    box.append(groupField('Modelo de gráfico', tmplSel, tdesc || 'Preenche tipo, arquivo, métrica e títulos; tudo pode ser ajustado abaixo.'));
+    const resetTmpl = el('button.btn.small.ghost', { type: 'button', title: 'Esquece os ajustes guardados deste modelo (tamanho, legenda, cores, eixos…) e volta ao padrão. Os casos continuam.', on: { click: () => {
+      const keepCases = spec.cases;
+      forgetTemplate(spec.template);
+      S.spec = newSpec(spec.template, []);
+      S.spec.cases = keepCases;
+      S.savedName = '';
+      changedData();
+      App.toast('Modelo de volta ao padrão.', 'ok');
+    } } }, 'Padrão do modelo');
+    box.append(groupField('Modelo de gráfico', el('div.toolbar', { style: { margin: 0, flexWrap: 'nowrap' } }, tmplSel, resetTmpl),
+      (tdesc ? tdesc + ' ' : '') + 'Os ajustes feitos em cada modelo ficam guardados: ao trocar de modelo e voltar, eles reaparecem. "Padrão do modelo" esquece os ajustes deste modelo.'));
 
     const typeSel = selectInput(spec, 'type', [['line', 'Linhas (métrica × carga ou parâmetro)'], ['bars', 'Barras (agrupadas / empilhadas)'], ['cores', 'Diagrama da fibra (núcleos)'], ['topo', 'Mapa de calor na topologia (enlaces)'], ['slots', 'Mapa de calor do espectro (slots × núcleos × enlaces)'], ['slotblock', 'Mapa de calor do bloqueio no espectro (slots)'], ['slotline', 'Perfil de ocupação por slot (linhas)'], ['scatter', 'Dispersão: métrica × métrica (correlação)']], () => {
       if (spec.type === 'topo' && !spec.file) { spec.file = 'SpectrumUtilization'; spec.metric = 'Utilization Per Link'; }
@@ -2029,6 +2093,7 @@
       el('div.toolbar', { style: { margin: 0 } },
         quick('Só um sentido (a < b)', () => { T.links = links.filter((l) => { const m = /^<([^<>]+?)-([^<>]+)>$/.exec(l); return m && linkCompare('<' + m[1] + '-' + m[2] + '>', '<' + m[2] + '-' + m[1] + '>') < 0; }); changedData(); }),
         quick('Primeiro', () => { T.links = [links[0]]; changedData(); })),
+      el('div.checks', checkInput(T, 'oneWay', 'Só um sentido de cada enlace (a < b), mesmo com a lista mudando de caso', () => changedData())),
       linkBox)));
     const cores = o.cores;
     box.append(groupField('Núcleos', el('div.stack-s',
@@ -2912,7 +2977,7 @@
     opts = opts || {};
     S.mode = 'page'; S.casePath = null;
     const st = S.spec && S.spec.version ? S.spec : null;
-    S.spec = newSpec(opts.template || 'custom', paths);
+    S.spec = (opts.template && recalledSpec(opts.template, paths.map((p) => ({ path: p, label: App.caseNameOf(p) })))) || newSpec(opts.template || 'custom', paths);
     if (opts.file) S.spec.file = opts.file;
     if (opts.metric) S.spec.metric = opts.metric;
     if (opts.xMode) S.spec.line.xMode = opts.xMode;
@@ -2957,6 +3022,9 @@
     } else spec = newSpec(item, []);
     spec.cases = cases.map((c) => Object.assign({ path: c.path, label: c.label }, c.hidden ? { hidden: true } : {}));
     if (RP.legendRight) { spec.style.topoLegend = 'right'; spec.style.slotLegend = 'right'; }
+    // 1.16.2: spectrum maps with one direction of each link; topology maps with one stroke per link
+    if (RP.oneWay && spec.slots) spec.slots.oneWay = true;
+    if (RP.topoDir && RP.topoDir !== 'fig' && spec.type === 'topo') spec.style.topoDir = RP.topoDir;
     if (RP.lp === 'last') {
       // same load point in every figure: the last one (the topology maps would otherwise draw one map per point)
       if (spec.topo) spec.topo.lps = [-1];
@@ -3219,7 +3287,9 @@
       el('div.flabel', 'Figuras (na ordem: da esquerda para a direita, depois a linha de baixo)'), list,
       el('div.fields.two', field('Colunas', colsSel), field('Largura total (px)', num('width', 400, 6000)), field('Espaço entre figuras (px)', num('gap', 0, 200)), field('Título', titleIn)),
       field('Ponto de carga', (() => { const sl = el('select.input', el('option', { value: 'last' }, 'O último ponto em todas as figuras'), el('option', { value: 'fig' }, 'O de cada figura (topologia: um mapa por ponto)')); sl.value = RP.lp || 'last'; sl.addEventListener('change', () => { RP.lp = sl.value; saveRP(); }); return sl; })()),
-      el('div.checks', chk('perCase', 'Uma imagem para cada caso'), chk('caseTitle', 'Nome do caso como título'), chk('letters', 'Letras (a), (b)…'), chk('legendRight', 'Legenda dos mapas à direita, no alto')),
+      el('div.checks', chk('perCase', 'Uma imagem para cada caso'), chk('caseTitle', 'Nome do caso como título'), chk('letters', 'Letras (a), (b)…'), chk('legendRight', 'Legenda dos mapas à direita, no alto'),
+        chk('oneWay', 'Mapas do espectro: só um sentido de cada enlace (a < b)')),
+      field('Mapas da topologia: sentidos de cada enlace', (() => { const sl = el('select.input', [['fig', 'Como na figura (padrão: os dois)'], ['both', 'Os dois (duas faixas)'], ['max', 'Um traço: maior dos dois'], ['mean', 'Um traço: média dos dois']].map(([v, l]) => el('option', { value: v }, l))); sl.value = RP.topoDir || 'fig'; sl.addEventListener('change', () => { RP.topoDir = sl.value; saveRP(); }); return sl; })()),
       el('div.toolbar',
         el('button.btn.small.primary', { type: 'button', on: { click: gen } }, 'Gerar relatório'),
         el('span.sep'),
