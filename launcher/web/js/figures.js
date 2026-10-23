@@ -323,7 +323,7 @@
     'Crosstalk': ['XT', '#00B050'], 'Crosstalk in other': ['XTO', '#0070C0'],
     'Lack of transmitters': ['Falta de Tx', '#A5A5A5'], 'Lack of receivers': ['Falta de Rx', '#7F7F7F'],
     'Lack of free spectrum': ['Falta de espectro livre', '#404040'], 'Other': ['Outros (sem causa física identificada)', '#000000'],
-    'Free band in a core not tried': ['Havia faixa em núcleo não tentado pelo algoritmo', '#8C564B'],
+    'Free band in a core not tried': ['Núcleo não tentado', '#8C564B'],
     'QKD session protection': ['QKD: proteção de sessões ativas', '#9DC3E6'], 'QKD QCh spectrum': ['QKD: espectro do QCh', '#ED7D31'],
     'QKD SKR': ['QKD: SKR insuficiente', '#A9D18E'], 'QKD PICh': ['QKD: PICh', '#F4B183'], 'QKD QTx/QRx': ['QKD: falta de QTx/QRx', '#5B9BD5'], 'QKD other': ['QKD: outros', '#D9D9D9'],
     'Spectrum: free band available': ['Havia faixa livre (bloqueio por QoT/XT ou proteção QKD)', '#7030A0'],
@@ -523,7 +523,7 @@
       version: 1, template: t.id, type: t.type,
       cases: (cases || []).map((p) => ({ path: p, label: App.caseNameOf(p) })),
       file: t.file || '', metric: t.metric || '', metrics: (t.metrics || []).slice(), filters: {},
-      line: { seriesBy: t.seriesBy || 'case', xMode: t.xMode || 'lp', paramPath: t.paramPath || '', paramLp: -1 },
+      line: { seriesBy: t.seriesBy || 'case', xMode: t.xMode || 'lp', paramPath: t.paramPath || '', paramLp: -1, lps: [] },
       bars: {
         lp: -1, itemsFrom: t.itemsFrom || 'metrics', itemsRe: t.itemsRe ? t.itemsRe.source : '', dim: t.dim || '', items: [],
         xAxis: t.xAxis || 'cases', seriesDim: t.seriesDim || '', stacked: !!t.stacked, normalize: !!t.normalize, layout: t.layout || 'grouped', sort: t.sort || 'none', top: 0, hideZero: true,
@@ -533,7 +533,7 @@
       slots: { lp: -1, links: [], cores: [], from: 1, to: 0, order: 'name', caseLayout: 'stack', blockMode: t.blockMode || 'ratio', blockCause: t.blockCause || 'all', onlyBlocked: false, summary: true },
       scatter: { xFile: t.xFile || 'SpectrumUtilization', xMetric: t.xMetric || 'Utilization Per Link', yFile: t.yFile || 'BlockingDetails', yMetric: t.yMetric || 'Link blocking probability',
         by: t.by || 'Link', lp: -1, fx: {}, fy: {}, trend: true, pooled: false },
-      labels: {}, seriesStyle: {}, style,
+      labels: {}, seriesStyle: {}, seriesOrder: [], style,
     };
   }
 
@@ -625,6 +625,12 @@
 
   async function buildModel(spec) {
     if (!spec.cases.length) return { empty: 'Selecione um ou mais casos com resultados na seção 1.' };
+    if (['cores', 'topo', 'slots', 'slotblock'].includes(spec.type)) {
+      // 1.16.0: one drawing per case; a hidden case is simply left out (no colours to keep)
+      const shown = spec.cases.filter((c) => !c.hidden);
+      if (!shown.length) return { empty: 'Todos os casos estão ocultos (seção 1).' };
+      if (shown.length < spec.cases.length) spec = Object.assign({}, spec, { cases: shown });
+    }
     if (spec.type === 'cores') return buildCores(spec);
     if (spec.type === 'topo') return buildTopo(spec);
     if (spec.type === 'slots') return buildSlots(spec);
@@ -684,6 +690,8 @@
       return { kind: 'line', series, xNumericOnly: false };
     }
 
+    // 1.16.0: load points chosen in "2. Dados" (empty = all)
+    const lpOk = (lp) => !(Array.isArray(L.lps) && L.lps.length) || L.lps.includes(lp);
     for (const { c, p } of avail) {
       const cd = await caseData(c.path);
       const xOf = (lp) => +(L.xMode === 'erl' && cd.loads ? cd.loads.base + lp * cd.loads.inc : L.xMode === 'lp1' ? lp + 1 : lp).toPrecision(9);
@@ -691,13 +699,13 @@
         const di = p.dims.indexOf(dimName);
         const vals = di >= 0 ? dimValues(p, metric)[di] : [];
         for (const v of vals) {
-          const pts = p.lps.map((lp) => Object.assign({ x: xOf(lp), lp }, stats(repsAt(p, metric, lp, spec.filters, dimName, v)))).filter((q) => q.n);
+          const pts = p.lps.filter(lpOk).map((lp) => Object.assign({ x: xOf(lp), lp }, stats(repsAt(p, metric, lp, spec.filters, dimName, v)))).filter((q) => q.n);
           const key = c.path + '|' + dimName + '=' + v;
           add(key, (multiCase ? caseLabel(c) + ' · ' : '') + itemLabel(spec, v), pts, v);
         }
       } else {
         for (const mt of metrics) {
-          const pts = p.lps.map((lp) => Object.assign({ x: xOf(lp), lp }, stats(repsAt(p, mt, lp, spec.filters)))).filter((q) => q.n);
+          const pts = p.lps.filter(lpOk).map((lp) => Object.assign({ x: xOf(lp), lp }, stats(repsAt(p, mt, lp, spec.filters)))).filter((q) => q.n);
           const key = metrics.length > 1 || L.seriesBy === 'metric' ? c.path + '|m:' + mt : c.path;
           const name = L.seriesBy === 'metric' ? (multiCase ? caseLabel(c) + ' · ' : '') + itemLabel(spec, mt) : caseLabel(c);
           add(key, name, pts, mt);
@@ -787,7 +795,7 @@
         for (const it of own) ser[0].values[it] = valueOf(p, it);
         let cats = own.map((it) => ({ key: it, label: itemLabel(spec, it) }));
         cats = topN(sortCats(cats, ser));
-        return { title: caseLabel(c), model: { kind: 'bars', categories: cats, series: ser, stacked: false } };
+        return { title: caseLabel(c), path: c.path, model: { kind: 'bars', categories: cats, series: ser, stacked: false } };
       });
       return { kind: 'panels', panels, lpUsed, items: selItems };
     }
@@ -854,7 +862,7 @@
       return { kind: 'bars', categories, series, stacked: B.stacked, normalize: B.stacked && B.normalize };
     };
     if (avail.length === 1) return Object.assign(one(avail[0].p), { lpUsed, items: selItems });
-    const panels = avail.map(({ c, p }) => ({ title: caseLabel(c), model: one(p) }));
+    const panels = avail.map(({ c, p }) => ({ title: caseLabel(c), path: c.path, model: one(p) }));
     return { kind: 'panels', panels, lpUsed, items: selItems };
   }
 
@@ -1287,9 +1295,10 @@
     const fmt = (v) => (v && Number.isFinite(v.mean) ? v : null);
     if (!model || model.empty) return null;
     if (model.kind === 'line') {
-      const xs = [...new Set(model.series.flatMap((s) => s.points.map((p) => p.x)))].sort((a, b) => a - b);
-      const head = [xHeader(spec)].concat(model.series.flatMap((s) => [s.name + ' (média)', s.name + ' (IC95)', s.name + ' (n)']));
-      const rows = xs.map((x) => [x].concat(model.series.flatMap((s) => {
+      const sers = model.series.filter((s) => !s.hiddenCase);
+      const xs = [...new Set(sers.flatMap((s) => s.points.map((p) => p.x)))].sort((a, b) => a - b);
+      const head = [xHeader(spec)].concat(sers.flatMap((s) => [s.name + ' (média)', s.name + ' (IC95)', s.name + ' (n)']));
+      const rows = xs.map((x) => [x].concat(sers.flatMap((s) => {
         const p = s.points.find((q) => q.x === x);
         return p ? [p.mean, Number.isFinite(p.ci) ? p.ci : '', p.n] : ['', '', ''];
       })));
@@ -1299,7 +1308,7 @@
       const ms = model.kind === 'bars' ? [{ title: '', model }] : model.panels;
       const head = ['painel', 'categoria', 'série', 'média', 'IC95', 'n'];
       const rows = [];
-      for (const pn of ms) for (const c of pn.model.categories) for (const s of pn.model.series) {
+      for (const pn of ms) for (const c of pn.model.categories) for (const s of pn.model.series.filter((x) => !x.hiddenCase)) {
         const v = fmt(s.values[c.key]);
         rows.push([pn.title, c.label, s.name, v ? v.mean : '', v && Number.isFinite(v.ci) ? v.ci : '', v ? v.n : '']);
       }
@@ -1538,6 +1547,32 @@
     await refresh();
   }
 
+  /**
+   * 1.16.0: browser downloads never repeat a name: bp, bp(1), bp(2)… One counter per name and extension, kept in
+   * this browser (localStorage; in memory when it is not available).
+   */
+  const DL_KEY = 'snets.dl.counts';
+  let dlMem = {};
+  function nextName(base, ext) {
+    let m = dlMem;
+    try { const t = localStorage.getItem(DL_KEY); if (t) m = JSON.parse(t) || {}; } catch (e) { m = dlMem; }
+    const key = base + '.' + ext;
+    const n = Number(m[key]) || 0;
+    m[key] = n + 1;
+    dlMem = m;
+    try { localStorage.setItem(DL_KEY, JSON.stringify(m)); } catch (e) { /* in memory only */ }
+    return (n ? base + '(' + n + ')' : base) + '.' + ext;
+  }
+  function resetDownloadNames() {
+    dlMem = {};
+    try { localStorage.removeItem(DL_KEY); } catch (e) { /* ignore */ }
+    App.toast('Numeração dos downloads zerada: o próximo arquivo sai sem (1).', 'ok');
+  }
+  /** Name for images written to launcher/figures that does not overwrite older ones (asked to the server). */
+  async function freeImageName(name, exts) {
+    try { return (await App.api.figureImageName(name, exts)).name || name; } catch (e) { return name; }
+  }
+
   function toolbar() {
     const bar = el('div.toolbar.fig-toolbar');
     const savedSel = el('select.input', { style: { maxWidth: '230px' } });
@@ -1569,17 +1604,18 @@
       el('button.btn.small.primary', { type: 'button', on: { click: () => saveDialog(false) } }, 'Salvar'),
       el('button.btn.small', { type: 'button', on: { click: () => saveDialog(true) } }, 'Salvar como…'),
       el('span.sep'),
-      el('button.btn.small', { type: 'button', on: { click: () => { if (S.svg) App.downloadText(fname() + '.svg', R().serialize(S.svg), 'image/svg+xml'); } } }, 'Baixar SVG'),
+      el('button.btn.small', { type: 'button', on: { click: () => { if (S.svg) App.downloadText(nextName(fname(), 'svg'), R().serialize(S.svg), 'image/svg+xml'); } } }, 'Baixar SVG'),
       pngScale,
       el('button.btn.small', { type: 'button', on: { click: async () => {
         if (!S.svg) return;
         try {
           const url = await R().toPng(S.svg, Number(pngScale.value));
-          const a = el('a', { href: url, download: fname() + '.png' }); document.body.appendChild(a); a.click(); a.remove();
+          const a = el('a', { href: url, download: nextName(fname(), 'png') }); document.body.appendChild(a); a.click(); a.remove();
         } catch (e) { App.toast(e.message, 'err'); }
       } } }, 'Baixar PNG'),
       el('button.btn.small', { type: 'button', title: 'Grava SVG e PNG em launcher/figures', on: { click: () => saveImages(Number(pngScale.value)) } }, 'Gravar imagens na pasta'),
-      el('button.btn.small', { type: 'button', on: { click: () => { if (S.table) App.downloadText(fname() + '.csv', toCsv(S.table), 'text/csv'); } } }, 'Dados (CSV)'),
+      el('button.btn.small', { type: 'button', on: { click: () => { if (S.table) App.downloadText(nextName(fname(), 'csv'), toCsv(S.table), 'text/csv'); } } }, 'Dados (CSV)'),
+      el('button.btn.small.ghost', { type: 'button', title: 'Os downloads repetidos saem como nome(1), nome(2)…; isto recomeça a contagem', on: { click: resetDownloadNames } }, 'Zerar numeração'),
       el('button.btn.small.ghost', { type: 'button', title: 'Abrir launcher/figures', on: { click: () => App.api.openFiguresFolder().catch((e) => App.toast(e.message, 'err')) } }, 'Abrir pasta'));
     return bar;
   }
@@ -1641,6 +1677,7 @@
     let name = S.savedName;
     if (!name) { App.toast('Salve a figura primeiro (o nome é usado nos arquivos).', 'warn'); saveDialog(true); return; }
     try {
+      name = await freeImageName(name, 'svg,png');
       await App.api.saveFigureImage(name, 'svg', R().serialize(S.svg));
       const png = await R().toPng(S.svg, scale);
       const d = await App.api.saveFigureImage(name, 'png', png);
@@ -1668,7 +1705,8 @@
       (seriesBox = el('div')),
       section('4. Aparência', false, appearancePanel()),
       section('5. Eixos e números', false, axesPanel()),
-      section('6. Legenda e título', false, legendPanel()));
+      section('6. Linhas de referência', false, refLinesPanel()),
+      section('7. Legenda e título', false, legendPanel()));
     drawSeriesPanel();
   }
 
@@ -1707,14 +1745,20 @@
     spec.cases.forEach((c, i) => {
       const lab = el('input.input', { type: 'text', value: c.label, title: 'Rótulo usado no gráfico' });
       lab.addEventListener('input', () => { c.label = lab.value; changedStyle(); });
-      selList.append(el('div.fig-case',
-        el('div.fig-case-main', lab, el('div.small.muted.ell', { title: c.path }, c.path)),
+      // 1.16.0: hide a case without removing it: it keeps its place in the list and its colour
+      const vis = el('input', { type: 'checkbox', title: 'Mostrar no gráfico. Desmarcado, o caso sai do desenho mas continua na lista, com a mesma cor e posição.' });
+      vis.checked = !c.hidden;
+      vis.addEventListener('change', () => { if (vis.checked) delete c.hidden; else c.hidden = true; changedData(); });
+      selList.append(el('div.fig-case' + (c.hidden ? '.is-hidden' : ''),
+        el('label.fig-case-vis', vis),
+        el('div.fig-case-main', lab, el('div.small.muted.ell', { title: c.path }, (c.hidden ? 'oculto · ' : '') + c.path)),
         el('div.fig-case-btns',
           el('button.btn.small.icon', { type: 'button', title: 'Subir', disabled: i === 0, on: { click: () => { spec.cases.splice(i - 1, 0, spec.cases.splice(i, 1)[0]); changedData(); } } }, '↑'),
           el('button.btn.small.icon', { type: 'button', title: 'Descer', disabled: i === spec.cases.length - 1, on: { click: () => { spec.cases.splice(i + 1, 0, spec.cases.splice(i, 1)[0]); changedData(); } } }, '↓'),
           el('button.btn.small.icon', { type: 'button', title: 'Remover', on: { click: () => { spec.cases.splice(i, 1); changedData(); } } }, '✕'))));
     });
     if (!spec.cases.length) selList.append(el('p.small.muted', 'Nenhum caso selecionado. Marque abaixo os casos cujos resultados entram no gráfico (a ordem define a ordem no gráfico).'));
+    else selList.append(el('p.small.muted', 'A caixa à esquerda de cada caso mostra ou oculta o caso no gráfico sem tirá-lo da lista: as cores e a ordem dos demais não mudam.'));
 
     const filter = el('input.input', { type: 'search', placeholder: 'Filtrar casos com resultados…', value: S.caseFilter });
     const list = el('div.fig-pick', { 'data-sk': 'fig-cases' });
@@ -1851,6 +1895,17 @@
         pSel.value = L.paramPath;
         pSel.addEventListener('change', () => { L.paramPath = pSel.value; changedData(); });
         box.append(field('Parâmetro', pSel), field('Ponto de carga', lpSelect(L, 'paramLp')));
+      } else if ((S.lpOptions || []).length > 1) {
+        // 1.16.0: which load points appear on the x axis
+        const lps = S.lpOptions;
+        const lpText = (l) => 'Ponto ' + (l + 1) + (S.lpErl && S.lpErl[l] !== undefined ? ' · ' + App.fmtNum(S.lpErl[l], 0) + ' Erlangs' : '');
+        const labels = lps.map(lpText);
+        const cur = Array.isArray(L.lps) && L.lps.length ? lps.filter((l) => L.lps.includes(l)) : lps;
+        box.append(groupField('Pontos de carga mostrados (' + cur.length + ' de ' + lps.length + ')', metricChecklist(labels, cur.map(lpText), (arr) => {
+          const chosen = lps.filter((l, i) => arr.includes(labels[i]));
+          L.lps = chosen.length === lps.length ? [] : chosen;
+          changedData();
+        }, true), 'Desmarque um ponto para tirá-lo do gráfico (vale para todas as séries). Nenhum marcado = todos.'));
       }
       box.append(filterFields(spec, L.seriesBy.startsWith('dim:') ? L.seriesBy.slice(4) : null));
     } else {
@@ -2039,7 +2094,7 @@
 
   /** Current style of the entry e (index i) of the series panel; panels with a series dimension are looked up by key. */
   function seriesStyleOf(m, e, i) {
-    if (m.kind === 'line' || m.kind === 'bars') return m.series[i] ? m.series[i].style : null;
+    if (m.kind === 'line' || m.kind === 'bars') { const x = m.series.find((s) => s.key === e.key) || m.series[i]; return x ? x.style : null; }
     if (m.kind === 'panels') {
       for (const p of m.panels) { const x = p.model.series.find((s) => s.key === e.key); if (x && x.style) return x.style; }
       const p = m.panels[i];
@@ -2076,17 +2131,19 @@
     const m = S.model;
     if (!m || m.empty) { seriesBox.append(section('3. Séries e cores', true, el('p.small.muted', 'As séries aparecem aqui quando houver dados.'))); return; }
     let entries = [];
-    if (m.kind === 'line') entries = m.series.map((s) => ({ key: s.key, name: s.name, kind: 'line' }));
-    else if (m.kind === 'bars') entries = m.series.map((s) => ({ key: s.key, name: s.name, kind: 'bar' }));
+    let orderable = false;
+    if (m.kind === 'line') { entries = orderSeries(m.series, spec).map((s) => ({ key: s.key, name: s.name, kind: 'line' })); orderable = true; }
+    else if (m.kind === 'bars') { entries = orderSeries(m.series, spec).map((s) => ({ key: s.key, name: s.name, kind: 'bar' })); orderable = true; }
     else if (m.kind === 'panels' && m.panels.some((p) => p.model.series.some((x) => x.key.startsWith('sd:')))) {
       const seen = new Map();
       for (const p of m.panels) for (const x of p.model.series) if (!seen.has(x.key)) seen.set(x.key, { key: x.key, name: x.name, kind: 'bar' });
-      entries = [...seen.values()];
+      entries = orderSeries([...seen.values()], spec);
+      orderable = true;
     }
     else if (m.kind === 'panels') entries = m.panels.map((p) => ({ key: p.model.series[0].key, name: p.title, kind: 'bar' }));
     const pal = R().PALETTES;
     const palSel = selectInput(spec.style, 'palette', Object.keys(pal).map((k) => [k, R().PALETTE_NAMES[k]]), () => changedStyle());
-    const resetBtn = el('button.btn.small', { type: 'button', title: 'Remove as cores/traços escolhidos manualmente', on: { click: () => { spec.seriesStyle = {}; persistDraft(); drawSeriesPanel(); refresh(true); } } }, 'Restaurar padrão');
+    const resetBtn = el('button.btn.small', { type: 'button', title: 'Remove as cores, traços e a ordem escolhidos manualmente', on: { click: () => { spec.seriesStyle = {}; spec.seriesOrder = []; persistDraft(); drawSeriesPanel(); refresh(true); } } }, 'Restaurar padrão');
     const body = el('div.stack-s', el('div.toolbar', { style: { margin: 0 } }, el('span.small.muted', 'Paleta'), palSel, resetBtn));
     if (m.kind === 'topo') {
       const st = spec.style;
@@ -2199,7 +2256,21 @@
       const vis = el('input', { type: 'checkbox', title: 'Mostrar' });
       vis.checked = cur.visible;
       vis.addEventListener('change', () => { o.visible = vis.checked; changedStyle(); });
-      const row = el('div.fig-series', el('div.fig-series-head', vis, color, labelInputFor(e)));
+      const hiddenCase = (() => { const c = caseOfKey(spec, e.key); return !!(c && c.hidden); })();
+      // 1.16.0: order of the series (legend, bars of a group, drawing order); the colours do not change
+      const move = (d) => () => {
+        const keys = entries.map((x) => x.key);
+        const j = i + d;
+        if (j < 0 || j >= keys.length) return;
+        [keys[i], keys[j]] = [keys[j], keys[i]];
+        spec.seriesOrder = keys;
+        persistDraft(); drawSeriesPanel(); refresh(true);
+      };
+      const ordBtns = orderable && entries.length > 1 ? el('span.fig-series-ord',
+        el('button.btn.small.icon', { type: 'button', title: 'Subir (ordem na legenda e no grupo de barras)', disabled: i === 0, on: { click: move(-1) } }, '↑'),
+        el('button.btn.small.icon', { type: 'button', title: 'Descer', disabled: i === entries.length - 1, on: { click: move(1) } }, '↓')) : null;
+      const row = el('div.fig-series' + (hiddenCase ? '.is-hidden' : ''), el('div.fig-series-head', vis, color, labelInputFor(e), ordBtns),
+        hiddenCase ? el('div.small.muted', 'Caso oculto na seção 1 (não aparece no gráfico).') : null);
       if (e.kind === 'line') {
         const dash = el('select.input', Object.entries(R().DASHES).map(([k, l]) => el('option', { value: k }, l)));
         dash.value = cur.dash;
@@ -2271,19 +2342,73 @@
         field('Tamanho padrão do marcador', numInput(st, 'markerSize', changedStyle, { min: 2, max: 30 })),
         field('Barras de erro (IC 95 %)', selectInput(st, 'errorBars', [['bars', 'Barras'], ['band', 'Faixa sombreada'], ['none', 'Não mostrar']], changedStyle)),
         field('Largura do "T" do erro', numInput(st, 'capWidth', changedStyle, { min: 0, max: 20 })),
-        field('Espaço entre grupos de barras', numInput(st, 'barGap', changedStyle, { min: 0, max: 0.95, step: 0.05 })),
-        field('Espaço entre barras do grupo', numInput(st, 'seriesGap', changedStyle, { min: 0, max: 0.5, step: 0.02 })),
+        groupField('Largura das barras', barWidthInput(st), 'Parte do espaço de cada categoria ocupada pelas barras (100 % = encostadas na vizinha).'),
+        field('Largura máxima de cada barra (px)', numInput(st, 'barMaxPx', changedStyle, { min: 0, max: 400, step: 1, placeholder: 'sem limite' }), 'Útil com poucas barras: impede barras muito largas.'),
+        field('Espaço entre barras do grupo', numInput(st, 'seriesGap', changedStyle, { min: 0, max: 0.5, step: 0.02 }), 'Fração da largura do grupo (0 = encostadas).'),
         field('Painéis por linha', numInput(st, 'panelCols', changedStyle, { min: 1, max: 6 })),
         field('Altura de cada painel (px)', numInput(st, 'panelHeight', changedStyle, { min: 0, max: 2000, step: 10, placeholder: '0 = usa a altura total' })),
         field('Rótulo do painel', textInput(st, 'panelLabel', changedStyle, { placeholder: 'ex.: (a)' }))),
       el('div.checks',
         checkInput(st, 'barValues', 'Valores sobre as barras', changedStyle),
+        checkInput(st, 'lineValues', 'Valores nos pontos das linhas', changedStyle),
         checkInput(st, 'barOutline', 'Contorno nas barras', changedStyle),
         checkInput(st, 'border', 'Moldura no gráfico', changedStyle)),
+      el('div.fields.two',
+        field('Casas dos valores (barras)', numInput(st, 'barValueDigits', changedStyle, { min: 0, max: 10 })),
+        field('Casas dos valores (linhas)', numInput(st, 'lineValueDigits', changedStyle, { min: 0, max: 10 })),
+        field('Tamanho dos valores (px)', numInput(st, 'valueSize', changedStyle, { min: 0, max: 40, step: 0.5, placeholder: 'auto' }))),
       el('div.toolbar', { style: { margin: '4px 0 0' } },
         el('span.small.muted', 'Tamanhos rápidos:'),
         ...[['Coluna (≈8,5 cm)', 520, 340], ['Página (≈17 cm)', 1000, 460], ['Lado a lado', 600, 420], ['Slide 16:9', 1280, 720]].map(([l, w, h]) =>
           el('button.btn.small', { type: 'button', on: { click: () => { st.width = w; st.height = h; changedData(); } } }, l))));
+  }
+
+  /** 1.16.0: bar width (%) as a slider plus a number; stored as barGap = 1 − width. */
+  function barWidthInput(st) {
+    const pct = () => Math.round((1 - (Number(st.barGap) || 0)) * 100);
+    const rng = el('input', { type: 'range', min: 5, max: 100, step: 1, value: pct(), style: { flex: '1' } });
+    const num = el('input.input.num', { type: 'number', min: 5, max: 100, step: 1, value: pct(), style: { width: '72px' } });
+    const set = (v) => {
+      v = Math.max(5, Math.min(100, Math.round(Number(v))));
+      if (!Number.isFinite(v)) return;
+      st.barGap = +(1 - v / 100).toFixed(2);
+      rng.value = v; num.value = v;
+      changedStyle();
+    };
+    rng.addEventListener('input', () => set(rng.value));
+    num.addEventListener('input', () => { if (num.value !== '') set(num.value); });
+    return el('div.toolbar', { style: { margin: 0, flexWrap: 'nowrap' } }, rng, num, el('span.small.muted', '%'));
+  }
+
+  /** 1.16.0: horizontal (y = valor) and vertical (x = valor) reference lines with a label. */
+  function refLinesPanel() {
+    const st = S.spec.style;
+    if (!Array.isArray(st.refLines)) st.refLines = [];
+    const box = el('div.stack-s');
+    const draw = () => {
+      clear(box);
+      box.append(el('p.small.muted', 'Linhas fixas no gráfico, por exemplo um limite de bloqueio (y = 0,01) ou uma carga de referência (x = 2200 Erlangs). Nos gráficos de barras só valem as horizontais. O eixo y se estende para mostrar a linha.'));
+      st.refLines.forEach((r, i) => {
+        const axis = selectInput(r, 'axis', [['y', 'Horizontal (y =)'], ['x', 'Vertical (x =)']], changedStyle);
+        const val = textInput(r, 'value', changedStyle, { placeholder: 'valor', style: { width: '90px' } });
+        const lab = textInput(r, 'label', changedStyle, { placeholder: 'rótulo (opcional)' });
+        const col = colorInput(r, 'color', changedStyle);
+        const dash = selectInput(r, 'dash', Object.entries(R().DASHES), changedStyle);
+        const wid = numInput(r, 'width', changedStyle, { min: 0.5, max: 8, step: 0.5, title: 'Espessura', style: { width: '64px' } });
+        const pos = selectInput(r, 'pos', [['right', 'Rótulo à direita'], ['left', 'Rótulo à esquerda']], changedStyle);
+        const show = el('input', { type: 'checkbox', title: 'Mostrar' }); show.checked = r.show !== false;
+        show.addEventListener('change', () => { r.show = show.checked; changedStyle(); });
+        const rm = el('button.btn.small.icon', { type: 'button', title: 'Remover', on: { click: () => { st.refLines.splice(i, 1); draw(); changedStyle(); } } }, '✕');
+        box.append(el('div.fig-refline', el('div.toolbar', { style: { margin: 0 } }, show, axis, val, col, rm),
+          el('div.toolbar', { style: { margin: 0 } }, lab, dash, wid, r.axis === 'x' ? null : pos)));
+      });
+      box.append(el('div', el('button.btn.small', { type: 'button', on: { click: () => {
+        st.refLines.push({ axis: 'y', value: '', label: '', color: '#c00000', dash: 'dashed', width: 1.4, pos: 'right', show: true });
+        draw(); persistDraft();
+      } } }, '+ Linha de referência')));
+    };
+    draw();
+    return box;
   }
 
   function axesPanel() {
@@ -2302,6 +2427,9 @@
         field('Rotação dos rótulos x (°)', selectInput(st, 'xLabelRotate', [[0, '0'], [-30, '-30'], [-45, '-45'], [-60, '-60'], [-90, '-90']], changedStyle)),
         field('x mínimo', textInput(st, 'xMin', changedStyle, { placeholder: 'auto' })),
         field('x máximo', textInput(st, 'xMax', changedStyle, { placeholder: 'auto' })),
+        field('Passo do eixo x', textInput(st, 'xStep', changedStyle, { placeholder: 'auto' }), 'Vale com o eixo x numérico (desmarque "espaçamento uniforme" abaixo).'),
+        field('Marcas extras no eixo y', textInput(st, 'yTicksExtra', changedStyle, { placeholder: 'ex.: 0,005; 0,015' }), 'Valores separados por ";" somados às marcas automáticas.'),
+        field('Marcas extras no eixo x', textInput(st, 'xTicksExtra', changedStyle, { placeholder: 'ex.: 2200' }), 'Só no eixo x numérico.'),
         field('Grade', selectInput(st, 'grid', [['y', 'Horizontal'], ['xy', 'Horizontal e vertical'], ['x', 'Vertical'], ['none', 'Sem grade']], changedStyle)),
         field('Traço da grade', selectInput(st, 'gridDash', [['solid', 'Contínuo'], ['dashed', 'Tracejado'], ['dotted', 'Pontilhado']], changedStyle)),
         field('Cor da grade', colorInput(st, 'gridColor', changedStyle)),
@@ -2431,6 +2559,7 @@
         if (seq !== refreshSeq) return;
         if (before !== JSON.stringify([S.fileOptions, S.metricOptions, S.lpOptions, S.paramOptions, S.spec.file, S.spec.metric, S.spec.line.paramPath, S.slotOptions, S.scatterOptions])) drawControls();
       }
+      if (!styleOnly) { try { S.caseDiffs = await caseDiffs(S.spec); } catch (e) { S.caseDiffs = {}; } }
       const model = await buildModel(S.spec);
       if (seq !== refreshSeq) return;
       const keys = model && !model.empty ? JSON.stringify(seriesSignature(model)) : '';
@@ -2454,15 +2583,21 @@
   }
 
   function drawPreview() {
-    const m = S.model;
+    const m0 = S.model;
     clear(previewBox); clear(tableBox); clear(infoBox);
-    if (!m || m.empty) {
-      previewBox.append(el('div.notice.info', (m && m.empty) || 'Sem dados.'));
+    if (!m0 || m0.empty) {
+      previewBox.append(el('div.notice.info', (m0 && m0.empty) || 'Sem dados.'));
       S.svg = null; S.table = null;
       return;
     }
     // re-apply style (labels/colours may have changed without rebuilding data)
-    applyStyle(m);
+    applyStyle(m0);
+    const m = viewModel(m0, S.spec);
+    if (nothingVisible(m)) {
+      previewBox.append(el('div.notice.info', 'Nada a desenhar: todos os casos ou todas as séries estão ocultos (seções 1 e 3).'));
+      S.svg = null; S.table = null;
+      return;
+    }
     const svgNode = R().render(m, S.spec.style);
     S.svg = svgNode;
     const frameEl = el('div.fig-canvas', { style: { maxWidth: S.spec.style.width + 'px' } });
@@ -2489,7 +2624,164 @@
       det.addEventListener('toggle', () => { try { localStorage.setItem(k, det.open ? '1' : '0'); } catch (e) { /* ignore */ } });
       tableBox.append(det);
     }
-    previewBox.append(aboutPanel(m, S.spec));
+    previewBox.append(readingPanel(m, S.spec));
+  }
+
+  // ---------------------------------------------------------------- 1.16.0: "Como ler este gráfico"
+
+  /** Configuration values in which the selected cases differ (all types, not only numbers), per case. */
+  async function caseDiffs(spec) {
+    const out = {};
+    if (spec.cases.length < 2) return out;
+    const cds = await Promise.all(spec.cases.map((c) => caseData(c.path).catch(() => null)));
+    const keys = [];
+    const flats = cds.map(() => ({}));
+    for (const f of ['simulation', 'network', 'physicalLayer', 'qkdPhysicalLayer', 'others', 'traffic']) {
+      const fl = cds.map((cd) => flatten(cd && cd.files[f], '', {}));
+      const all = new Set(fl.flatMap((x) => Object.keys(x)));
+      for (const k of all) {
+        if (fl.some((x) => x[k] === undefined)) continue; // only in some cases (e.g. QKD fields): not a comparison
+        const vals = fl.map((x) => String(x[k]));
+        if (new Set(vals).size > 1) { keys.push(f + ':' + k); vals.forEach((v, i) => { flats[i][f + ':' + k] = v; }); }
+      }
+    }
+    spec.cases.forEach((c, i) => { out[c.path] = keys.slice(0, 10).map((k) => [k.split(':')[1], flats[i][k]]).concat(keys.length > 10 ? [['…', '+' + (keys.length - 10) + ' parâmetros']] : []); });
+    return out;
+  }
+
+  function lpText(l) {
+    return 'ponto ' + (l + 1) + (S.lpErl && S.lpErl[l] !== undefined ? ' (' + App.fmtNum(S.lpErl[l], 0) + ' Erlangs)' : '');
+  }
+
+  /** Explanation of the chart shown: metric, axes, how to read it and every legend item. */
+  function readingPanel(m, spec) {
+    const info = App.metricInfo;
+    const st = spec.style;
+    const blk = (title, ...kids) => el('div.read-block', el('div.about-title', title), ...kids);
+    const li = (items) => el('ul.read-list', items.filter(Boolean).map((t) => el('li', t)));
+    const kv = (k, v) => el('li', el('b', k), ': ', v);
+    const metric = spec.type === 'line' && spec.line.seriesBy === 'metric' ? (spec.metrics[0] || spec.metric) : spec.metric;
+    const yName = st.yTitle || info.axisTitle(metric) || metric || '';
+    const unit = (info.describe(metric) || {}).unit;
+    const lpUsed = m.lpUsed && m.lpUsed.length ? [...new Set(m.lpUsed)].map(lpText).join(' / ') : '';
+    const blocking = /block/i.test(metric + ' ' + (m.items || []).join(' '));
+
+    // ---- axes
+    const axes = [];
+    if (m.kind === 'line' && m.scatter) {
+      const X = spec.scatter;
+      axes.push(kv('Eixo x', X.xMetric + ' (' + X.xFile + '.csv)' + (st.xTitle ? ' — título "' + st.xTitle + '"' : '')));
+      axes.push(kv('Eixo y', X.yMetric + ' (' + X.yFile + '.csv)' + (st.yTitle ? ' — título "' + st.yTitle + '"' : '')));
+    } else if (m.kind === 'line' && m.styleKind === 'slotline') {
+      axes.push(kv('Eixo x', 'índice do slot no espectro (1 = primeiro).'));
+      axes.push(kv('Eixo y', 'fração do tempo em que o slot esteve ocupado (média das replicações).'));
+    } else if (m.kind === 'line') {
+      const L = spec.line;
+      axes.push(kv('Eixo x', xHeader(spec) + ': ' + (L.xMode === 'erl' ? 'carga oferecida à rede no ponto de carga (tráfego total = taxa de chegada ÷ taxa de serviço).'
+        : L.xMode === 'param' ? 'valor deste parâmetro em cada caso; o y de cada ponto é tomado no ' + (L.paramLp === -1 ? 'último ponto de carga' : lpText(L.paramLp)) + '.'
+          : 'número do ponto de carga; a carga cresce da esquerda para a direita.')
+        + (Array.isArray(L.lps) && L.lps.length && L.xMode !== 'param' ? ' Só os pontos escolhidos em "2. Dados" aparecem.' : '')));
+      axes.push(kv('Eixo y', yName + (unit ? ' — ' + unit : '') + (st.yLog ? ' (escala logarítmica)' : '') + '.'));
+    } else if (m.kind === 'bars' || m.kind === 'panels') {
+      const B = spec.bars;
+      const itemsWhat = B.itemsFrom === 'dim' ? 'valores de ' + B.dim : 'métricas (itens)';
+      axes.push(kv('Eixo x', B.xAxis === 'cases' ? 'um grupo de barras por caso; as cores são os ' + itemsWhat + '.' : 'os ' + itemsWhat + '; as cores são ' + (B.seriesDim ? 'os valores de ' + B.seriesDim : 'os casos') + '.'));
+      axes.push(kv('Eixo y', (m.normalize ? 'participação de cada cor no total da barra (soma 100 %)' : yName + (unit ? ' — ' + unit : '')) + (lpUsed ? ', no ' + lpUsed : '') + (st.yLog ? ' (escala logarítmica)' : '') + '.'));
+    } else if (m.kind === 'cores') {
+      axes.push(el('li', 'Sem eixos: cada círculo grande é a seção transversal da fibra multinúcleo, com os núcleos nas posições do arquivo network' + (lpUsed ? '; valores no ' + lpUsed : '') + '.'));
+    } else if (m.kind === 'topo') {
+      axes.push(el('li', 'Sem eixos: a topologia da rede (nós e enlaces) desenhada com as posições do arquivo network; a cor de cada enlace é o valor da métrica.'));
+    } else if (m.kind === 'slots') {
+      axes.push(kv('Horizontal', 'slots do espectro (1 = primeiro).'));
+      axes.push(kv('Vertical', 'uma linha por núcleo de cada enlace direcional escolhido.'));
+    }
+
+    // ---- how to read
+    const how = [];
+    if (m.kind === 'line' && m.scatter) {
+      how.push('Cada ponto é um ' + ({ Link: 'enlace', Core: 'núcleo', LoadPoint: 'ponto de carga' }[spec.scatter.by] || 'item') + ' de um caso (cor = caso). Passe o mouse para ver qual.');
+      if (spec.scatter.trend) how.push('A reta tracejada é o ajuste por mínimos quadrados; r é a correlação de Pearson: perto de +1 ou −1, relação linear forte; perto de 0, sem relação linear (pode haver relação não linear).');
+    } else if (m.kind === 'line') {
+      how.push('Cada linha é uma série (veja abaixo); cada marcador é a média das replicações naquele x.');
+      how.push(st.errorBars === 'bars' ? 'As barras verticais são o intervalo de confiança de 95 %. Se os intervalos de duas séries não se sobrepõem no mesmo x, a diferença é estatisticamente clara; se se sobrepõem, pode ser variação aleatória.'
+        : st.errorBars === 'band' ? 'A faixa sombreada em volta de cada linha é o intervalo de confiança de 95 %. Faixas separadas indicam diferença clara entre as séries.'
+          : 'Os intervalos de confiança estão ocultos ("4. Aparência" > Barras de erro).');
+      if (st.yLog) how.push('Eixo y logarítmico: cada marca principal vale 10 vezes a anterior, então distâncias iguais são razões iguais. Valores zero não aparecem (a linha é interrompida).');
+      if (st.xAsCategories && !m.xNumericOnly && spec.line.xMode !== 'param') how.push('Pontos igualmente espaçados no eixo x (como no Excel): a distância entre marcas não é proporcional à diferença de carga.');
+      if (blocking) how.push('Para bloqueio, quanto mais baixa a linha, melhor; é esperado que ela suba com a carga.');
+    } else if (m.kind === 'bars' || m.kind === 'panels') {
+      if (m.normalize) how.push('Barras empilhadas e normalizadas: cada barra soma 100 % e mostra só a composição (quanto cada cor representa), não o valor absoluto. Para comparar o total, desmarque "Normalizar".');
+      else if (spec.bars.stacked) how.push('Barras empilhadas: cada segmento é uma cor e a altura total é a soma deles.');
+      else how.push('Barras agrupadas: dentro de cada grupo, uma barra por cor. A altura é a média das replicações' + (st.errorBars !== 'none' ? ' e o "T" é o intervalo de confiança de 95 %' : '') + '.');
+      if (m.kind === 'panels') how.push('Um painel por caso. Confira a escala y de cada painel antes de comparar alturas.');
+      if (/cause|by (fragmentation|qot|crosstalk|other|lack)/i.test(metric + ' ' + (m.items || []).join(' '))) how.push('As causas de bloqueio somam o bloqueio total da classe (ou do núcleo, nos gráficos por núcleo): cada cor é a fração das requisições bloqueadas por aquele motivo.');
+      if (/core/i.test(metric + ' ' + spec.bars.dim + ' ' + spec.bars.seriesDim) && blocking) how.push('Núcleos que não carregam circuito clássico (o núcleo quântico e os desativados) ficam sem barra.');
+    } else if (m.kind === 'cores') {
+      how.push('Os números dentro dos círculos pequenos são os núcleos. As caixas ao lado mostram o bloqueio' + (st.coreShow === 'both' ? ' (de cima) e o uso (de baixo)' : '') + ' de cada núcleo, nas cores da legenda.');
+      how.push('Núcleo lilás = reservado ao QKD; vermelho = desativado; tracejado = sem uso (não aparece valor).');
+    } else if (m.kind === 'topo') {
+      how.push('A cor de cada enlace vai de verde (menor valor) a vermelho (maior), na escala da legenda, comum a todos os painéis.');
+      if (st.topoDir === 'both') how.push('Cada enlace tem duas faixas, uma por sentido: a faixa de a→b fica à direita de quem vai de a para b.');
+      how.push('Um painel por ponto de carga' + (spec.cases.length > 1 ? ' e caso' : '') + '. Pontos roxos pequenos, quando houver, são os nós confiáveis do QKD.');
+    } else if (m.kind === 'slots') {
+      how.push(m.block ? 'Cada célula é um slot de um núcleo de um enlace; a cor é o bloqueio das requisições cuja faixa incluía o slot (ou a causa principal, no modo de causas). Passe o mouse para ver tentativas e bloqueios.'
+        : 'Cada célula é um slot de um núcleo de um enlace; a cor é a fração do tempo em que o slot esteve ocupado. Faixas escuras contínuas são espectro quase sempre ocupado; no núcleo QKD aparecem os QChs e PIChs.');
+    }
+
+    // ---- legend items
+    const legend = [];
+    const caseLine = (c) => {
+      const d = (S.caseDiffs || {})[c.path];
+      return 'caso ' + c.path + (c.hidden ? ' (oculto)' : '') + (d && d.length ? '. Difere dos outros em: ' + d.map(([k, v]) => k + ' = ' + v).join('; ') : '') + '.';
+    };
+    const explainItem = (raw) => info.item(raw) || info.dimension(raw) || null;
+    const seriesOf = m.kind === 'panels' ? (() => { const seen = new Map(); for (const p of m.panels) for (const x of p.model.series) if (!seen.has(x.key)) seen.set(x.key, x); return [...seen.values()]; })() : (m.series || []);
+    if (m.kind === 'line' || m.kind === 'bars' || m.kind === 'panels') {
+      for (const sr of seriesOf.slice(0, 40)) {
+        if (sr.hiddenCase || (sr.style && sr.style.visible === false)) continue;
+        const k = sr.key;
+        const c = spec.cases.find((x) => x.path === k);
+        let raw = null;
+        let mm;
+        if (k.startsWith('i:')) raw = k.slice(2);
+        else if (k.startsWith('sd:')) raw = k.slice(3);
+        else if ((mm = /\|m:(.*)$/.exec(k))) raw = mm[1];
+        else if ((mm = /\|[^|=]+=(.*)$/.exec(k))) raw = mm[1];
+        else if ((mm = /^param\|[dm]:(.*)$/.exec(k))) raw = mm[1];
+        let text;
+        if (k.startsWith('trend|')) text = 'reta ajustada (mínimos quadrados) aos pontos ' + (k === 'trend|all' ? 'de todos os casos' : 'deste caso') + '.';
+        else if (c) text = caseLine(c);
+        else if (raw !== null) text = (explainItem(raw) || raw) + (raw !== sr.name ? ' [' + raw + ']' : '');
+        else text = '';
+        legend.push(el('li', el('span.read-swatch', { style: { background: sr.style ? sr.style.color : '#888' } }), el('b', sr.name), text ? ': ' + text : ''));
+      }
+      if (seriesOf.length > 40) legend.push(el('li.muted', '… e mais ' + (seriesOf.length - 40) + ' séries.'));
+      // cases that are categories (bars with cases on x) or panels
+      if ((m.kind === 'bars' && spec.bars.xAxis === 'cases') || (m.kind === 'panels' && !seriesOf.some((x) => x.key.startsWith('sd:')))) {
+        for (const c of spec.cases.filter((x) => !x.hidden)) legend.push(el('li', el('b', caseLabel(c)), ': ', caseLine(c)));
+      }
+      // items on the x axis with a known meaning (causes, classes…)
+      if ((m.kind === 'bars' || m.kind === 'panels') && spec.bars.xAxis === 'items') {
+        const cats = m.kind === 'bars' ? m.categories : (m.panels[0] ? m.panels[0].model.categories : []);
+        for (const cat of cats.slice(0, 40)) { const t = explainItem(cat.key); if (t) legend.push(el('li', el('b', cat.label), ' (eixo x): ', t)); }
+      }
+    } else if (m.kind === 'cores' || m.kind === 'topo' || m.kind === 'slots') {
+      for (const c of spec.cases.filter((x) => !x.hidden)) legend.push(el('li', el('b', caseLabel(c)), ': ', caseLine(c)));
+      if (m.kind === 'slots' && m.block === 'causes') legend.push(el('li', 'As cores das causas seguem o glossário: ', Object.keys({ Fragmentation: 1, QoTN: 1, QoTO: 1, Crosstalk: 1, 'Crosstalk in other': 1, 'Lack of free spectrum': 1, Other: 1 }).map((k) => k + ' — ' + info.item(k)).join(' · ')));
+    }
+
+    const body = el('div.read-body',
+      aboutPanel(m, spec),
+      axes.length ? blk('Eixos', el('ul.read-list', axes)) : null,
+      how.length ? blk('Como ler', li(how)) : null,
+      legend.length ? blk(m.kind === 'line' || m.kind === 'bars' || m.kind === 'panels' ? 'Itens da legenda' : 'Casos', el('ul.read-list', legend)) : null);
+    const det = el('details.fsec.fig-read', el('summary', 'Como ler este gráfico'), body);
+    const k = 'snets.fig.read.open.' + S.mode;
+    let open = true;
+    try { const v = localStorage.getItem(k); if (v !== null) open = v === '1'; } catch (e) { /* ignore */ }
+    det.open = open;
+    det.addEventListener('toggle', () => { try { localStorage.setItem(k, det.open ? '1' : '0'); } catch (e) { /* ignore */ } });
+    return det;
   }
 
   function applyStyle(m) {
@@ -2576,6 +2868,43 @@
     }
   }
 
+  /**
+   * 1.16.0: what is drawn. Series of hidden cases stay in the model (so every other series keeps its colour, which
+   * comes from the build order) but are not drawn; categories and panels of hidden cases are left out; the series
+   * follow the order chosen in "3. Séries e cores". Returns shallow copies: the built model is not changed.
+   */
+  function caseOfKey(spec, key) {
+    for (const c of spec.cases) if (key === c.path || key.startsWith(c.path + '|') || key === 'trend|' + c.path) return c;
+    return null;
+  }
+  function orderSeries(list, spec) {
+    const ord = Array.isArray(spec.seriesOrder) ? spec.seriesOrder : [];
+    if (!ord.length) return list;
+    const rank = new Map(ord.map((k, i) => [k, i]));
+    return list.map((s, i) => [s, rank.has(s.key) ? rank.get(s.key) : ord.length + i]).sort((a, b) => a[1] - b[1]).map((x) => x[0]);
+  }
+  function viewModel(m, spec) {
+    if (!m || m.empty) return m;
+    const hid = new Set(spec.cases.filter((c) => c.hidden).map((c) => c.path));
+    const fix = (list) => orderSeries(list.map((s) => {
+      const c = caseOfKey(spec, s.key);
+      return c && hid.has(c.path) ? Object.assign({}, s, { hiddenCase: true, style: Object.assign({}, s.style, { visible: false }) }) : s;
+    }), spec);
+    if (m.kind === 'line') return Object.assign({}, m, { series: fix(m.series) });
+    if (m.kind === 'bars') return Object.assign({}, m, { series: fix(m.series), categories: m.categories.filter((c) => !hid.has(c.key)) });
+    if (m.kind === 'panels') {
+      return Object.assign({}, m, { panels: m.panels.filter((p) => !(p.path && hid.has(p.path)))
+        .map((p) => Object.assign({}, p, { model: Object.assign({}, p.model, { series: fix(p.model.series) }) })) });
+    }
+    return m;
+  }
+  function nothingVisible(v) {
+    if (v.kind === 'line') return !v.series.some((s) => s.style.visible !== false);
+    if (v.kind === 'bars') return !v.categories.length || !v.series.some((s) => s.style.visible !== false);
+    if (v.kind === 'panels') return !v.panels.length;
+    return false;
+  }
+
   // ================================================================ entry points
 
   /** Opens the studio with the given cases (e.g. from the Results tab). */
@@ -2626,7 +2955,7 @@
       const d = await App.api.figure(item.slice(6));
       spec = upgrade(JSON.parse(d.text));
     } else spec = newSpec(item, []);
-    spec.cases = cases.map((c) => ({ path: c.path, label: c.label }));
+    spec.cases = cases.map((c) => Object.assign({ path: c.path, label: c.label }, c.hidden ? { hidden: true } : {}));
     if (RP.legendRight) { spec.style.topoLegend = 'right'; spec.style.slotLegend = 'right'; }
     if (RP.lp === 'last') {
       // same load point in every figure: the last one (the topology maps would otherwise draw one map per point)
@@ -2641,7 +2970,12 @@
     const model = await buildModel(spec);
     if (!model || model.empty) return { empty: (model && model.empty) || 'Sem dados.' };
     const keep = S.spec;
-    try { S.spec = spec; applyStyle(model); return { svg: R().render(model, spec.style) }; } finally { S.spec = keep; }
+    try {
+      S.spec = spec; applyStyle(model);
+      const v = viewModel(model, spec);
+      if (nothingVisible(v)) return { empty: 'Nada a desenhar (casos ou séries ocultos).' };
+      return { svg: R().render(v, spec.style) };
+    } finally { S.spec = keep; }
   }
 
   /**
@@ -2807,7 +3141,7 @@
       const notes = [];
       try {
         // Parte 34: one image per case (default) or one image with all cases
-        const groups = RP.perCase ? S.spec.cases.map((c) => ({ label: caseLabel(c), cases: [c] })) : [{ label: '', cases: S.spec.cases }];
+        const groups = RP.perCase ? S.spec.cases.filter((c) => !c.hidden).map((c) => ({ label: caseLabel(c), cases: [c] })) : [{ label: '', cases: S.spec.cases }];
         if (!groups.length) throw new Error('Selecione um ou mais casos na seção 1.');
         for (let gi = 0; gi < groups.length; gi++) {
           const g = groups[gi];
@@ -2828,9 +3162,9 @@
           frame.appendChild(shown);
           const one = (fmt) => async () => {
             try {
-              if (fmt === 'svg') App.downloadText(nameOf(o) + '.svg', R().serialize(o.svg), 'image/svg+xml');
-              else if (fmt === 'png') download(await R().toPng(o.svg, scale()), nameOf(o) + '.png');
-              else { const u = URL.createObjectURL(await reportPdf(o.svg, scale())); download(u, nameOf(o) + '.pdf'); setTimeout(() => URL.revokeObjectURL(u), 5000); }
+              if (fmt === 'svg') App.downloadText(nextName(nameOf(o), 'svg'), R().serialize(o.svg), 'image/svg+xml');
+              else if (fmt === 'png') download(await R().toPng(o.svg, scale()), nextName(nameOf(o), 'png'));
+              else { const u = URL.createObjectURL(await reportPdf(o.svg, scale())); download(u, nextName(nameOf(o), 'pdf')); setTimeout(() => URL.revokeObjectURL(u), 5000); }
             } catch (e) { App.toast(e.message, 'err'); }
           };
           preview.append(el('div.stack-xs', { style: { marginBottom: '18px' } },
@@ -2850,9 +3184,9 @@
       if (!need()) return;
       try {
         for (const o of RP.out) {
-          if (fmt === 'svg') App.downloadText(nameOf(o) + '.svg', R().serialize(o.svg), 'image/svg+xml');
-          else if (fmt === 'png') download(await R().toPng(o.svg, scale()), nameOf(o) + '.png');
-          else { const u = URL.createObjectURL(await reportPdf(o.svg, scale())); download(u, nameOf(o) + '.pdf'); setTimeout(() => URL.revokeObjectURL(u), 8000); }
+          if (fmt === 'svg') App.downloadText(nextName(nameOf(o), 'svg'), R().serialize(o.svg), 'image/svg+xml');
+          else if (fmt === 'png') download(await R().toPng(o.svg, scale()), nextName(nameOf(o), 'png'));
+          else { const u = URL.createObjectURL(await reportPdf(o.svg, scale())); download(u, nextName(nameOf(o), 'pdf')); setTimeout(() => URL.revokeObjectURL(u), 8000); }
           await pause();
         }
         if (RP.out.length > 1) App.toast(RP.out.length + ' arquivos baixados. Se o navegador perguntar, permita vários downloads; ou use "Gravar na pasta".', 'ok', 7000);
@@ -2860,14 +3194,14 @@
     };
     const onePdf = async () => {
       if (!need()) return;
-      try { const u = URL.createObjectURL(await reportPdf(RP.out.map((o) => o.svg), scale())); download(u, safe(baseName()) + '_todos.pdf'); setTimeout(() => URL.revokeObjectURL(u), 8000); } catch (e) { App.toast(e.message, 'err'); }
+      try { const u = URL.createObjectURL(await reportPdf(RP.out.map((o) => o.svg), scale())); download(u, nextName(safe(baseName()) + '_todos', 'pdf')); setTimeout(() => URL.revokeObjectURL(u), 8000); } catch (e) { App.toast(e.message, 'err'); }
     };
     const saveAll = async () => {
       if (!need()) return;
       try {
         let last = '';
         for (const o of RP.out) {
-          const n = nameOf(o);
+          const n = await freeImageName(nameOf(o), 'svg,png,pdf');
           await App.api.saveFigureImage(n, 'svg', R().serialize(o.svg));
           await App.api.saveFigureImage(n, 'png', await R().toPng(o.svg, scale()));
           const d = await App.api.saveFigureImage(n, 'pdf', await blobToDataUrl(await reportPdf(o.svg, scale())));

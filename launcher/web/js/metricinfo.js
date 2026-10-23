@@ -193,6 +193,54 @@
     cause: 'causa do bloqueio (classificação do SNetS, com "other" separado em falta de espectro livre, outros e causas QKD)',
   };
 
+  /**
+   * 1.16.0: what each value of the Cause / Class dimensions means (legend items of the cause charts). The cause
+   * metrics of BlockingProbability.csv ("... by fragmentation") reuse describe().
+   */
+  const ITEMS = {
+    'fragmentation': 'Havia slots livres suficientes no núcleo do candidato em toda a rota, mas não numa faixa contígua (contiguidade) ou não alinhados entre os enlaces (continuidade).',
+    'qotn': 'Nenhuma modulação deixa o novo circuito com a OSNR mínima exigida (qualidade de transmissão do novo circuito).',
+    'qoto': 'O novo circuito derrubaria a OSNR de circuitos já ativos abaixo do limiar deles (qualidade dos outros circuitos).',
+    'crosstalk': 'O crosstalk (XT) que o novo circuito recebe dos núcleos vizinhos passa do limiar da modulação.',
+    'crosstalk in other': 'O novo circuito faria o crosstalk de circuitos já ativos nos núcleos vizinhos passar do limiar deles.',
+    'lack of transmitters': 'Nenhum transmissor livre no nó de origem.',
+    'lack of receivers': 'Nenhum receptor livre no nó de destino.',
+    'lack of free spectrum': 'Falta de espectro de fato: nenhum núcleo utilizável tem slots livres em número suficiente em todos os enlaces da rota.',
+    'free band in a core not tried': 'Havia espaço na fibra, mas num núcleo que o algoritmo não chegou a testar. O spcsav2 testa as modulações da mais eficiente para a menos eficiente e, para cada uma, chama o algoritmo de núcleo e espectro uma única vez; o csbasdm/qabne escolhe o núcleo por rodízio (o "núcleo da vez": 0, 1, 2… e volta ao início, sem olhar se está ocupado) e procura faixa só nele (medium fit no central, last fit nos pares, first fit nos ímpares). Assim, cada requisição testa no máximo um núcleo por modulação. Exemplo com 7 núcleos e 3 modulações: modulação 1 → núcleo 3, sem faixa; modulação 2 → núcleo 4, sem faixa; modulação 3 → núcleo 5, sem faixa → bloqueada, embora o núcleo 0 tivesse uma faixa contínua livre em toda a rota. Como é classificado: quando nenhuma modulação achou faixa, o simulador (Parte 37) olha todos os núcleos utilizáveis da rota (sem o quântico e os desativados) com o número de slots da modulação mais eficiente que alcança a distância; se algum tem uma faixa contínua desse tamanho livre em todos os enlaces, a causa é esta (se só havia slots soltos é Fragmentação; se não havia slots, Falta de espectro livre). Leitura: é ineficiência do algoritmo de alocação, não falta de recurso; uma busca em todos os núcleos teria achado lugar, embora o circuito ainda pudesse falhar na camada física (QoT/XT), que este diagnóstico não testa. No C_1Block a parcela é maior porque o csbasdm mantém o núcleo desativado no rodízio e perde a tentativa quando chega a vez dele; o qabne faz o rodízio só nos núcleos clássicos.',
+    'other': 'O candidato tinha faixa livre, mas nenhum teste físico (QoT, XT) explica a recusa. Com o simulador da Parte 37 sobra pouco aqui.',
+    'qkd session protection': 'Candidato recusado para proteger sessões QKD já ativas: o novo circuito (de qualquer classe) pioraria, pelo crosstalk sobre o núcleo quântico, o QCh de uma sessão além do limite dela.',
+    'qkd qch spectrum': 'Requisição protegida sem slots livres para o(s) QCh(s) no núcleo quântico ao longo do caminho QKD.',
+    'qkd skr': 'A taxa de chave secreta (SKR) possível no caminho, após atenuação e crosstalk, não atende à demanda de chave.',
+    'qkd pich': 'Sem slot para o canal público de reconciliação (PICh) num núcleo clássico.',
+    'qkd qtx/qrx': 'Algum nó (da rede ou confiável) sem QTx ou QRx livre (limite de transceptores quânticos).',
+    'qkd other': 'Requisição protegida recusada por outra condição QKD.',
+    'spectrum: free band available': 'Diagnóstico do espectro: havia faixa livre para o candidato; o bloqueio veio da camada física (QoT/XT) ou da proteção QKD.',
+    'spectrum: contiguity fragmentation': 'Diagnóstico do espectro: os slots livres existiam, mas não vizinhos entre si (fragmentação de contiguidade).',
+    'spectrum: continuity fragmentation': 'Diagnóstico do espectro: cada enlace tinha slots livres, mas em posições diferentes ao longo da rota (fragmentação de continuidade).',
+    'spectrum: not enough free slots': 'Diagnóstico do espectro: faltavam slots livres em algum enlace.',
+    'spectrum: no route': 'Diagnóstico do espectro: não havia rota entre origem e destino.',
+    'spectrum: qkd side': 'Diagnóstico do espectro: a recusa veio do lado QKD (QCh, SKR, PICh ou Q-TRx).',
+    'all': 'Todas as requisições.',
+    'classical': 'Requisições não protegidas por QKD.',
+    'qkd': 'Requisições protegidas por QKD (precisam do circuito clássico e da sessão QKD).',
+  };
+  const ITEM_RE = [
+    [/^qkd blocking probability by classical/i, 'Requisição protegida bloqueada já na parte clássica (sem circuito clássico).'],
+    [/^qkd blocking probability by qch spectrum/i, ITEMS['qkd qch spectrum']],
+    [/^qkd blocking probability by skr/i, ITEMS['qkd skr']],
+    [/^qkd blocking probability by pich/i, ITEMS['qkd pich']],
+    [/^qkd blocking probability by lack of qtx/i, ITEMS['qkd qtx/qrx']],
+    [/^qkd blocking probability by other/i, ITEMS['qkd other']],
+    [/per core (\d+)$/i, 'Valor do núcleo indicado (só requisições cujo candidato estava nesse núcleo).'],
+  ];
+  function item(name) {
+    const k = String(name || '').trim();
+    if (ITEMS[k.toLowerCase()]) return ITEMS[k.toLowerCase()];
+    for (const [re, d] of ITEM_RE) if (re.test(k)) return d;
+    const d = describe(k);
+    return d ? d.desc : null;
+  }
+
   function describe(metric) {
     const name = String(metric || '').trim();
     for (const [re, d, u] of M) if (re.test(name)) return { desc: d, unit: u };
@@ -235,5 +283,5 @@
     return DIMS[String(name || '').trim().toLowerCase()] || null;
   }
 
-  App.metricInfo = { describe, dimension, axisTitle };
+  App.metricInfo = { describe, dimension, axisTitle, item };
 })(window.App);

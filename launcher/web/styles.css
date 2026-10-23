@@ -471,3 +471,18 @@ body.sidebar-collapsed .sidebar { display: none; }
 .picker-item.selected { background: var(--surface-3); font-weight: 600; }
 .picker-empty { padding: 8px; color: var(--fg-3); font-size: 12.5px; }
 p.warn, .small.warn { color: var(--warn); font-weight: 600; }
+
+/* 1.16.0: hidden cases, series order, reference lines, "Como ler este gráfico" */
+.fig-case-vis { display: flex; align-items: center; padding: 0 2px; cursor: pointer; }
+.fig-case.is-hidden, .fig-series.is-hidden { opacity: .55; }
+.fig-case.is-hidden .input { text-decoration: line-through; }
+.fig-series-ord { display: flex; gap: 2px; flex: 0 0 auto; }
+.fig-series-ord .btn.icon { padding: 2px 6px; }
+.fig-refline { display: grid; gap: 4px; border: 1px solid var(--border); border-radius: 6px; padding: 6px; background: var(--surface-2); }
+.fig-refline .input { width: auto; min-width: 0; }
+.fig-read { margin-top: 12px; }
+.fig-read .read-body { display: grid; gap: 10px; padding: 0 12px 12px; max-width: 110ch; }
+.fig-read .metric-about { margin-top: 0; }
+.read-block { display: grid; gap: 4px; font-size: 13px; }
+.read-list { margin: 0; padding-left: 18px; display: grid; gap: 3px; line-height: 1.45; }
+.read-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }

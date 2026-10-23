@@ -87,6 +87,30 @@ final class Figures {
     }
 
     /** Writes an exported image; {@code png} bodies are base64 (optionally a data: URL). */
+    /**
+     * 1.16.0: name that does not overwrite an earlier image: n, n(1), n(2)... The first k free for every extension in
+     * exts is used, so the SVG, PNG and PDF of one save share the number.
+     */
+    String uniqueName(String name, String exts) {
+        String n = clean(name);
+        File d = dir();
+        String[] es = exts == null || exts.trim().isEmpty() ? new String[] {"svg", "png"} : exts.toLowerCase().split("[,; ]+");
+        for (int k = 0; k < 100000; k++) {
+            String c = k == 0 ? n : n + "(" + k + ")";
+            boolean free = true;
+            for (String e : es) {
+                if (!e.isEmpty() && new File(d, c + "." + e).exists()) {
+                    free = false;
+                    break;
+                }
+            }
+            if (free) {
+                return c;
+            }
+        }
+        return n;
+    }
+
     String saveImage(String name, String ext, String body) throws IOException {
         String n = clean(name);
         String e = ext == null ? "" : ext.toLowerCase();

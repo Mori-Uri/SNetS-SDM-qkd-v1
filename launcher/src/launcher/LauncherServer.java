@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
  */
 public final class LauncherServer {
 
-    static final String VERSION = "1.15.0";
+    static final String VERSION = "1.16.1";
 
     private final Settings settings;
     private final Workspace workspace;
@@ -408,6 +408,11 @@ public final class LauncherServer {
                 requirePost(post);
                 Map<String, Object> m = ok();
                 m.put("file", figures.saveImage(required(q, "name"), required(q, "ext"), readBody(ex)));
+                return m;
+            }
+            case "/api/figure/image-name": {
+                Map<String, Object> m = ok();
+                m.put("name", figures.uniqueName(required(q, "name"), q.get("exts")));
                 return m;
             }
             case "/api/figure/delete": {

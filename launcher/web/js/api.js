@@ -54,6 +54,7 @@
     figure: (name) => call('GET', 'figure', { name }),
     saveFigure: (name, json) => call('POST', 'figure', { name }, json),
     saveFigureImage: (name, ext, body) => call('POST', 'figure/image', { name, ext }, body),
+    figureImageName: (name, exts) => call('GET', 'figure/image-name', { name, exts }),
     deleteFigure: (name) => call('POST', 'figure/delete', { name }),
     openFiguresFolder: () => call('POST', 'figures/open-folder'),
   };

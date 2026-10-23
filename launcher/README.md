@@ -304,3 +304,32 @@ Estrutura: `src/launcher/` (servidor Java, sem dependências), `web/` (interface
 
   A ajuda da métrica descreve cada causa.
 - **Simulador:** precisa do jar da Parte 37.
+
+## Versão 1.16.0
+
+Estúdio de gráficos:
+
+- **Como ler este gráfico** (seção recolhível abaixo do gráfico, lembra se estava aberta): a métrica, os eixos
+  (o que são e a unidade), como ler o tipo de gráfico (IC 95 %, empilhado, normalizado, escala log…) e o significado
+  de cada item da legenda: causas de bloqueio, diagnósticos de espectro, classes, e para cada caso os parâmetros em
+  que ele difere dos outros.
+- **Ocultar um caso sem tirá-lo** (caixa à esquerda de cada caso na seção 1): o caso sai do desenho, mas fica na
+  lista; os demais mantêm cor e posição. Nos diagramas por caso (núcleos, topologia, espectro) o caso é omitido.
+- **Pontos de carga mostrados** (gráficos de linha, seção 2): desmarque um ponto para tirá-lo do eixo x.
+- **Ordem das séries** (setas ↑↓ na seção 3): muda a ordem na legenda e no grupo de barras sem mudar as cores.
+  "Restaurar padrão" volta a ordem original.
+- **Eixos**: passo do eixo x e marcas extras nos eixos x e y (valores separados por ";").
+- **Linhas de referência** (seção 6): horizontais (y = valor) ou verticais (x = valor), com rótulo, cor, traço e
+  espessura. Na escala com espaçamento uniforme, um x entre dois pontos é interpolado.
+- **Valores nos pontos das linhas**, casas decimais e tamanho dos valores (barras e linhas).
+- **Largura das barras** (controle deslizante, em % do espaço da categoria) e largura máxima de cada barra em px.
+- **Downloads numerados**: baixar de novo o mesmo arquivo gera bp.svg, bp(1).svg, bp(2).svg… (contagem por nome e
+  formato, guardada no navegador; "Zerar numeração" recomeça). "Gravar imagens na pasta" e "Gravar todos na pasta"
+  do relatório também não sobrescrevem mais: usam o primeiro nome livre (SVG, PNG e PDF de uma gravação com o mesmo
+  número).
+
+## Versão 1.16.1
+
+- A causa "Free band in a core not tried" aparece na legenda como **Núcleo não tentado** (antes "Havia faixa em núcleo
+  não tentado pelo algoritmo"). A explicação completa (rodízio de núcleos do csbasdm/qabne, exemplo, como o
+  simulador classifica e como ler) fica em "Como ler este gráfico". O nome pode ser trocado na seção 3 do estúdio.

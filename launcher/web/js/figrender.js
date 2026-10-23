@@ -49,6 +49,8 @@
       errorBars: 'bars', capWidth: 4, errorWidth: 1.2,
       lineWidth: 2, markerSize: 7, palette: 'office',
       barGap: 0.35, seriesGap: 0.04, barValues: false, barValueDigits: 3, barOutline: false,
+      // 1.16.0: x step, extra ticks, reference lines, values on line points, maximum bar width
+      xStep: '', yTicksExtra: '', xTicksExtra: '', refLines: [], lineValues: false, lineValueDigits: 3, valueSize: 0, barMaxPx: '',
       panelCols: 1, panelGap: 18, panelHeight: 0,
       // cores diagram
       coreCols: 2, coreFiber: '#ededed', coreFiberStroke: '#9a9a9a', coreFill: '#ffffff', coreStroke: '#000000',
@@ -111,6 +113,42 @@
     const start = Math.ceil(min / step - 1e-9) * step;
     for (let v = start; v <= max + step * 1e-6; v += step) out.push(+v.toPrecision(12));
     return { ticks: out, step };
+  }
+
+  /** 1.16.0: "0,05; 0,15" -> [0.05, 0.15] (extra ticks typed by the user). */
+  function parseList(text) {
+    return String(text || '').split(/[;\s]+/).map((t) => App.parseNumber(t)).filter(Number.isFinite);
+  }
+  function mergeTicks(ticks, extra, min, max) {
+    const add = extra.filter((v) => v >= min - 1e-12 && v <= max + 1e-12 && !ticks.some((t) => Math.abs(t - v) <= Math.abs(v) * 1e-9 + 1e-15));
+    return add.length ? ticks.concat(add).sort((a, b) => a - b) : ticks;
+  }
+  /** Reference lines with a valid value; axis 'y' or 'x'. */
+  function refLinesOf(st, axis) {
+    return (Array.isArray(st.refLines) ? st.refLines : []).filter((r) => r && r.show !== false && (r.axis || 'y') === axis && Number.isFinite(App.parseNumber(String(r.value))));
+  }
+  function drawRefLines(root, f, st, xPos) {
+    const fs = st.fontSize;
+    const g = S('g');
+    const P = f.plot;
+    for (const r of refLinesOf(st, 'y')) {
+      const v = App.parseNumber(String(r.value));
+      const y = f.ys(v);
+      if (!(y >= P.y - 0.5 && y <= P.y + P.h + 0.5)) continue;
+      const w = Number(r.width) > 0 ? Number(r.width) : 1.4;
+      g.appendChild(S('line', { x1: P.x, x2: P.x + P.w, y1: y.toFixed(1), y2: y.toFixed(1), stroke: r.color || '#c00000', 'stroke-width': w, 'stroke-dasharray': dashArray(r.dash || 'dashed', w) }));
+      if (r.label) g.appendChild(textEl(r.pos === 'left' ? P.x + 4 : P.x + P.w - 4, y - 4, r.label, { size: fs * 0.9, font: st.font, color: r.color || '#c00000', anchor: r.pos === 'left' ? 'start' : 'end' }));
+    }
+    if (xPos) {
+      for (const r of refLinesOf(st, 'x')) {
+        const x = xPos(App.parseNumber(String(r.value)));
+        if (!(x >= P.x - 0.5 && x <= P.x + P.w + 0.5)) continue;
+        const w = Number(r.width) > 0 ? Number(r.width) : 1.4;
+        g.appendChild(S('line', { x1: x.toFixed(1), x2: x.toFixed(1), y1: P.y, y2: P.y + P.h, stroke: r.color || '#c00000', 'stroke-width': w, 'stroke-dasharray': dashArray(r.dash || 'dashed', w) }));
+        if (r.label) g.appendChild(textEl(x + 4, P.y + fs, r.label, { size: fs * 0.9, font: st.font, color: r.color || '#c00000', anchor: 'start' }));
+      }
+    }
+    root.appendChild(g);
   }
 
   // ------------------------------------------------------------ text measurement
@@ -414,7 +452,8 @@
         for (let k = 2; k < 10; k++) { const v = k * Math.pow(10, e); if (v > min && v < max) minor.push(v); }
       }
       const autoLog = (v) => (v >= 1e-4 && v < 1e5 ? fmtNumber(v, 'fixed', Math.max(0, -Math.floor(Math.log10(v) + 1e-9)), dec) : fmtNumber(v, 'sci', 0, dec));
-      return { log: true, min, max, ticks, minor, fmt: (v) => (fmtMode === 'auto' ? autoLog(v) : fmtNumber(v, fmtMode, digits, dec)) };
+      const tk = mergeTicks(ticks, parseList(st.yTicksExtra).filter((v) => v > 0), min, max);
+      return { log: true, min, max, ticks: tk, minor, fmt: (v) => (fmtMode === 'auto' ? autoLog(v) : fmtNumber(v, fmtMode, digits, dec)) };
     }
     let min = Number.isFinite(userMin) ? userMin : Math.min(0, ...finite);
     let max = Number.isFinite(userMax) ? userMax : (finite.length ? Math.max(...finite) : 1);
@@ -428,7 +467,7 @@
       max = t.ticks[t.ticks.length - 1];
     }
     if (!Number.isFinite(userMin) && t.ticks[0] > min) min = t.ticks[0];
-    return { log: false, min, max, ticks: t.ticks.filter((v) => v >= min - 1e-12 && v <= max + 1e-12), step: t.step, fmt: (v) => fmtNumber(v, fmtMode, digits, dec, t.step) };
+    return { log: false, min, max, ticks: mergeTicks(t.ticks.filter((v) => v >= min - 1e-12 && v <= max + 1e-12), parseList(st.yTicksExtra), min, max), step: t.step, fmt: (v) => fmtNumber(v, fmtMode, digits, dec, t.step) };
   }
 
   // ------------------------------------------------------------ line chart
@@ -438,7 +477,8 @@
     const series = model.series.filter((s) => s.style.visible !== false);
     const pts = series.flatMap((s) => s.points.filter((p) => Number.isFinite(p.mean)));
     const showErr = st.errorBars !== 'none';
-    const yvals = pts.flatMap((p) => showErr && Number.isFinite(p.ci) ? [p.mean - p.ci, p.mean + p.ci] : [p.mean]);
+    const yvals = pts.flatMap((p) => showErr && Number.isFinite(p.ci) ? [p.mean - p.ci, p.mean + p.ci] : [p.mean])
+      .concat(refLinesOf(st, 'y').map((r) => App.parseNumber(String(r.value))));
     const ySpec = yScaleSpec(yvals, st);
 
     // x axis
@@ -452,9 +492,10 @@
       const uMin = App.parseNumber(String(st.xMin)), uMax = App.parseNumber(String(st.xMax));
       let mn = Number.isFinite(uMin) ? uMin : Math.min(...xsAll), mx = Number.isFinite(uMax) ? uMax : Math.max(...xsAll);
       if (!(mx > mn)) { mn -= 1; mx += 1; }
-      const t = xsAll.length <= 12 && !model.scatter && !Number.isFinite(uMin) && !Number.isFinite(uMax) ? { ticks: xsAll, step: 0 } : linearTicks(mn, mx, 8);
+      const xStep = App.parseNumber(String(st.xStep));
+      const t = xsAll.length <= 12 && !model.scatter && !Number.isFinite(uMin) && !Number.isFinite(uMax) && !(xStep > 0) ? { ticks: xsAll, step: 0 } : linearTicks(mn, mx, 8, xStep);
       const pad = Number.isFinite(uMin) || Number.isFinite(uMax) ? 0 : (mx - mn) * 0.03;
-      xSpec = { type: 'num', min: mn - pad, max: mx + pad, ticks: t.ticks, fmt: (v) => (model.xLabel ? model.xLabel(v) : fmtNumber(v, st.xFormat, Number(st.xDigits), st.decimal, t.step || undefined)) };
+      xSpec = { type: 'num', min: mn - pad, max: mx + pad, ticks: mergeTicks(t.ticks, parseList(st.xTicksExtra), mn - pad, mx + pad), fmt: (v) => (model.xLabel ? model.xLabel(v) : fmtNumber(v, st.xFormat, Number(st.xDigits), st.decimal, t.step || undefined)) };
     }
     const xOf = (p) => (catMode ? xsAll.indexOf(p.x) : p.x);
 
@@ -502,9 +543,28 @@
         const m = marker(sty.marker, f.xs(xOf(p)), f.ys(p.mean), sty.markerSize, sty.color, sty.hollow, st.plotBg || st.bg);
         if (m) { m.appendChild(tip(s.name, p, st)); sg.appendChild(m); }
       }
+      if (st.lineValues) {
+        const vs = Number(st.valueSize) > 0 ? Number(st.valueSize) : st.fontSize * 0.8;
+        const off = Math.max(4, (sty.marker === 'none' ? 0 : sty.markerSize / 2) + 3);
+        for (const p of valid) {
+          sg.appendChild(textEl(f.xs(xOf(p)), f.ys(p.mean) - off, fmtNumber(p.mean, st.yFormat === 'auto' ? 'auto' : st.yFormat, Number(st.lineValueDigits), st.decimal),
+            { size: vs, font: st.font, color: sty.color, anchor: 'middle' }));
+        }
+      }
       g.appendChild(sg);
     }
     root.appendChild(g);
+    // 1.16.0: reference lines; on a uniform (category) x axis a value between two points is interpolated
+    const xPos = catMode
+      ? (v) => {
+        if (!xsAll.length) return NaN;
+        let i = xsAll.findIndex((x) => x >= v);
+        if (i < 0) return v === xsAll[xsAll.length - 1] ? f.xs(xsAll.length - 1) : NaN;
+        if (xsAll[i] === v || i === 0) return xsAll[i] === v ? f.xs(i) : NaN;
+        return f.xs(i - 1 + (v - xsAll[i - 1]) / (xsAll[i] - xsAll[i - 1]));
+      }
+      : (v) => f.xs(v);
+    drawRefLines(root, f, st, xPos);
     f.finish();
     return f;
   }
@@ -525,16 +585,20 @@
     } else {
       yvals = series.flatMap((s) => cats.map((c) => val(s, c)).filter(Boolean).map((v) => (showErr && Number.isFinite(v.ci) ? v.mean + v.ci : v.mean)));
     }
+    yvals = yvals.concat(refLinesOf(st, 'y').map((r) => App.parseNumber(String(r.value))));
     const stLocal = model.normalize && st.yFormat === 'auto' ? Object.assign({}, st, { yFormat: 'percent', yDigits: 0 }) : st;
     const ySpec = yScaleSpec(yvals, stLocal, model.normalize ? { forceMax: 1 } : {});
     const xSpec = { type: 'band', labels: cats.map((c) => c.label) };
     const legendItems = series.map((s) => ({ name: s.name, color: s.style.color, kind: 'bar' }));
     const f = frame(root, stLocal, box, ySpec, xSpec, (series.length > 1 || model.forceLegend) ? legendItems : null, opts);
     const bw = f.band.bw;
-    const inner = bw * (1 - st.barGap);
+    const maxPx = App.parseNumber(String(st.barMaxPx));
+    let inner = bw * (1 - st.barGap);
+    if (maxPx > 0 && model.stacked) inner = Math.min(inner, maxPx);
     const g = S('g');
     const y0 = f.ys(ySpec.log ? ySpec.min : Math.max(ySpec.min, 0));
     const fs = st.fontSize;
+    const vfs = Number(st.valueSize) > 0 ? Number(st.valueSize) : 0;
     cats.forEach((c, ci) => {
       const cx = f.xs(ci);
       if (model.stacked) {
@@ -550,20 +614,22 @@
           seg.appendChild(tip(c.label + ' · ' + s.name, v, st, model.normalize ? v.mean / tot : null));
           g.appendChild(seg);
           if (st.barValues && ya - yb > fs * 1.1) {
-            g.appendChild(textEl(cx, (ya + yb) / 2 + fs * 0.33, fmtNumber(model.normalize ? (v.mean / tot) : v.mean, model.normalize ? 'percent' : st.yFormat === 'auto' ? 'auto' : st.yFormat, model.normalize ? 0 : Number(st.barValueDigits), st.decimal), { size: fs * 0.85, font: st.font, color: st.textColor, anchor: 'middle' }));
+            g.appendChild(textEl(cx, (ya + yb) / 2 + fs * 0.33, fmtNumber(model.normalize ? (v.mean / tot) : v.mean, model.normalize ? 'percent' : st.yFormat === 'auto' ? 'auto' : st.yFormat, model.normalize ? 0 : Number(st.barValueDigits), st.decimal), { size: vfs || fs * 0.85, font: st.font, color: st.textColor, anchor: 'middle' }));
           }
         }
         if (st.barValues && !model.normalize) {
-          g.appendChild(textEl(cx, f.ys(totals[ci]) - 4, fmtNumber(totals[ci], st.yFormat === 'auto' ? 'auto' : st.yFormat, Number(st.barValueDigits), st.decimal), { size: fs * 0.85, font: st.font, color: st.textColor, anchor: 'middle' }));
+          g.appendChild(textEl(cx, f.ys(totals[ci]) - 4, fmtNumber(totals[ci], st.yFormat === 'auto' ? 'auto' : st.yFormat, Number(st.barValueDigits), st.decimal), { size: vfs || fs * 0.85, font: st.font, color: st.textColor, anchor: 'middle' }));
         }
       } else {
         const n = series.length;
         const gap = inner * st.seriesGap;
-        const w = n ? (inner - gap * (n - 1)) / n : inner;
+        let w = n ? (inner - gap * (n - 1)) / n : inner;
+        if (maxPx > 0) w = Math.min(w, maxPx);
+        const groupW = n ? n * w + gap * (n - 1) : inner;
         series.forEach((s, si) => {
           const v = val(s, c);
           if (!v) return;
-          const x = cx - inner / 2 + si * (w + gap);
+          const x = cx - groupW / 2 + si * (w + gap);
           const y = f.ys(ySpec.log ? Math.max(v.mean, ySpec.min) : v.mean);
           const rect = S('rect', { x: x.toFixed(2), y: Math.min(y, y0).toFixed(2), width: Math.max(0.5, w).toFixed(2), height: Math.abs(y0 - y).toFixed(2), fill: s.style.color, stroke: st.barOutline ? '#000' : null, 'stroke-width': st.barOutline ? 0.6 : null });
           rect.appendChild(tip(c.label + ' · ' + s.name, v, st));
@@ -581,13 +647,14 @@
             const lbl = fmtNumber(v.mean, st.yFormat === 'auto' ? 'auto' : st.yFormat, Number(st.barValueDigits), st.decimal);
             if (w >= fs * 0.9) {
               const tx = x + w / 2, ty = Math.min(y, y0) - 4;
-              g.appendChild(textEl(tx, ty, lbl, { size: fs * 0.8, font: st.font, color: st.textColor, anchor: w < textWidth(lbl, fs * 0.8, st.font) ? 'start' : 'middle', transform: w < textWidth(lbl, fs * 0.8, st.font) ? `rotate(-90 ${tx.toFixed(1)} ${ty.toFixed(1)})` : null }));
+              g.appendChild(textEl(tx, ty, lbl, { size: vfs || fs * 0.8, font: st.font, color: st.textColor, anchor: w < textWidth(lbl, vfs || fs * 0.8, st.font) ? 'start' : 'middle', transform: w < textWidth(lbl, vfs || fs * 0.8, st.font) ? `rotate(-90 ${tx.toFixed(1)} ${ty.toFixed(1)})` : null }));
             }
           }
         });
       }
     });
     root.appendChild(g);
+    drawRefLines(root, f, stLocal, null);
     f.finish();
     return f;
   }
